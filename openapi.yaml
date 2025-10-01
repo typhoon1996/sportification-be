@@ -1,0 +1,624 @@
+openapi: 3.0.3
+info:
+  title: Sports Companion API
+  version: 1.0.0
+servers:
+  - url: https://api.sportification.app/v1
+
+paths:
+  /users:
+    get:
+      summary: List users
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created
+
+  /users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get user
+      responses:
+        '200':
+          description: User data
+    patch:
+      summary: Update user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated
+
+  /matches:
+    get:
+      summary: List matches
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create match
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Match'
+      responses:
+        '201':
+          description: Match created
+
+  /matches/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get match
+      responses:
+        '200':
+          description: Match data
+    patch:
+      summary: Update match
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Match'
+      responses:
+        '200':
+          description: Match updated
+
+  /tournaments:
+    get:
+      summary: List tournaments
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create tournament
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tournament'
+      responses:
+        '201':
+          description: Tournament created
+
+  /tournaments/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get tournament
+      responses:
+        '200':
+          description: Tournament data
+    patch:
+      summary: Update tournament
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tournament'
+      responses:
+        '200':
+          description: Tournament updated
+
+  /notifications:
+    get:
+      summary: List notifications
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+      responses:
+        '201':
+          description: Notification created
+
+  /chats:
+    get:
+      summary: List chats
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chat'
+      responses:
+        '201':
+          description: Chat created
+
+  /chats/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get chat
+      responses:
+        '200':
+          description: Chat data
+    patch:
+      summary: Update chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chat'
+      responses:
+        '200':
+          description: Chat updated
+
+  /profiles:
+    get:
+      summary: List profiles
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        '201':
+          description: Profile created
+
+  /profiles/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get profile
+      responses:
+        '200':
+          description: Profile data
+    patch:
+      summary: Update profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        '200':
+          description: Profile updated
+
+  /settings/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get settings
+      responses:
+        '200':
+          description: Settings data
+    patch:
+      summary: Update settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Settings'
+      responses:
+        '200':
+          description: Settings updated
+
+  /admintools/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get admin tool
+      responses:
+        '200':
+          description: Tool data
+    patch:
+      summary: Update admin tool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTool'
+      responses:
+        '200':
+          description: Tool updated
+
+  /venues:
+    get:
+      summary: List venues
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create venue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+      responses:
+        '201':
+          description: Venue created
+
+  /venues/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get venue
+      responses:
+        '200':
+          description: Venue data
+    patch:
+      summary: Update venue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+      responses:
+        '200':
+          description: Venue updated
+
+  /messages:
+    get:
+      summary: List messages
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '201':
+          description: Message created
+
+  /messages/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get message
+      responses:
+        '200':
+          description: Message data
+    patch:
+      summary: Update message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          description: Message updated
+
+  /media:
+    get:
+      summary: List media
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create media
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Media'
+      responses:
+        '201':
+          description: Media created
+
+  /media/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get media
+      responses:
+        '200':
+          description: Media data
+    patch:
+      summary: Update media
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Media'
+      responses:
+        '200':
+          description: Media updated
+
+  /threads:
+    get:
+      summary: List threads
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create thread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Thread'
+      responses:
+        '201':
+          description: Thread created
+
+  /threads/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get thread
+      responses:
+        '200':
+          description: Thread data
+    patch:
+      summary: Update thread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Thread'
+      responses:
+        '200':
+          description: Thread updated
+
+  /achievements:
+    get:
+      summary: List achievements
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create achievement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Achievement'
+      responses:
+        '201':
+          description: Achievement created
+
+  /achievements/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Get achievement
+      responses:
+        '200':
+          description: Achievement data
+    patch:
+      summary: Update achievement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Achievement'
+      responses:
+        '200':
+          description: Achievement updated
+
+components:
+  parameters:
+    Id:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        profile: { $ref: '#/components/schemas/Profile' }
+        preferences: { type: object }
+        stats: { type: object }
+        friends:
+          type: array
+          items: { type: string }
+        followers:
+          type: array
+          items: { type: string }
+        achievements:
+          type: array
+          items: { type: string }
+
+    Match:
+      type: object
+      properties:
+        id: { type: string }
+        type:
+          type: string
+          enum: [public, private]
+        status:
+          type: string
+          enum: [upcoming, ongoing, completed, expired]
+        participants:
+          type: array
+          items: { type: string }
+        schedule: { type: object }
+        venue: { $ref: '#/components/schemas/Venue' }
+        rules: { type: object }
+        chat: { type: string }
+
+    Tournament:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        matches:
+          type: array
+          items: { type: string }
+        bracket: { type: object }
+        standings:
+          type: array
+          items: { type: string }
+        rules: { type: object }
+        chat: { type: string }
+
+    Notification:
+      type: object
+      properties:
+        id: { type: string }
+        type:
+          type: string
+          enum: [match, tournament, system, chat, alert]
+        message: { type: string }
+        timestamp:
+          type: string
+          format: date-time
+        read: { type: boolean }
+        action: { type: object }
+
+    Chat:
+      type: object
+      properties:
+        id: { type: string }
+        participants:
+          type: array
+          items: { type: string }
+        messages:
+          type: array
+          items: { type: string }
+        media:
+          type: array
+          items: { type: string }
+        reactions: { type: object }
+        threads:
+          type: array
+          items: { type: string }
+
+    Profile:
+      type: object
+      properties:
+        id: { type: string }
+        avatar: { type: string }
+        bio: { type: string }
+        achievements:
+          type: array
+          items: { type: string }
+        qrCode: { type: string }
+
+    Settings:
+      type: object
+      properties:
+        id: { type: string }
+        account: { type: object }
+        preferences: { type: object }
+        privacy: { type: object }
+        security: { type: object }
+        support: { type: object }
+
+    AdminTool:
+      type: object
+      properties:
+        id: { type: string }
+        roster:
+          type: array
+          items: { type: string }
+        scoreInput: { type: object }
+        bracketEditor: { type: object }
+        analytics: { type: object }
+        refunds: { type: object }
+
+    Venue:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        location: { type: object }
+        surfaceType: { type: string }
+        capacity: { type: integer }
+
+    Message:
+      type: object
+      properties:
+        id: { type: string }
+        sender: { type: string }
+        content: { type: string }
+        timestamp:
+          type: string
+          format: date-time
+        media:
+          type: array
+          items: { type: string }
+        reactions: { type: object }
+        thread: { type: string }
+
+    Media:
+      type: object
+      properties:
+        id: { type: string }
+        url: { type: string }
+        type:
+          type: string
+          enum: [image, video, file]
+        uploadedBy: { type: string }
+        timestamp:
+          type: string
+          format: date-time
+
+    Thread:
+      type: object
+      properties:
+        id: { type: string }
+        parentMessage: { type: string }
+        messages:
+          type: array
+          items: { type: string }
+
+    Achievement:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        icon: { type: string }
