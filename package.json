@@ -1,5 +1,5 @@
 {
-  "name": "sportificatoin-be",
+  "name": "sportification-be",
   "version": "1.0.0",
   "description": "Backend API for Sports Companion Application",
   "main": "dist/index.js",

@@ -2,24 +2,24 @@ services:
   # MongoDB Database
   mongodb:
     image: mongo:7.0
-    container_name: sportificatoin-mongo
+    container_name: sportification-mongo
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: sportificatoin_dev
+      MONGO_INITDB_DATABASE: sportification_dev
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
       - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
-      - sportificatoin-network
+      - sportification-network
 
   # Redis Cache (Optional)
   redis:
     image: redis:7.2-alpine
-    container_name: sportificatoin-redis
+    container_name: sportification-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -27,21 +27,21 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     networks:
-      - sportificatoin-network
+      - sportification-network
 
   # API Application
   api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: sportificatoin-api
+    container_name: sportification-api
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: development
       PORT: 3000
-      MONGODB_URI: mongodb://admin:password123@mongodb:27017/sportificatoin_dev?authSource=admin
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/sportification_dev?authSource=admin
       REDIS_URL: redis://redis:6379
       JWT_SECRET: dev-jwt-secret-change-in-production
       JWT_REFRESH_SECRET: dev-refresh-secret-change-in-production
@@ -51,7 +51,7 @@ services:
       - mongodb
       - redis
     networks:
-      - sportificatoin-network
+      - sportification-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
@@ -61,7 +61,7 @@ services:
   # Nginx Reverse Proxy (Optional)
   nginx:
     image: nginx:1.25-alpine
-    container_name: sportificatoin-nginx
+    container_name: sportification-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -72,12 +72,12 @@ services:
     depends_on:
       - api
     networks:
-      - sportificatoin-network
+      - sportification-network
 
 volumes:
   mongodb_data:
   redis_data:
 
 networks:
-  sportificatoin-network:
+  sportification-network:
     driver: bridge
