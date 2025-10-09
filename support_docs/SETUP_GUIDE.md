@@ -81,6 +81,11 @@ JWT_REFRESH_EXPIRES_IN=7d
 # Security
 BCRYPT_ROUNDS=12
 
+# Sessions & Rate Limiting
+SESSION_COOKIE_NAME=sportification.sid
+SESSION_TTL=86400
+SESSION_REDIS_PREFIX=sportification:session:
+
 # CORS - Add your frontend URL here
 CORS_ORIGIN=http://localhost:3000
 
@@ -88,7 +93,7 @@ CORS_ORIGIN=http://localhost:3000
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 
-# Optional: Redis for caching
+# Redis (sessions, caching, rate limiting)
 REDIS_URL=redis://localhost:6379
 
 # Optional: Email configuration
@@ -99,14 +104,16 @@ EMAIL_PASS=your-app-password
 
 #### 4. Start MongoDB
 
-**Option A: Local MongoDB**
+##### Option A: Local MongoDB
+
 ```bash
 # Start MongoDB service
 sudo systemctl start mongod  # Linux
 brew services start mongodb  # macOS
 ```
 
-**Option B: MongoDB Atlas (Recommended)**
+##### Option B: MongoDB Atlas (Recommended)
+
 1. Create account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 2. Create a new cluster
 3. Get connection string and update `MONGODB_URI` in `.env`
@@ -144,6 +151,7 @@ docker-compose logs -f api
 ```
 
 This will start:
+
 - API server on `http://localhost:3000`
 - MongoDB on `localhost:27017`
 - Redis on `localhost:6379`
@@ -527,6 +535,7 @@ curl http://localhost:3000/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "OK",
@@ -539,6 +548,7 @@ Expected response:
 ### 2. API Documentation
 
 Visit the Swagger documentation:
+
 - Open browser: `http://localhost:3000/api-docs`
 
 ### 3. Test Authentication
@@ -589,7 +599,7 @@ const testAuth = async () => {
 const testSocket = () => {
   const socket = io('http://localhost:3000');
   
-  socket.on('connect', () => {
+1. **Backend Changes**:
     console.log('Socket connected');
     
     // Test authentication
@@ -638,6 +648,7 @@ npm start
 ### 3. Database Management
 
 **View Data:**
+
 ```bash
 # Connect to MongoDB
 mongo mongodb://localhost:27017/sportificatoin_dev
@@ -653,6 +664,7 @@ db.matches.find().pretty()
 ```
 
 **Reset Database:**
+
 ```bash
 # Drop database
 mongo mongodb://localhost:27017/sportificatoin_dev --eval "db.dropDatabase()"
@@ -708,11 +720,13 @@ runTests();
 ### Common Issues
 
 #### 1. CORS Errors
-```
+
+```text
 Access to fetch at 'http://localhost:3000/api/v1/auth/login' from origin 'http://localhost:3001' has been blocked by CORS policy
 ```
 
 **Solution:**
+
 - Add your frontend URL to backend `.env`:
   ```bash
   CORS_ORIGIN=http://localhost:3001
@@ -720,41 +734,49 @@ Access to fetch at 'http://localhost:3000/api/v1/auth/login' from origin 'http:/
 - Restart backend server
 
 #### 2. MongoDB Connection Failed
-```
+
+```text
 MongoServerError: connect ECONNREFUSED 127.0.0.1:27017
 ```
 
 **Solutions:**
+
 - Start MongoDB service: `sudo systemctl start mongod`
 - Use MongoDB Atlas: Update `MONGODB_URI` in `.env`
 - Check if MongoDB is running: `mongo --eval "db.stats()"`
 
 #### 3. Port Already in Use
-```
+
+```text
 Error: listen EADDRINUSE :::3000
 ```
 
 **Solutions:**
+
 - Kill process using port: `sudo lsof -ti:3000 | xargs kill -9`
 - Use different port: Change `PORT=3001` in `.env`
 
 #### 4. JWT Token Issues
-```
+
+```text
 401 Unauthorized - Invalid token
 ```
 
 **Solutions:**
+
 - Check token in localStorage: `localStorage.getItem('auth_token')`
 - Verify token format: Should start with `eyJ`
 - Check if token expired: Login again
 - Verify JWT_SECRET in backend `.env`
 
 #### 5. WebSocket Connection Failed
-```
+
+```text
 WebSocket connection failed
 ```
 
 **Solutions:**
+
 - Check if server is running
 - Verify socket URL in frontend
 - Check browser console for detailed errors
@@ -763,6 +785,7 @@ WebSocket connection failed
 ### Debug Tools
 
 #### 1. Backend Debugging
+
 ```bash
 # Enable debug logs
 DEBUG=* npm run dev
@@ -772,6 +795,7 @@ DEBUG=express:*,mongoose:* npm run dev
 ```
 
 #### 2. Frontend Debugging
+
 ```javascript
 // Enable API debugging
 localStorage.setItem('debug', 'api:*');
@@ -781,6 +805,7 @@ localStorage.setItem('debug', 'socket.io-client:*');
 ```
 
 #### 3. Network Monitoring
+
 - Use browser DevTools → Network tab
 - Monitor API calls and responses
 - Check request/response headers
@@ -789,6 +814,7 @@ localStorage.setItem('debug', 'socket.io-client:*');
 ### Environment Variables Checklist
 
 **Backend (.env):**
+
 - [ ] `NODE_ENV=development`
 - [ ] `PORT=3000`
 - [ ] `MONGODB_URI=mongodb://localhost:27017/sportificatoin_dev`
@@ -796,6 +822,7 @@ localStorage.setItem('debug', 'socket.io-client:*');
 - [ ] `CORS_ORIGIN=http://localhost:3000` (your frontend URL)
 
 **Frontend (.env):**
+
 - [ ] `REACT_APP_API_URL=http://localhost:3000/api/v1`
 - [ ] `REACT_APP_SOCKET_URL=http://localhost:3000`
 
@@ -814,6 +841,7 @@ localStorage.setItem('debug', 'socket.io-client:*');
 When deploying to production, update environment variables:
 
 **Backend:**
+
 ```bash
 NODE_ENV=production
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/sportificatoin
@@ -822,6 +850,7 @@ JWT_SECRET=super-secure-production-secret
 ```
 
 **Frontend:**
+
 ```bash
 REACT_APP_API_URL=https://api.yourdomain.com/api/v1
 REACT_APP_SOCKET_URL=https://api.yourdomain.com

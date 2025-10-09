@@ -1,32 +1,22 @@
-import express from "express";
-import cors from "cors";
 import { Server } from "http";
+
+import RedisStore from "connect-redis";
+import cors from "cors";
+import express from "express";
+import session from "express-session";
 import { Server as SocketIOServer } from "socket.io";
 import swaggerUi from "swagger-ui-express";
-import session from "express-session";
 
 import config from "./config";
 import Database from "./config/database";
-import logger from "./utils/logger";
-import { JWTUtil } from "./utils/jwt";
-import { User } from "./models/User";
-import swaggerSpecs from "./docs/swagger";
 import passport from "./config/passport";
+import { closeRateLimitStore } from "./config/rateLimitStore";
+import { createRedisClient, RedisClient } from "./config/redis";
+import swaggerSpecs from "./docs/swagger";
 
 // Middleware
-import {
-  corsOptions,
-  helmetConfig,
-  compressionMiddleware,
-  sanitizeRequest,
-  preventParameterPollution,
-  securityHeaders,
-  requestLogger,
-  generalLimiter,
-} from "./middleware/security";
 
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
-
 import {
   advancedRequestLogger,
   securityLogger,
@@ -35,12 +25,6 @@ import {
 } from "./middleware/logging";
 
 // Routes
-import authRoutes from "./routes/auth";
-import userRoutes from "./routes/users";
-import matchRoutes from "./routes/matches";
-import tournamentRoutes from "./routes/tournaments";
-import teamRoutes from "./routes/teams";
-import notificationRoutes from "./routes/notifications";
 import venueRoutes from "./routes/venues";
 import chatRoutes from "./routes/chats";
 import apiKeyRoutes from "./routes/apiKeys";
@@ -54,11 +38,31 @@ import {
   requestCorrelation,
   setupAPM,
 } from "./middleware/performance";
+import {
+  corsOptions,
+  helmetConfig,
+  compressionMiddleware,
+  sanitizeRequest,
+  preventParameterPollution,
+  securityHeaders,
+  requestLogger,
+  generalLimiter,
+} from "./middleware/security";
+import { User } from "./models/User";
+import authRoutes from "./routes/auth";
+import matchRoutes from "./routes/matches";
+import notificationRoutes from "./routes/notifications";
+import teamRoutes from "./routes/teams";
+import tournamentRoutes from "./routes/tournaments";
+import userRoutes from "./routes/users";
+import { JWTUtil } from "./utils/jwt";
+import logger from "./utils/logger";
 
 class App {
   public app: express.Application;
   public server: Server;
   public io: SocketIOServer;
+  private readonly sessionRedisClient?: RedisClient;
 
   constructor() {
     this.app = express();
@@ -67,6 +71,13 @@ class App {
       cors: corsOptions,
       transports: ["websocket", "polling"],
     });
+
+    if (config.app.env !== "test") {
+      this.sessionRedisClient = createRedisClient({
+        keyPrefix: "sportification:",
+        lazyConnect: false,
+      });
+    }
 
     this.initializeMiddleware();
     this.initializeRoutes();
@@ -109,18 +120,37 @@ class App {
     this.app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
     // Session middleware for OAuth
-    this.app.use(
-      session({
-        secret: config.jwt.secret,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          secure: config.app.env === "production",
-          httpOnly: true,
-          maxAge: 60 * 60 * 1000, // 1 hour
-        },
-      })
-    );
+    const sessionOptions: session.SessionOptions = {
+      secret: config.jwt.secret,
+      resave: false,
+      saveUninitialized: false,
+      name: config.session.cookieName,
+      cookie: {
+        secure: config.app.env === "production",
+        httpOnly: true,
+        maxAge: config.session.ttl * 1000,
+        sameSite: "lax",
+      },
+    };
+
+    if (this.sessionRedisClient) {
+      try {
+        sessionOptions.store = new RedisStore({
+          client: this.sessionRedisClient,
+          prefix: config.session.prefix,
+          ttl: config.session.ttl,
+          disableTouch: false,
+        });
+      } catch (error) {
+        logger.error("Failed to initialize Redis session store:", error);
+      }
+    } else if (config.app.env !== "test") {
+      logger.warn(
+        "Redis session store not initialized; falling back to in-memory sessions"
+      );
+    }
+
+    this.app.use(session(sessionOptions));
 
     // Passport middleware
     this.app.use(passport.initialize());
@@ -531,6 +561,16 @@ class App {
         const database = Database.getInstance();
         await database.disconnect();
         logger.info("Database connection closed");
+
+        if (this.sessionRedisClient) {
+          await this.sessionRedisClient.quit();
+          logger.info("Redis session store connection closed");
+        }
+
+        const rateLimitStoreClosed = await closeRateLimitStore();
+        if (rateLimitStoreClosed) {
+          logger.info("Redis rate limit store connection closed");
+        }
 
         logger.info("Graceful shutdown completed");
         process.exit(0);

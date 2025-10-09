@@ -1,20 +1,20 @@
-import winston from 'winston';
-import path from 'path';
-import config from '../config';
+import winston from "winston";
+import path from "path";
+import config from "../config";
 
 // Custom format for console output
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.printf(({ timestamp, level, message, ...meta }) => {
-    const metaString = Object.keys(meta).length ? JSON.stringify(meta) : '';
+    const metaString = Object.keys(meta).length ? JSON.stringify(meta) : "";
     return `${timestamp} [${level}]: ${message} ${metaString}`;
   })
 );
 
 // Custom format for file output
 const fileFormat = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.errors({ stack: true }),
   winston.format.json()
 );
@@ -23,7 +23,7 @@ const fileFormat = winston.format.combine(
 const transports: winston.transport[] = [];
 
 // Console transport for development
-if (config.app.env === 'development') {
+if (config.app.env === "development") {
   transports.push(
     new winston.transports.Console({
       format: consoleFormat,
@@ -36,8 +36,8 @@ if (config.app.env === 'development') {
 transports.push(
   // Error log file
   new winston.transports.File({
-    filename: path.join(process.cwd(), 'logs', 'error.log'),
-    level: 'error',
+    filename: path.join(process.cwd(), "logs", "error.log"),
+    level: "error",
     format: fileFormat,
     maxsize: 5242880, // 5MB
     maxFiles: 5,
@@ -55,30 +55,30 @@ transports.push(
 const logger = winston.createLogger({
   level: config.logging.level,
   format: fileFormat,
-  defaultMeta: { service: 'sportificatoin-api' },
+  defaultMeta: { service: "sportification-api" },
   transports,
   // Handle exceptions
   exceptionHandlers: [
     new winston.transports.File({
-      filename: path.join(process.cwd(), 'logs', 'exceptions.log'),
+      filename: path.join(process.cwd(), "logs", "exceptions.log"),
       format: fileFormat,
     }),
   ],
   // Handle rejections
   rejectionHandlers: [
     new winston.transports.File({
-      filename: path.join(process.cwd(), 'logs', 'rejections.log'),
+      filename: path.join(process.cwd(), "logs", "rejections.log"),
       format: fileFormat,
     }),
   ],
 });
 
 // Add console transport for production errors
-if (config.app.env === 'production') {
+if (config.app.env === "production") {
   logger.add(
     new winston.transports.Console({
       format: winston.format.simple(),
-      level: 'error',
+      level: "error",
     })
   );
 }

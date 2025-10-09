@@ -2,16 +2,16 @@
 // This script runs when the MongoDB container starts for the first time
 
 // Switch to the application database
-db = db.getSiblingDB('sportificatoin_dev');
+db = db.getSiblingDB('sportification_dev');
 
 // Create application user with read/write permissions
 db.createUser({
-  user: 'sportificatoin_user',
-  pwd: 'sportificatoin_pass',
+  user: 'sportification_user',
+  pwd: 'sportification_pass',
   roles: [
     {
       role: 'readWrite',
-      db: 'sportificatoin_dev'
+  db: 'sportification_dev'
     }
   ]
 });
@@ -187,7 +187,7 @@ db.chats.createIndex({ participants: 1 });
 db.messages.createIndex({ chat: 1, timestamp: -1 });
 
 print('Database initialization completed!');
-print('Created database: sportificatoin_dev');
-print('Created user: sportificatoin_user');
+print('Created database: sportification_dev');
+print('Created user: sportification_user');
 print('Created collections with validation rules');
 print('Created performance indexes');

@@ -48,10 +48,13 @@ if [ ! -f .env ]; then
         cat > .env << EOF
 NODE_ENV=development
 PORT=3000
-MONGODB_URI=mongodb://localhost:27017/sportificatoin
+MONGODB_URI=mongodb://localhost:27017/sportification
 JWT_SECRET=your-secret-key-change-in-production
 JWT_REFRESH_SECRET=your-refresh-secret-change-in-production
 REDIS_URL=redis://localhost:6379
+SESSION_COOKIE_NAME=sportification.sid
+SESSION_TTL=3600
+SESSION_REDIS_PREFIX=session:
 EOF
         echo "✅ Created basic .env file"
     fi

@@ -47,7 +47,7 @@ For the fastest setup, use our automated setup script:
 
 ```bash
 git clone <repository-url>
-cd sportificatoin-be
+cd sportification-be
 ./scripts/setup.sh
 ```
 
@@ -64,7 +64,7 @@ This script will:
 
    ```bash
    git clone <repository-url>
-   cd sportificatoin-be
+   cd sportification-be
    ```
 
 2. **Install dependencies**
@@ -104,7 +104,7 @@ This script will:
 
    ```bash
    git clone <repository-url>
-   cd sportificatoin-be
+   cd sportification-be
    ```
 
 2. **Start with Docker Compose**
@@ -126,17 +126,17 @@ This script will:
 1. **Build production image**
 
    ```bash
-   docker build -t sportificatoin-api:latest .
+   docker build -t sportification-api:latest .
    ```
 
 2. **Run with production environment**
 
    ```bash
-   docker run -d \
-     --name sportificatoin-api \
+      docker run -d \
+         --name sportification-api \
      -p 3000:3000 \
      --env-file .env.production \
-     sportificatoin-api:latest
+   sportification-api:latest
    ```
 
 ### Environment Variables
@@ -148,7 +148,7 @@ Create appropriate `.env` files for your environment:
 ```bash
 NODE_ENV=development
 PORT=3000
-MONGODB_URI=mongodb://localhost:27017/sportificatoin_dev
+MONGODB_URI=mongodb://localhost:27017/sportification_dev
 JWT_SECRET=your-dev-jwt-secret
 JWT_REFRESH_SECRET=your-dev-refresh-secret
 CORS_ORIGIN=http://localhost:3000
@@ -159,7 +159,7 @@ CORS_ORIGIN=http://localhost:3000
 ```bash
 NODE_ENV=production
 PORT=3000
-MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/sportificatoin_prod
+MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/sportification_prod
 JWT_SECRET=your-super-secure-jwt-secret
 JWT_REFRESH_SECRET=your-super-secure-refresh-secret
 CORS_ORIGIN=https://yourdomain.com
@@ -368,7 +368,7 @@ src/
 ## 🏗️ Project Structure
 
 ```markdown
-sportificatoin-be/
+sportification-be/
 ├── src/
 │   ├── config/            # Configuration files
 │   │   ├── index.ts       # Main config
@@ -627,7 +627,7 @@ npm run lint
 If you're still experiencing issues:
 
 1. **Check Documentation**: Review docs in `/docs` directory
-2. **Search Issues**: Check [GitHub Issues](https://github.com/SlenderShield/sportificatoin-be/issues)
+2. **Search Issues**: Check [GitHub Issues](https://github.com/SlenderShield/sportification-be/issues)
 3. **Create an Issue**: Provide:
    - Error message
    - Steps to reproduce

@@ -28,26 +28,26 @@ We are committed to providing a welcoming and inclusive environment for all cont
 ### Development Setup
 
 1. **Fork and Clone the Repository**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/sportificatoin-be.git
-   cd sportificatoin-be
-   ```
+  ```bash
+  git clone https://github.com/YOUR_USERNAME/sportificatoin-be.git
+  cd sportificatoin-be
+  ```
 
 2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+  ```bash
+  npm install
+  ```
 
 3. **Set Up Environment Variables**
-   ```bash
-   cp .env.development .env
-   # Edit .env with your configuration
-   ```
+  ```bash
+  cp .env.development .env
+  # Edit .env with your configuration
+  ```
 
 4. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
+  ```bash
+  npm run dev
+  ```
 
 ## Coding Standards
 

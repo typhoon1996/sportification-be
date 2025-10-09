@@ -1,52 +1,45 @@
-import Redis from 'ioredis';
-import config from '../config';
-import logger from './logger';
+import logger from "./logger";
+import { createRedisClient, RedisClient } from "../config/redis";
 
 /**
  * Redis Cache Service
- * 
+ *
  * Provides caching functionality with automatic serialization/deserialization
  * and connection management with retry logic
  */
 
 class CacheService {
-  private readonly redis: Redis;
+  private readonly redis: RedisClient;
   private isConnected: boolean = false;
 
   constructor() {
-    this.redis = new (require('ioredis'))(config.redis.url, {
-      maxRetriesPerRequest: 3,
+    this.redis = createRedisClient({
       lazyConnect: true,
-      keepAlive: 30000,
-      family: 4,
-      keyPrefix: 'sportificatoin:',
+      keyPrefix: "sportification:cache:",
     });
 
     this.setupEventHandlers();
   }
 
   private setupEventHandlers(): void {
-    this.redis.on('connect', () => {
-      logger.info('📡 Redis connected successfully');
+    this.redis.on("connect", () => {
       this.isConnected = true;
     });
 
-    this.redis.on('ready', () => {
-      logger.info('🚀 Redis is ready to receive commands');
+    this.redis.on("ready", () => {
+      this.isConnected = true;
     });
 
-    this.redis.on('error', (error: Error) => {
-      logger.error('❌ Redis connection error:', error);
+    this.redis.on("error", () => {
       this.isConnected = false;
     });
 
-    this.redis.on('close', () => {
-      logger.warn('⚠️  Redis connection closed');
+    this.redis.on("close", () => {
       this.isConnected = false;
     });
 
-    this.redis.on('reconnecting', (time: number) => {
-      logger.info(`🔄 Redis reconnecting in ${time}ms`);
+    this.redis.on("reconnecting", () => {
+      this.isConnected = false;
     });
   }
 
@@ -56,9 +49,9 @@ class CacheService {
   async connect(): Promise<void> {
     try {
       await this.redis.connect();
-      logger.info('🎉 Redis cache service initialized');
+      logger.info("🎉 Redis cache service initialized");
     } catch (error) {
-      logger.error('💥 Failed to connect to Redis:', error);
+      logger.error("💥 Failed to connect to Redis:", error);
       throw error;
     }
   }
@@ -69,43 +62,47 @@ class CacheService {
   async disconnect(): Promise<void> {
     this.redis.disconnect();
     this.isConnected = false;
-    logger.info('👋 Redis connection closed');
+    logger.info("👋 Redis connection closed");
   }
 
   /**
    * Check if Redis connection is ready for operations
-   * 
+   *
    * @returns True if connected and ready, false otherwise
    */
   isReady(): boolean {
-    return this.isConnected && this.redis.status === 'ready';
+    return this.isConnected && this.redis.status === "ready";
   }
 
   /**
    * Store a value in Redis cache with optional expiration
    * Automatically serializes objects to JSON
-   * 
-   * @param key - Cache key (will be prefixed with 'sportificatoin:')
+   *
+   * @param key - Cache key (will be prefixed with 'sportification:cache:')
    * @param value - Value to cache (will be JSON serialized)
    * @param expirationSeconds - Optional expiration time in seconds
    * @throws {Error} If caching operation fails
    * @example
    * // Cache for 1 hour
    * await cache.set('user:123', userData, 3600);
-   * 
+   *
    * // Cache forever (until manually deleted)
    * await cache.set('config', configData);
    */
-  async set<T>(key: string, value: T, expirationSeconds?: number): Promise<void> {
+  async set<T>(
+    key: string,
+    value: T,
+    expirationSeconds?: number
+  ): Promise<void> {
     try {
       const serializedValue = JSON.stringify(value);
-      
+
       if (expirationSeconds) {
         await this.redis.setex(key, expirationSeconds, serializedValue);
       } else {
         await this.redis.set(key, serializedValue);
       }
-      
+
       logger.debug(`📝 Cached data for key: ${key}`);
     } catch (error) {
       logger.error(`❌ Failed to cache data for key ${key}:`, error);
@@ -116,8 +113,8 @@ class CacheService {
   /**
    * Retrieve a value from Redis cache
    * Automatically deserializes JSON to the expected type
-   * 
-   * @param key - Cache key to retrieve (will be prefixed with 'sportificatoin:')
+   *
+   * @param key - Cache key to retrieve (will be prefixed with 'sportification:cache:')
    * @returns The cached value or null if not found
    * @example
    * const userData = await cache.get<User>('user:123');
@@ -130,12 +127,12 @@ class CacheService {
   async get<T>(key: string): Promise<T | null> {
     try {
       const cachedValue = await this.redis.get(key);
-      
+
       if (cachedValue === null) {
         logger.debug(`🔍 Cache miss for key: ${key}`);
         return null;
       }
-      
+
       logger.debug(`✅ Cache hit for key: ${key}`);
       return JSON.parse(cachedValue) as T;
     } catch (error) {
@@ -221,18 +218,18 @@ class CacheService {
     try {
       // Try to get from cache first
       const cachedValue = await this.get<T>(key);
-      
+
       if (cachedValue !== null) {
         return cachedValue;
       }
-      
+
       // If not in cache, fetch fresh data
       logger.debug(`🔄 Fetching fresh data for key: ${key}`);
       const freshData = await fetchFunction();
-      
+
       // Cache the fresh data
       await this.set(key, freshData, expirationSeconds);
-      
+
       return freshData;
     } catch (error) {
       logger.error(`❌ Failed to cache with refresh for key ${key}:`, error);
@@ -246,9 +243,9 @@ class CacheService {
   async flushAll(): Promise<void> {
     try {
       await this.redis.flushall();
-      logger.warn('🧹 Flushed all Redis cache');
+      logger.warn("🧹 Flushed all Redis cache");
     } catch (error) {
-      logger.error('❌ Failed to flush Redis cache:', error);
+      logger.error("❌ Failed to flush Redis cache:", error);
       throw error;
     }
   }
@@ -260,7 +257,7 @@ class CacheService {
     try {
       return await this.redis.info();
     } catch (error) {
-      logger.error('❌ Failed to get Redis info:', error);
+      logger.error("❌ Failed to get Redis info:", error);
       throw error;
     }
   }
@@ -271,9 +268,9 @@ class CacheService {
   async healthCheck(): Promise<boolean> {
     try {
       const result = await this.redis.ping();
-      return result === 'PONG';
+      return result === "PONG";
     } catch (error) {
-      logger.error('❌ Redis health check failed:', error);
+      logger.error("❌ Redis health check failed:", error);
       return false;
     }
   }
@@ -283,11 +280,17 @@ class CacheService {
    */
 
   // User session caching
-  async cacheUserSession(userId: string, sessionData: Record<string, unknown>, expirationSeconds: number = 3600): Promise<void> {
+  async cacheUserSession(
+    userId: string,
+    sessionData: Record<string, unknown>,
+    expirationSeconds: number = 3600
+  ): Promise<void> {
     await this.set(`user:session:${userId}`, sessionData, expirationSeconds);
   }
 
-  async getUserSession(userId: string): Promise<Record<string, unknown> | null> {
+  async getUserSession(
+    userId: string
+  ): Promise<Record<string, unknown> | null> {
     return await this.get(`user:session:${userId}`);
   }
 
@@ -296,32 +299,44 @@ class CacheService {
   }
 
   // API response caching
-  async cacheApiResponse<T>(endpoint: string, params: Record<string, unknown>, response: T, expirationSeconds: number = 300): Promise<void> {
+  async cacheApiResponse<T>(
+    endpoint: string,
+    params: Record<string, unknown>,
+    response: T,
+    expirationSeconds: number = 300
+  ): Promise<void> {
     const cacheKey = `api:${endpoint}:${JSON.stringify(params)}`;
     await this.set(cacheKey, response, expirationSeconds);
   }
 
-  async getCachedApiResponse<T>(endpoint: string, params: Record<string, unknown>): Promise<T | null> {
+  async getCachedApiResponse<T>(
+    endpoint: string,
+    params: Record<string, unknown>
+  ): Promise<T | null> {
     const cacheKey = `api:${endpoint}:${JSON.stringify(params)}`;
     return await this.get(cacheKey);
   }
 
   // Rate limiting
-  async checkRateLimit(identifier: string, limit: number, windowSeconds: number): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
+  async checkRateLimit(
+    identifier: string,
+    limit: number,
+    windowSeconds: number
+  ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
     const key = `rate_limit:${identifier}`;
     const current = await this.increment(key);
-    
+
     if (current === 1) {
       await this.expire(key, windowSeconds);
     }
-    
+
     const ttl = await this.ttl(key);
-    const resetTime = Date.now() + (ttl * 1000);
-    
+    const resetTime = Date.now() + ttl * 1000;
+
     return {
       allowed: current <= limit,
       remaining: Math.max(0, limit - current),
-      resetTime
+      resetTime,
     };
   }
 }
