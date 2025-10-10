@@ -1,8 +1,8 @@
 import request from 'supertest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { Profile } from '../models/Profile';
+import { User } from '../modules/users/domain/models/User';
+import { Profile } from '../modules/users/domain/models/Profile';
 import app from '../app';
 
 describe('Enhanced Authentication Endpoints', () => {
@@ -14,9 +14,9 @@ describe('Enhanced Authentication Endpoints', () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
-    
+
     await mongoose.connect(mongoUri);
-    
+
     // Create test app instance
     testApp = new app().app;
   });
@@ -36,7 +36,7 @@ describe('Enhanced Authentication Endpoints', () => {
       firstName: 'Test',
       lastName: 'User',
       username: 'testuser',
-      user: null
+      user: null,
     });
 
     testUser = new User({
@@ -47,31 +47,27 @@ describe('Enhanced Authentication Endpoints', () => {
       preferences: {
         theme: 'light',
         notifications: true,
-        language: 'en'
-      }
+        language: 'en',
+      },
     });
 
     testProfile.user = testUser._id;
     await Promise.all([testUser.save(), testProfile.save()]);
 
     // Login to get token
-    const loginResponse = await request(testApp)
-      .post('/api/v1/auth/login')
-      .send({
-        email: 'test@example.com',
-        password: 'TestPassword123!'
-      });
+    const loginResponse = await request(testApp).post('/api/v1/auth/login').send({
+      email: 'test@example.com',
+      password: 'TestPassword123!',
+    });
 
     userToken = loginResponse.body.data.tokens.accessToken;
   });
 
   describe('POST /auth/forgot-password', () => {
     it('should handle forgot password request for existing user', async () => {
-      const response = await request(testApp)
-        .post('/api/v1/auth/forgot-password')
-        .send({
-          email: 'test@example.com'
-        });
+      const response = await request(testApp).post('/api/v1/auth/forgot-password').send({
+        email: 'test@example.com',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -79,11 +75,9 @@ describe('Enhanced Authentication Endpoints', () => {
     });
 
     it('should handle forgot password request for non-existing user', async () => {
-      const response = await request(testApp)
-        .post('/api/v1/auth/forgot-password')
-        .send({
-          email: 'nonexistent@example.com'
-        });
+      const response = await request(testApp).post('/api/v1/auth/forgot-password').send({
+        email: 'nonexistent@example.com',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -91,9 +85,7 @@ describe('Enhanced Authentication Endpoints', () => {
     });
 
     it('should reject request without email', async () => {
-      const response = await request(testApp)
-        .post('/api/v1/auth/forgot-password')
-        .send({});
+      const response = await request(testApp).post('/api/v1/auth/forgot-password').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -102,12 +94,10 @@ describe('Enhanced Authentication Endpoints', () => {
 
   describe('POST /auth/reset-password', () => {
     it('should reject reset with invalid token', async () => {
-      const response = await request(testApp)
-        .post('/api/v1/auth/reset-password')
-        .send({
-          token: 'invalid-token',
-          newPassword: 'NewPassword123!'
-        });
+      const response = await request(testApp).post('/api/v1/auth/reset-password').send({
+        token: 'invalid-token',
+        newPassword: 'NewPassword123!',
+      });
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -120,12 +110,10 @@ describe('Enhanced Authentication Endpoints', () => {
         .post('/api/v1/auth/forgot-password')
         .send({ email: 'test@example.com' });
 
-      const response = await request(testApp)
-        .post('/api/v1/auth/reset-password')
-        .send({
-          token: 'some-token',
-          newPassword: 'weak'
-        });
+      const response = await request(testApp).post('/api/v1/auth/reset-password').send({
+        token: 'some-token',
+        newPassword: 'weak',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -146,8 +134,7 @@ describe('Enhanced Authentication Endpoints', () => {
     });
 
     it('should require authentication', async () => {
-      const response = await request(testApp)
-        .post('/api/v1/auth/mfa/setup');
+      const response = await request(testApp).post('/api/v1/auth/mfa/setup');
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -189,7 +176,7 @@ describe('Enhanced Authentication Endpoints', () => {
         .set('Authorization', `Bearer ${userToken}`)
         .send({
           secret: 'JBSWY3DPEHPK3PXP',
-          token: '000000'
+          token: '000000',
         });
 
       expect(response.status).toBe(401);
@@ -212,8 +199,7 @@ describe('Enhanced Authentication Endpoints', () => {
     });
 
     it('should require authentication', async () => {
-      const response = await request(testApp)
-        .get('/api/v1/auth/security');
+      const response = await request(testApp).get('/api/v1/auth/security');
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -226,7 +212,7 @@ describe('Enhanced Authentication Endpoints', () => {
         .patch('/api/v1/auth/security')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          allowedIPs: ['192.168.1.1', '10.0.0.1']
+          allowedIPs: ['192.168.1.1', '10.0.0.1'],
         });
 
       expect(response.status).toBe(200);
@@ -242,7 +228,7 @@ describe('Enhanced Authentication Endpoints', () => {
         .patch('/api/v1/auth/security')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          allowedIPs: ['invalid-ip', '999.999.999.999']
+          allowedIPs: ['invalid-ip', '999.999.999.999'],
         });
 
       expect(response.status).toBe(400);
@@ -260,7 +246,7 @@ describe('Enhanced Authentication Endpoints', () => {
           provider: 'google',
           providerId: '12345',
           email: 'test@gmail.com',
-          name: 'Test User'
+          name: 'Test User',
         });
 
       expect(response.status).toBe(200);
@@ -277,7 +263,7 @@ describe('Enhanced Authentication Endpoints', () => {
           provider: 'google',
           providerId: '12345',
           email: 'test@gmail.com',
-          name: 'Test User'
+          name: 'Test User',
         });
 
       // Try to link again
@@ -288,7 +274,7 @@ describe('Enhanced Authentication Endpoints', () => {
           provider: 'google',
           providerId: '67890',
           email: 'test2@gmail.com',
-          name: 'Test User 2'
+          name: 'Test User 2',
         });
 
       expect(response.status).toBe(409);
@@ -299,12 +285,14 @@ describe('Enhanced Authentication Endpoints', () => {
   describe('POST /auth/social/unlink', () => {
     beforeEach(async () => {
       // Link a social account first
-      testUser.socialLogins = [{
-        provider: 'google',
-        providerId: '12345',
-        email: 'test@gmail.com',
-        name: 'Test User'
-      }];
+      testUser.socialLogins = [
+        {
+          provider: 'google',
+          providerId: '12345',
+          email: 'test@gmail.com',
+          name: 'Test User',
+        },
+      ];
       await testUser.save();
     });
 
@@ -313,7 +301,7 @@ describe('Enhanced Authentication Endpoints', () => {
         .post('/api/v1/auth/social/unlink')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          provider: 'google'
+          provider: 'google',
         });
 
       expect(response.status).toBe(200);
@@ -330,7 +318,7 @@ describe('Enhanced Authentication Endpoints', () => {
         .post('/api/v1/auth/social/unlink')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          provider: 'google'
+          provider: 'google',
         });
 
       expect(response.status).toBe(403);

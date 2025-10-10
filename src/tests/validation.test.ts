@@ -1,4 +1,4 @@
-import { isValidEmail, isValidPassword, isValidObjectId } from '../middleware/validation';
+import { isValidEmail, isValidPassword, isValidObjectId } from '../shared/middleware/validation';
 
 describe('Validation Utilities', () => {
   describe('isValidEmail', () => {
@@ -8,10 +8,10 @@ describe('Validation Utilities', () => {
         'user.name@domain.co.uk',
         'user+tag@example.org',
         'user123@test-domain.com',
-        'simple@test.io'
+        'simple@test.io',
       ];
 
-      validEmails.forEach(email => {
+      validEmails.forEach((email) => {
         expect(isValidEmail(email)).toBe(true);
       });
     });
@@ -26,10 +26,10 @@ describe('Validation Utilities', () => {
         '',
         'user @domain.com',
         'user@domain',
-        'user@.com'
+        'user@.com',
       ];
 
-      invalidEmails.forEach(email => {
+      invalidEmails.forEach((email) => {
         expect(isValidEmail(email)).toBe(false);
       });
     });
@@ -44,28 +44,28 @@ describe('Validation Utilities', () => {
         'Test123Word',
         'Secure9Pass',
         'Admin123',
-        'User9Test'
+        'User9Test',
       ];
 
-      validPasswords.forEach(password => {
+      validPasswords.forEach((password) => {
         expect(isValidPassword(password)).toBe(true);
       });
     });
 
     it('should reject weak passwords', () => {
       const weakPasswords = [
-        'password',        // No uppercase or number
-        'PASSWORD',        // No lowercase or number
-        '12345678',        // No letters
-        'Pass123',         // Too short (7 chars)
-        'Pass@',           // Too short
-        'password123',     // No uppercase
-        'PASSWORD123',     // No lowercase
-        'Password',        // No number
-        ''                 // Empty
+        'password', // No uppercase or number
+        'PASSWORD', // No lowercase or number
+        '12345678', // No letters
+        'Pass123', // Too short (7 chars)
+        'Pass@', // Too short
+        'password123', // No uppercase
+        'PASSWORD123', // No lowercase
+        'Password', // No number
+        '', // Empty
       ];
 
-      weakPasswords.forEach(password => {
+      weakPasswords.forEach((password) => {
         expect(isValidPassword(password)).toBe(false);
       });
     });
@@ -78,10 +78,10 @@ describe('Validation Utilities', () => {
         '507f191e810c19729de860ea',
         '5f8d0d5b4f7a8c2c0c8a4e6b',
         '60a8c4f1e8e9c2a4d0f5e8b7',
-        '61b5f3e2a9c8d7e6f0a2b3c4'
+        '61b5f3e2a9c8d7e6f0a2b3c4',
       ];
 
-      validObjectIds.forEach(id => {
+      validObjectIds.forEach((id) => {
         expect(isValidObjectId(id)).toBe(true);
       });
     });
@@ -90,16 +90,16 @@ describe('Validation Utilities', () => {
       const invalidObjectIds = [
         'invalid-id',
         '123',
-        '507f1f77bcf86cd79943901',   // Too short
-        '507f1f77bcf86cd799439011z',  // Invalid character
+        '507f1f77bcf86cd79943901', // Too short
+        '507f1f77bcf86cd799439011z', // Invalid character
         '',
-        '507f1f77bcf86cd799439011a1'  // Too long
+        '507f1f77bcf86cd799439011a1', // Too long
       ];
 
-      invalidObjectIds.forEach(id => {
+      invalidObjectIds.forEach((id) => {
         expect(isValidObjectId(id)).toBe(false);
       });
-      
+
       // Test null and undefined separately
       expect(isValidObjectId(null as any)).toBe(false);
       expect(isValidObjectId(undefined as any)).toBe(false);

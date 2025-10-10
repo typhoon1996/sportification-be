@@ -1,3 +1,5 @@
+const prettierConfig = require('./.prettierrc');
+
 module.exports = {
   root: true,
   env: {
@@ -34,4 +36,7 @@ module.exports = {
     ],
     "prettier/prettier": "warn"
   },
+};
+module.exports.settings = {
+  prettier: prettierConfig,
 };

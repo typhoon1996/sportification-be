@@ -52,6 +52,7 @@ cd sportification-be
 ```
 
 This script will:
+
 - Check prerequisites (Node.js, npm)
 - Install dependencies
 - Create `.env` file from template
@@ -367,27 +368,75 @@ src/
 
 ## 🏗️ Project Structure
 
-```markdown
+> ✨ **Recently Restructured**: The codebase has been reorganized following clean architecture and domain-driven design principles. See [RESTRUCTURE_COMPLETE.md](./RESTRUCTURE_COMPLETE.md) for details.
+
+```
 sportification-be/
 ├── src/
-│   ├── config/            # Configuration files
-│   │   ├── index.ts       # Main config
-│   │   └── database.ts    # Database connection
-│   ├── controllers/       # Route controllers
-│   ├── middleware/        # Custom middleware
-│   ├── models/           # Database models
-│   ├── routes/           # Route definitions
-│   ├── services/         # Business logic services
-│   ├── types/            # TypeScript type definitions
-│   ├── utils/            # Utility functions
-│   ├── validators/       # Input validation schemas
-│   ├── app.ts           # Express app setup
-│   └── index.ts         # Application entry point
-├── logs/                # Application logs
-├── docker-compose.yml   # Docker development setup
-├── Dockerfile          # Production container
-└── README.md          # This file
+│   ├── modules/              # Feature modules (Domain-Driven Design)
+│   │   ├── ai/               # AI & ML features
+│   │   ├── analytics/        # Analytics & insights
+│   │   │   ├── api/          # API layer (controllers, routes)
+│   │   │   ├── domain/       # Domain layer (models, services)
+│   │   │   └── data/         # Data layer (repositories)
+│   │   ├── chat/             # Real-time chat
+│   │   │   ├── api/
+│   │   │   └── domain/
+│   │   │       └── models/   # Chat, Message models
+│   │   ├── iam/              # Identity & Access Management
+│   │   │   ├── api/
+│   │   │   └── domain/
+│   │   │       └── models/   # ApiKey, AuditLog models
+│   │   ├── matches/          # Match management
+│   │   │   └── domain/
+│   │   │       └── models/   # Match model
+│   │   ├── notifications/    # Notification system
+│   │   │   └── domain/
+│   │   │       └── models/   # Notification model
+│   │   ├── teams/            # Team management
+│   │   │   └── domain/
+│   │   │       └── models/   # Team model
+│   │   ├── tournaments/      # Tournament management
+│   │   │   └── domain/
+│   │   │       └── models/   # Tournament model
+│   │   ├── users/            # User management
+│   │   │   └── domain/
+│   │   │       └── models/   # User, Profile models
+│   │   └── venues/           # Venue management
+│   │       └── domain/
+│   │           └── models/   # Venue model
+│   ├── shared/               # Shared infrastructure
+│   │   ├── cache/            # Caching utilities
+│   │   ├── config/           # Configuration (database, redis, passport)
+│   │   ├── database/         # Database setup
+│   │   ├── events/           # Event bus for module communication
+│   │   ├── logging/          # Logging infrastructure
+│   │   ├── middleware/       # Shared middleware (auth, security, etc.)
+│   │   ├── types/            # Shared TypeScript types
+│   │   ├── utils/            # Utilities (logger, cache, jwt, etc.)
+│   │   └── validators/       # Shared validators
+│   ├── app.ts               # Express app setup
+│   └── index.ts             # Application entry point
+├── docs/                    # Documentation
+├── logs/                    # Application logs
+├── scripts/                 # Utility scripts
+│   ├── setup.sh            # Setup script
+│   └── cleanup-restructure.sh  # Cleanup old folders
+├── docker-compose.yml       # Docker development setup
+├── Dockerfile              # Production container
+├── RESTRUCTURE_COMPLETE.md # Restructuring documentation
+└── README.md               # This file
 ```
+
+### Module Structure
+
+Each module follows clean architecture principles:
+
+- **api/**: HTTP layer (controllers, routes, DTOs, validators)
+- **domain/**: Business logic (models, services, interfaces)
+- **data/**: Data access (repositories, database queries)
+- **events/**: Event handlers and publishers
+- **types/**: Module-specific TypeScript types
 
 ## 🔧 Development
 
@@ -513,6 +562,7 @@ curl http://localhost:3000/health
 **Problem**: `MongoNetworkError: connect ECONNREFUSED`
 
 **Solutions**:
+
 1. Ensure MongoDB is running: `mongod` or check your MongoDB service
 2. Verify `MONGODB_URI` in your `.env` file
 3. Check if MongoDB is listening on the correct port (default: 27017)
@@ -534,6 +584,7 @@ sudo systemctl status mongod
 **Problem**: Redis connection errors
 
 **Solutions**:
+
 1. Redis is optional - the app will work without it (caching disabled)
 2. To use Redis, ensure it's running: `redis-server`
 3. Verify `REDIS_URL` in your `.env` file
@@ -543,6 +594,7 @@ sudo systemctl status mongod
 **Problem**: `Error: listen EADDRINUSE: address already in use :::3000`
 
 **Solutions**:
+
 ```bash
 # Find process using port 3000
 lsof -i :3000  # macOS/Linux
@@ -561,6 +613,7 @@ PORT=3001
 **Problem**: TypeScript compilation errors
 
 **Solutions**:
+
 1. Ensure you're using Node.js >= 18.0.0: `node --version`
 2. Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
 3. Clear TypeScript cache: `rm -rf dist/`
@@ -571,6 +624,7 @@ PORT=3001
 **Problem**: `undefined` values for config variables
 
 **Solutions**:
+
 1. Ensure `.env` file exists in project root
 2. Check file has correct format: `KEY=value` (no spaces around `=`)
 3. Restart development server after changing `.env`
@@ -581,6 +635,7 @@ PORT=3001
 **Problem**: Tests failing unexpectedly
 
 **Solutions**:
+
 ```bash
 # Clear test cache
 npm test -- --clearCache
@@ -597,6 +652,7 @@ npm test -- path/to/test.ts
 **Problem**: ESLint errors blocking commits
 
 **Solutions**:
+
 ```bash
 # Auto-fix issues
 npm run lint:fix
@@ -681,4 +737,5 @@ For support and questions:
 ---
 
 ### Built with ❤️ for the sports community
+
 # sportification-be

@@ -1,6 +1,6 @@
-import Database from '../config/database';
-import { User } from '../models/User';
-import { Profile } from '../models/Profile';
+import Database from '../shared/config/database';
+import { User } from '../modules/users/domain/models/User';
+import { Profile } from '../modules/users/domain/models/Profile';
 
 // Setup test database connection
 beforeAll(async () => {
@@ -28,14 +28,14 @@ export const createTestUser = async (overrides: any = {}) => {
     firstName: 'Test',
     lastName: 'User',
     username: 'testuser',
-    ...overrides
+    ...overrides,
   };
 
   const profile = new Profile({
     firstName: userData.firstName,
     lastName: userData.lastName,
     username: userData.username.toLowerCase(),
-    user: null
+    user: null,
   });
 
   const user = new User({
@@ -45,18 +45,18 @@ export const createTestUser = async (overrides: any = {}) => {
     preferences: {
       theme: 'light',
       notifications: true,
-      language: 'en'
+      language: 'en',
     },
     stats: {
       matchesPlayed: 0,
       wins: 0,
-      losses: 0
-    }
+      losses: 0,
+    },
   });
 
   profile.user = user._id as any;
 
   await Promise.all([user.save(), profile.save()]);
-  
+
   return { user, profile };
 };

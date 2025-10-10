@@ -1,8 +1,8 @@
-import { Team } from '../models/Team';
-import { User } from '../models/User';
-import { Profile } from '../models/Profile';
-import { Chat } from '../models/Chat';
-import { TeamRole } from '../types';
+import { Team } from '../modules/teams/domain/models/Team';
+import { User } from '../modules/users/domain/models/User';
+import { Profile } from '../modules/users/domain/models/Profile';
+import { Chat } from '../modules/chat/domain/models/Chat';
+import { TeamRole } from '../shared/types';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
@@ -29,21 +29,21 @@ describe('Team Model', () => {
       firstName: 'Test',
       lastName: 'User1',
       username: 'testuser1',
-      user: new mongoose.Types.ObjectId()
+      user: new mongoose.Types.ObjectId(),
     });
 
     const profile2 = await Profile.create({
       firstName: 'Test',
       lastName: 'User2',
       username: 'testuser2',
-      user: new mongoose.Types.ObjectId()
+      user: new mongoose.Types.ObjectId(),
     });
 
     const profile3 = await Profile.create({
       firstName: 'Test',
       lastName: 'User3',
       username: 'testuser3',
-      user: new mongoose.Types.ObjectId()
+      user: new mongoose.Types.ObjectId(),
     });
 
     testUser1 = await User.create({
@@ -51,7 +51,7 @@ describe('Team Model', () => {
       password: 'Password123!',
       profile: profile1._id,
       isEmailVerified: true,
-      isActive: true
+      isActive: true,
     });
 
     testUser2 = await User.create({
@@ -59,7 +59,7 @@ describe('Team Model', () => {
       password: 'Password123!',
       profile: profile2._id,
       isEmailVerified: true,
-      isActive: true
+      isActive: true,
     });
 
     testUser3 = await User.create({
@@ -67,7 +67,7 @@ describe('Team Model', () => {
       password: 'Password123!',
       profile: profile3._id,
       isEmailVerified: true,
-      isActive: true
+      isActive: true,
     });
 
     profile1.user = testUser1._id;
@@ -91,7 +91,7 @@ describe('Team Model', () => {
         type: 'team',
         name: 'Test Team Chat',
         participants: [testUser1._id],
-        isActive: true
+        isActive: true,
       });
 
       const team = await Team.create({
@@ -105,9 +105,9 @@ describe('Team Model', () => {
           {
             user: testUser1._id,
             role: TeamRole.CAPTAIN,
-            joinedAt: new Date()
-          }
-        ]
+            joinedAt: new Date(),
+          },
+        ],
       });
 
       expect(team).toBeDefined();
@@ -121,7 +121,7 @@ describe('Team Model', () => {
       let error;
       try {
         await Team.create({
-          description: 'A test team'
+          description: 'A test team',
         });
       } catch (e) {
         error = e;
@@ -134,7 +134,7 @@ describe('Team Model', () => {
         type: 'team',
         name: 'Test Team Chat',
         participants: [testUser1._id],
-        isActive: true
+        isActive: true,
       });
 
       let error;
@@ -148,9 +148,9 @@ describe('Team Model', () => {
             {
               user: testUser2._id,
               role: TeamRole.PLAYER,
-              joinedAt: new Date()
-            }
-          ]
+              joinedAt: new Date(),
+            },
+          ],
         });
       } catch (e) {
         error = e;
@@ -169,7 +169,7 @@ describe('Team Model', () => {
         type: 'team',
         name: 'Test Team Chat',
         participants: [testUser1._id],
-        isActive: true
+        isActive: true,
       });
 
       team = await Team.create({
@@ -181,9 +181,9 @@ describe('Team Model', () => {
           {
             user: testUser1._id,
             role: TeamRole.CAPTAIN,
-            joinedAt: new Date()
-          }
-        ]
+            joinedAt: new Date(),
+          },
+        ],
       });
     });
 
@@ -247,7 +247,7 @@ describe('Team Model', () => {
         type: 'team',
         name: 'Test Team Chat',
         participants: [testUser1._id, testUser2._id],
-        isActive: true
+        isActive: true,
       });
 
       team = await Team.create({
@@ -259,14 +259,14 @@ describe('Team Model', () => {
           {
             user: testUser1._id,
             role: TeamRole.CAPTAIN,
-            joinedAt: new Date()
+            joinedAt: new Date(),
           },
           {
             user: testUser2._id,
             role: TeamRole.PLAYER,
-            joinedAt: new Date()
-          }
-        ]
+            joinedAt: new Date(),
+          },
+        ],
       });
     });
 
@@ -294,11 +294,15 @@ describe('Team Model', () => {
       await team.save();
 
       expect(team.captain.toString()).toBe(testUser2._id.toString());
-      
-      const newCaptain = team.members.find((m: any) => m.user.toString() === testUser2._id.toString());
+
+      const newCaptain = team.members.find(
+        (m: any) => m.user.toString() === testUser2._id.toString()
+      );
       expect(newCaptain.role).toBe(TeamRole.CAPTAIN);
 
-      const oldCaptain = team.members.find((m: any) => m.user.toString() === testUser1._id.toString());
+      const oldCaptain = team.members.find(
+        (m: any) => m.user.toString() === testUser1._id.toString()
+      );
       expect(oldCaptain.role).toBe(TeamRole.PLAYER);
     });
 
@@ -320,7 +324,7 @@ describe('Team Model', () => {
         type: 'team',
         name: 'Test Team Chat',
         participants: [testUser1._id, testUser2._id],
-        isActive: true
+        isActive: true,
       });
 
       const team = await Team.create({
@@ -333,14 +337,14 @@ describe('Team Model', () => {
           {
             user: testUser1._id,
             role: TeamRole.CAPTAIN,
-            joinedAt: new Date()
+            joinedAt: new Date(),
           },
           {
             user: testUser2._id,
             role: TeamRole.PLAYER,
-            joinedAt: new Date()
-          }
-        ]
+            joinedAt: new Date(),
+          },
+        ],
       });
 
       expect(team.memberCount).toBe(2);
@@ -351,7 +355,7 @@ describe('Team Model', () => {
         type: 'team',
         name: 'Test Team Chat',
         participants: [testUser1._id, testUser2._id],
-        isActive: true
+        isActive: true,
       });
 
       const team = await Team.create({
@@ -364,14 +368,14 @@ describe('Team Model', () => {
           {
             user: testUser1._id,
             role: TeamRole.CAPTAIN,
-            joinedAt: new Date()
+            joinedAt: new Date(),
           },
           {
             user: testUser2._id,
             role: TeamRole.PLAYER,
-            joinedAt: new Date()
-          }
-        ]
+            joinedAt: new Date(),
+          },
+        ],
       });
 
       expect(team.isFull).toBe(true);
@@ -384,14 +388,14 @@ describe('Team Model', () => {
         type: 'team',
         name: 'Team 1 Chat',
         participants: [testUser1._id],
-        isActive: true
+        isActive: true,
       });
 
       const chat2 = await Chat.create({
         type: 'team',
         name: 'Team 2 Chat',
         participants: [testUser1._id, testUser2._id],
-        isActive: true
+        isActive: true,
       });
 
       await Team.create({
@@ -404,9 +408,9 @@ describe('Team Model', () => {
           {
             user: testUser1._id,
             role: TeamRole.CAPTAIN,
-            joinedAt: new Date()
-          }
-        ]
+            joinedAt: new Date(),
+          },
+        ],
       });
 
       await Team.create({
@@ -419,14 +423,14 @@ describe('Team Model', () => {
           {
             user: testUser1._id,
             role: TeamRole.PLAYER,
-            joinedAt: new Date()
+            joinedAt: new Date(),
           },
           {
             user: testUser2._id,
             role: TeamRole.CAPTAIN,
-            joinedAt: new Date()
-          }
-        ]
+            joinedAt: new Date(),
+          },
+        ],
       });
     });
 
