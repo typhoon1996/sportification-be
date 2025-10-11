@@ -33,7 +33,7 @@ dev: ## Start development server with hot-reload
 	npm run dev
 
 dev-docker: ## Start development with Docker Compose
-	docker-compose -f docker-compose.dev.yml up
+	docker-compose -f config/docker/docker-compose.dev.yml up
 
 build: ## Build TypeScript project
 	npm run build
@@ -67,25 +67,25 @@ clean: ## Clean build artifacts and dependencies
 # ==============================================================================
 
 docker-build: ## Build Docker image
-	docker build -t sportification-api:$(IMAGE_TAG) .
+	docker build -f config/docker/Dockerfile -t sportification-api:$(IMAGE_TAG) .
 
 docker-build-prod: ## Build production Docker image
-	docker build --target production -t sportification-api:$(IMAGE_TAG) .
+	docker build -f config/docker/Dockerfile --target production -t sportification-api:$(IMAGE_TAG) .
 
 docker-up: ## Start all services with Docker Compose
-	docker-compose -f docker-compose.$(ENVIRONMENT).yml up
+	docker-compose -f config/docker/docker-compose.$(ENVIRONMENT).yml up
 
 docker-up-detached: ## Start services in background
-	docker-compose -f docker-compose.$(ENVIRONMENT).yml up -d
+	docker-compose -f config/docker/docker-compose.$(ENVIRONMENT).yml up -d
 
 docker-down: ## Stop all services
-	docker-compose -f docker-compose.$(ENVIRONMENT).yml down
+	docker-compose -f config/docker/docker-compose.$(ENVIRONMENT).yml down
 
 docker-logs: ## View Docker logs
-	docker-compose -f docker-compose.$(ENVIRONMENT).yml logs -f
+	docker-compose -f config/docker/docker-compose.$(ENVIRONMENT).yml logs -f
 
 docker-clean: ## Clean Docker resources
-	docker-compose -f docker-compose.$(ENVIRONMENT).yml down -v
+	docker-compose -f config/docker/docker-compose.$(ENVIRONMENT).yml down -v
 	docker system prune -f
 
 # ==============================================================================
@@ -94,7 +94,7 @@ docker-clean: ## Clean Docker resources
 
 aws-setup: ## Initialize AWS resources
 	@echo "$(GREEN)Setting up AWS resources...$(NC)"
-	./scripts/aws-setup.sh
+	./scripts/deployment/aws-setup.sh
 
 aws-login: ## Login to AWS ECR
 	@echo "$(GREEN)Logging in to AWS ECR...$(NC)"
@@ -129,19 +129,19 @@ terraform-output: ## Show Terraform outputs
 
 deploy-dev: ## Deploy to development
 	@echo "$(GREEN)Deploying to development...$(NC)"
-	./scripts/deploy.sh dev $(IMAGE_TAG)
+	./scripts/deployment/deploy.sh dev $(IMAGE_TAG)
 
 deploy-test: ## Deploy to test/staging
 	@echo "$(YELLOW)Deploying to test/staging...$(NC)"
-	./scripts/deploy.sh test $(IMAGE_TAG)
+	./scripts/deployment/deploy.sh test $(IMAGE_TAG)
 
 deploy-prod: ## Deploy to production
 	@echo "$(RED)⚠️  Deploying to production...$(NC)"
-	./scripts/deploy.sh prod $(IMAGE_TAG)
+	./scripts/deployment/deploy.sh prod $(IMAGE_TAG)
 
 rollback: ## Rollback deployment
 	@echo "$(RED)Rolling back $(ENVIRONMENT)...$(NC)"
-	./scripts/deploy.sh $(ENVIRONMENT) rollback
+	./scripts/deployment/deploy.sh $(ENVIRONMENT) rollback
 
 # ==============================================================================
 # Database Commands

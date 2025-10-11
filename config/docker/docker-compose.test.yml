@@ -57,8 +57,8 @@ services:
   # ---------------------------------------------------------------------------
   api-test:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: config/docker/Dockerfile
       target: test
       args:
         NODE_ENV: test
@@ -87,8 +87,8 @@ services:
   # ---------------------------------------------------------------------------
   integration-tests:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: config/docker/Dockerfile
       target: test
     container_name: sportification-integration-tests
     environment:

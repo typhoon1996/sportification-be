@@ -2,6 +2,8 @@
 
 A comprehensive, production-ready backend API for the Sports Companion Application. This backend provides a robust foundation for connecting sports enthusiasts worldwide through matches, tournaments, real-time chat, and social features.
 
+> **📢 Note**: The codebase has been recently restructured for better organization! See [RESTRUCTURE_COMPLETE.md](RESTRUCTURE_COMPLETE.md) for details and [FILE_LOCATIONS.md](FILE_LOCATIONS.md) for a quick reference guide.
+
 ## 🚀 Features
 
 ### Core Functionality
@@ -50,7 +52,7 @@ For the fastest setup, use our automated setup script:
 ```bash
 git clone <repository-url>
 cd sportification-be
-./scripts/setup.sh
+./scripts/development/setup.sh
 ```
 
 This script will:
@@ -82,14 +84,14 @@ This script will:
 
    ```bash
    # Run the interactive setup script
-   ./scripts/setup-local-env.sh
+   ./scripts/development/setup-local-env.sh
    ```
 
    Or manually create your local environment file:
 
    ```bash
    # Copy environment file for development
-   cp .env.development .env.development.local
+   cp config/environments/.env.development .env
    
    # Generate secure secrets
    openssl rand -base64 32  # For JWT_SECRET
@@ -97,7 +99,7 @@ This script will:
    openssl rand -base64 32  # For SESSION_SECRET
    
    # Edit the local file with your configuration
-   nano .env.development.local
+   nano .env
    ```
 
    > **Note**: The application uses environment-specific files (`.env.development`, `.env.test`, `.env.production`).
@@ -131,13 +133,13 @@ This script will:
 2. **Start with Docker Compose**
 
    ```bash
-   docker-compose up -d
+   docker-compose -f config/docker/docker-compose.dev.yml up -d
    ```
 
 3. **Check the logs**
 
    ```bash
-   docker-compose logs -f api
+   docker-compose -f config/docker/docker-compose.dev.yml logs -f api
    ```
 
 ## 🚀 Production Deployment
@@ -147,17 +149,17 @@ This script will:
 1. **Build production image**
 
    ```bash
-   docker build -t sportification-api:latest .
+   docker build -f config/docker/Dockerfile -t sportification-api:latest .
    ```
 
 2. **Run with production environment**
 
    ```bash
-      docker run -d \
-         --name sportification-api \
-     -p 3000:3000 \
-     --env-file .env.production \
-   sportification-api:latest
+   docker run -d \
+      --name sportification-api \
+      -p 3000:3000 \
+      --env-file config/environments/.env.production \
+      sportification-api:latest
    ```
 
 ### Environment Variables
@@ -437,14 +439,36 @@ sportification-be/
 │   │   └── validators/       # Shared validators
 │   ├── app.ts               # Express app setup
 │   └── index.ts             # Application entry point
-├── docs/                    # Documentation
+├── config/                  # Configuration files
+│   ├── docker/             # Docker configurations
+│   ├── environments/       # Environment files
+│   ├── nginx/              # Nginx configuration
+│   ├── redis/              # Redis configuration
+│   ├── monitoring/         # Monitoring configuration
+│   ├── jest.config.js      # Jest configuration
+│   ├── tsconfig.json       # TypeScript configuration
+│   └── openapi.yaml        # OpenAPI specification
+├── docs/                    # Technical documentation
+│   ├── architecture/       # Architecture documentation
+│   ├── api/                # API documentation
+│   ├── features/           # Feature documentation
+│   ├── guides/             # Development guides
+│   ├── deployment/         # Deployment guides
+│   ├── operations/         # Operations guides
+│   └── future/             # Future plans
+├── infrastructure/          # Infrastructure as Code
+│   ├── terraform/          # Terraform configurations
+│   └── kubernetes/         # Kubernetes manifests
 ├── logs/                    # Application logs
-├── scripts/                 # Utility scripts
-│   ├── setup.sh            # Setup script
-│   └── cleanup-restructure.sh  # Cleanup old folders
-├── docker-compose.yml       # Docker development setup
-├── Dockerfile              # Production container
-├── RESTRUCTURE_COMPLETE.md # Restructuring documentation
+├── project-docs/            # Project documentation
+│   ├── CHANGELOG.md        # Version history
+│   ├── CONTRIBUTING.md     # Contribution guidelines
+│   ├── QUICK_REFERENCE.md  # Quick reference
+│   └── specs.md            # Project specifications
+├── scripts/                 # Automation scripts
+│   ├── development/        # Development scripts
+│   ├── deployment/         # Deployment scripts
+│   └── database/           # Database scripts
 └── README.md               # This file
 ```
 

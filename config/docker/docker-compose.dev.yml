@@ -27,7 +27,7 @@ services:
     volumes:
       - mongodb_dev_data:/data/db
       - mongodb_dev_config:/data/configdb
-      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ../../scripts/database/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - sportification-dev
     healthcheck:
@@ -62,8 +62,8 @@ services:
   # ---------------------------------------------------------------------------
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../.../..
+      dockerfile: config/docker/Dockerfile
       target: development
       args:
         NODE_ENV: development
@@ -81,15 +81,15 @@ services:
       JWT_REFRESH_SECRET: dev-refresh-secret-change-in-production
       LOG_LEVEL: debug
     env_file:
-      - .env.development
+      - ../../config/environments/.env.development
     volumes:
       # Mount source code for hot-reload
-      - ./src:/app/src:delegated
-      - ./package*.json:/app/
-      - ./tsconfig.json:/app/
+      - ../../src:/app/src:delegated
+      - ../../package*.json:/app/
+      - ../../config/tsconfig.json:/app/config/tsconfig.json
       # Named volumes for node_modules and build artifacts
       - node_modules_dev:/app/node_modules
-      - ./logs:/app/logs
+      - ../../logs:/app/logs
     depends_on:
       mongodb:
         condition: service_healthy

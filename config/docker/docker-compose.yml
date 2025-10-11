@@ -32,8 +32,8 @@ services:
   # API Application
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: config/docker/Dockerfile
     container_name: sportification-api
     restart: unless-stopped
     ports:

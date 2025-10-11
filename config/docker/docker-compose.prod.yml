@@ -74,8 +74,8 @@ services:
   # ---------------------------------------------------------------------------
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: config/docker/Dockerfile
       target: production
       args:
         NODE_ENV: production
