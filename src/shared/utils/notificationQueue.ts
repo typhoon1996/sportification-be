@@ -4,8 +4,9 @@
  * Handles async notification processing with retry logic
  */
 
-import { Notification } from '../../../modules/notifications/domain/models/Notification';
-import { NotificationType } from '../../types';
+// Update the import path to the correct location of Notification model
+import { Notification } from '@/modules/notifications/domain/models/Notification';
+import { NotificationType } from '../types';
 import logger from './logger';
 import cacheService from './cache';
 

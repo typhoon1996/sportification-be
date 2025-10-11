@@ -66,6 +66,7 @@ export class AnalyticsService {
     };
     cacheHits?: number;
     cacheMisses?: number;
+    correlationId?: string;
   }): Promise<void> {
     try {
       await PerformanceMetrics.create({

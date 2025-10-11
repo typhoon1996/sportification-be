@@ -1,35 +1,241 @@
-# Node.js dependencies
+# ========================================
+# Node.js Dependencies
+# ========================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+.pnpm-store/
+package-lock.json.bak
+.npm
+.yarn-integrity
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
-# Environment variables
+# ========================================
+# Environment Variables
+# ========================================
 .env
+.env.local
+.env*.local
+.envrc
 
-# Logs
-logs/
-*.log
+# Keep environment templates (committed)
+!.env.example
+!.env.development
+!.env.test
+!.env.production
 
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# MongoDB data files (if any local db folder)
-data/
-*.lock
-
-# Build output
+# ========================================
+# Build Output
+# ========================================
 dist/
 build/
+out/
 tmp/
 temp/
+*.tsbuildinfo
+tsconfig.tsbuildinfo
 
-# Coverage reports
+# ========================================
+# Test & Coverage
+# ========================================
 coverage/
+.nyc_output/
+*.lcov
+junit.xml
+test-results/
+.cache/
+jest-results.json
 
-# IDE files
-.vscode/
+# ========================================
+# Logs
+# ========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ========================================
+# OS Generated Files
+# ========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ========================================
+# IDEs and Editors
+# ========================================
+# VSCode
+.vscode/*
+!.vscode/settings.json.example
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+*.vsix
+
+# JetBrains IDEs (IntelliJ, WebStorm, etc.)
 .idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+
+# Vim
 *.swp
 *.swo
+*~
+.vim/
+tags
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# ========================================
+# Database Files
+# ========================================
+data/
+*.db
+*.sqlite
+*.sqlite3
+mongodb-data/
+redis-data/
+*.lock
+
+# ========================================
+# Docker
+# ========================================
+.docker/
+docker-compose.override.yml
+docker-compose.*.override.yml
+.dockerignore.local
+
+# ========================================
+# AWS & Cloud
+# ========================================
+.aws/
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars.local
+.terraformrc
+terraform.rc
+
+# Keep committed terraform files
+!infrastructure/terraform/**/*.tfvars
+
+# AWS SAM
+.aws-sam/
+samconfig.toml.local
+
+# ========================================
+# Secrets & Credentials
+# ========================================
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets
+credentials.json
+serviceAccount.json
+*.env.vault
+
+# ========================================
+# Temporary Files
+# ========================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+.cache/
+.temp/
+
+# ========================================
+# Documentation Build
+# ========================================
+docs/_build/
+docs/.doctrees/
+site/
+.jekyll-cache/
+.jekyll-metadata
+
+# ========================================
+# Package Manager Locks (Optional)
+# ========================================
+# Uncomment if you want to ignore lock files
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ========================================
+# Miscellaneous
+# ========================================
+.env.production.local
+.vercel
+.netlify
+.next/
+.nuxt/
+.cache
+.parcel-cache
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.vscode-test
+*.pid
+*.seed
+*.pid.lock
+lib-cov
+
+# ========================================
+# CI/CD
+# ========================================
+.github/workflows/*.local.yml
+
+# ========================================
+# Generated Files
+# ========================================
+openapi-generated/
+swagger-generated/
+*.generated.ts
+*.generated.js
+
+# Keep committed generated docs
+!openapi.yaml
+!docs/swagger.ts

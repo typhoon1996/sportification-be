@@ -1,0 +1,115 @@
+# =============================================================================
+# DOCKER COMPOSE - TEST ENVIRONMENT
+# =============================================================================
+# Test environment Docker Compose configuration for:
+# - CI/CD pipeline testing
+# - Integration tests
+# - E2E tests
+# - Automated testing scenarios
+# =============================================================================
+
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------------------
+  # MongoDB Database (Test)
+  # ---------------------------------------------------------------------------
+  mongodb-test:
+    image: mongo:7.0
+    container_name: sportification-mongo-test
+    restart: on-failure
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: testpass123
+      MONGO_INITDB_DATABASE: sportification_test
+    ports:
+      - "27018:27017"
+    tmpfs:
+      - /data/db # Use tmpfs for faster test execution
+    networks:
+      - sportification-test
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Redis Cache (Test)
+  # ---------------------------------------------------------------------------
+  redis-test:
+    image: redis:7.2-alpine
+    container_name: sportification-redis-test
+    restart: on-failure
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly no --save "" # Disable persistence for tests
+    networks:
+      - sportification-test
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # API Application (Test mode)
+  # ---------------------------------------------------------------------------
+  api-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+      args:
+        NODE_ENV: test
+    container_name: sportification-api-test
+    environment:
+      NODE_ENV: test
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:testpass123@mongodb-test:27017/sportification_test?authSource=admin
+      REDIS_URL: redis://redis-test:6379
+      JWT_SECRET: test-jwt-secret-for-automated-testing
+      JWT_REFRESH_SECRET: test-refresh-secret-for-automated-testing
+      LOG_LEVEL: error
+    env_file:
+      - .env.test
+    depends_on:
+      mongodb-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    networks:
+      - sportification-test
+    command: npm run test:coverage
+
+  # ---------------------------------------------------------------------------
+  # Integration Test Runner (Optional - for separate integration tests)
+  # ---------------------------------------------------------------------------
+  integration-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: sportification-integration-tests
+    environment:
+      NODE_ENV: test
+      MONGODB_URI: mongodb://admin:testpass123@mongodb-test:27017/sportification_test?authSource=admin
+      REDIS_URL: redis://redis-test:6379
+      API_URL: http://api-test:3000
+    env_file:
+      - .env.test
+    depends_on:
+      - mongodb-test
+      - redis-test
+    networks:
+      - sportification-test
+    profiles:
+      - integration # Only run when explicitly requested
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  sportification-test:
+    driver: bridge
+    name: sportification-test-network

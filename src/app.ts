@@ -14,8 +14,6 @@ import { closeRateLimitStore } from './shared/config/rateLimitStore';
 import { createRedisClient, RedisClient } from './shared/config/redis';
 import swaggerSpecs from './docs/swagger';
 
-// Middleware
-
 import { errorHandler, notFoundHandler } from './shared/middleware/errorHandler';
 import {
   advancedRequestLogger,
@@ -24,7 +22,6 @@ import {
   errorTracker,
 } from './shared/middleware/logging';
 
-// Module imports
 import { iamModule } from './modules/iam';
 import { usersModule } from './modules/users';
 import { matchesModule } from './modules/matches';
@@ -36,12 +33,10 @@ import { venuesModule } from './modules/venues';
 import { analyticsModule } from './modules/analytics';
 import { aiModule } from './modules/ai';
 
-// Import routes from modules
 import apiKeyRoutes from './modules/iam/api/routes/apiKeys';
 import securityRoutes from './modules/iam/api/routes/security';
 import adminRoutes from './modules/analytics/api/routes/admin';
 
-// Performance monitoring
 import {
   performanceMonitoring,
   requestCorrelation,
@@ -58,9 +53,21 @@ import {
   generalLimiter,
 } from './shared/middleware/security';
 import { User } from './modules/users/domain/models/User';
-// Legacy routes imports removed - now using modules
 import { JWTUtil } from './shared/utils/jwt';
 import logger from './shared/utils/logger';
+
+const MODULES = [
+  iamModule,
+  usersModule,
+  matchesModule,
+  tournamentsModule,
+  teamsModule,
+  chatModule,
+  notificationsModule,
+  venuesModule,
+  analyticsModule,
+  aiModule,
+];
 
 class App {
   public app: express.Application;
@@ -90,16 +97,10 @@ class App {
   }
 
   private initializeMiddleware(): void {
-    // Trust proxy for rate limiting and IP detection
     this.app.set('trust proxy', 1);
-
-    // Request correlation for distributed tracing
     this.app.use(requestCorrelation);
-
-    // Performance monitoring
     this.app.use(performanceMonitoring);
 
-    // Security middleware
     this.app.use(helmetConfig);
     this.app.use(cors(corsOptions));
     this.app.use(compressionMiddleware);
@@ -107,33 +108,29 @@ class App {
     this.app.use(sanitizeRequest);
     this.app.use(securityHeaders);
 
-    // Request logging
     if (config.app.env !== 'test') {
       this.app.use(advancedRequestLogger);
       this.app.use(securityLogger);
       this.app.use(analyticsLogger);
     } else {
-      this.app.use(requestLogger); // Simple logging for tests
+      this.app.use(requestLogger);
     }
 
-    // Rate limiting
     this.app.use(generalLimiter);
-
-    // Body parsing
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-    // Session middleware for OAuth
     const sessionOptions: session.SessionOptions = {
-      secret: config.jwt.secret,
+      secret: config.session.secret,
       resave: false,
       saveUninitialized: false,
       name: config.session.cookieName,
       cookie: {
-        secure: config.app.env === 'production',
+        secure: config.session.secure,
         httpOnly: true,
         maxAge: config.session.ttl * 1000,
-        sameSite: 'lax',
+        sameSite: config.app.env === 'production' ? 'strict' : 'lax',
+        domain: config.app.env === 'production' ? process.env.COOKIE_DOMAIN : undefined,
       },
     };
 
@@ -153,58 +150,10 @@ class App {
     }
 
     this.app.use(session(sessionOptions));
-
-    // Passport middleware
     this.app.use(passport.initialize());
     this.app.use(passport.session());
 
     // Health check endpoint
-    /**
-     * @swagger
-     * /health:
-     *   get:
-     *     summary: Health check endpoint
-     *     description: Check API server health and status
-     *     tags: [System]
-     *     responses:
-     *       200:
-     *         description: Server is healthy
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 status:
-     *                   type: string
-     *                   example: OK
-     *                 timestamp:
-     *                   type: string
-     *                   format: date-time
-     *                   example: 2024-01-15T10:30:00.000Z
-     *                 environment:
-     *                   type: string
-     *                   example: development
-     *                 version:
-     *                   type: string
-     *                   example: 1.0.0
-     *                 uptime:
-     *                   type: number
-     *                   example: 3600.5
-     *                 memory:
-     *                   type: object
-     *                   properties:
-     *                     rss:
-     *                       type: number
-     *                     heapTotal:
-     *                       type: number
-     *                     heapUsed:
-     *                       type: number
-     *                     external:
-     *                       type: number
-     *                 nodejs:
-     *                   type: string
-     *                   example: v20.19.5
-     */
     this.app.get('/health', (req, res) => {
       res.status(200).json({
         status: 'OK',
@@ -215,58 +164,11 @@ class App {
         uptime: process.uptime(),
         memory: process.memoryUsage(),
         nodejs: process.version,
-        modules: [
-          'iam',
-          'users',
-          'matches',
-          'tournaments',
-          'teams',
-          'chat',
-          'notifications',
-          'venues',
-          'analytics',
-          'ai',
-        ],
+        modules: MODULES.map((m) => m.getName()),
       });
     });
 
     // API info endpoint
-    /**
-     * @swagger
-     * /api/v1:
-     *   get:
-     *     summary: API information endpoint
-     *     description: Get basic information about the API
-     *     tags: [System]
-     *     responses:
-     *       200:
-     *         description: API information retrieved successfully
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 name:
-     *                   type: string
-     *                   example: Sports Companion API
-     *                 version:
-     *                   type: string
-     *                   example: 1.0.0
-     *                 description:
-     *                   type: string
-     *                   example: Sports Companion API - Connecting sports enthusiasts worldwide
-     *                 documentation:
-     *                   type: string
-     *                   example: /api/v1/docs
-     *                 status:
-     *                   type: string
-     *                   example: active
-     *                 features:
-     *                   type: array
-     *                   items:
-     *                     type: string
-     *                   example: ["JWT Authentication", "Real-time Socket.IO", "Tournament Brackets"]
-     */
     this.app.get('/api/v1', (req, res) => {
       res.status(200).json({
         name: config.app.name,
@@ -297,13 +199,11 @@ class App {
       })
     );
 
-    // OpenAPI JSON spec endpoint
     this.app.get('/api/v1/openapi.json', (req, res) => {
       res.setHeader('Content-Type', 'application/json');
       res.json(swaggerSpecs);
     });
 
-    // Redirect /docs to /api/v1/docs for convenience
     this.app.get('/docs', (req, res) => {
       res.redirect('/api/v1/docs');
     });
@@ -312,55 +212,28 @@ class App {
   private initializeRoutes(): void {
     const apiPrefix = config.app.apiPrefix;
 
-    // Modular Monolith - Register module routes
-    const modules = [
-      iamModule,
-      usersModule,
-      matchesModule,
-      tournamentsModule,
-      teamsModule,
-      chatModule,
-      notificationsModule,
-      venuesModule,
-      analyticsModule,
-      aiModule,
-    ];
-
-    modules.forEach((module) => {
+    MODULES.forEach((module) => {
       this.app.use(module.getBasePath(), module.getRouter());
       logger.info(`✓ Registered module: ${module.getName()} at ${module.getBasePath()}`);
     });
 
-    // Legacy routes (keeping temporarily)
-    // API Key routes
     this.app.use(`${apiPrefix}/api-keys`, apiKeyRoutes);
-
-    // Security routes
     this.app.use(`${apiPrefix}/security`, securityRoutes);
-
-    // Admin routes (includes admin management)
     this.app.use(`${apiPrefix}/admin`, adminRoutes);
   }
 
   private initializeErrorHandling(): void {
-    // 404 handler
     this.app.use(notFoundHandler);
-
-    // Enhanced error tracker
     this.app.use(errorTracker);
-
-    // Global error handler
     this.app.use(errorHandler);
   }
 
   private initializeSocketIO(): void {
-    // Store Socket.IO instance in app locals for access in controllers
     this.app.locals.io = this.io;
 
     this.io.on('connection', (socket) => {
       logger.info(`Client connected: ${socket.id}`);
 
-      // Handle user authentication via socket
       socket.on('authenticate', async (token) => {
         try {
           if (!token) {
@@ -368,10 +241,8 @@ class App {
             return;
           }
 
-          // Verify the token
+          // Future-proof: Use eventBus or service for user lookup
           const decoded = JWTUtil.verifyAccessToken(token);
-
-          // Find the user
           const user = await User.findById(decoded.userId).populate('profile');
 
           if (!user || !user.isActive) {
@@ -379,14 +250,9 @@ class App {
             return;
           }
 
-          // Store user info in socket
           (socket as any).user = user;
           (socket as any).authenticated = true;
-
-          // Join user's personal room
           socket.join(`user:${user.id}`);
-
-          // Emit successful authentication
           socket.emit('authenticated', {
             user: {
               id: user.id,
@@ -402,13 +268,11 @@ class App {
         }
       });
 
-      // Handle joining rooms (matches, tournaments, chats)
       socket.on('join-room', (roomId) => {
         if (!(socket as any).authenticated) {
           socket.emit('error', { message: 'Authentication required' });
           return;
         }
-
         socket.join(roomId);
         logger.info(`Socket ${socket.id} joined room: ${roomId}`);
         socket.emit('joined-room', { roomId });
@@ -419,46 +283,32 @@ class App {
           socket.emit('error', { message: 'Authentication required' });
           return;
         }
-
         socket.leave(roomId);
         logger.info(`Socket ${socket.id} left room: ${roomId}`);
         socket.emit('left-room', { roomId });
       });
 
-      // Handle real-time messaging
       socket.on('send-message', async (data) => {
         try {
           if (!(socket as any).authenticated) {
             socket.emit('error', { message: 'Authentication required' });
             return;
           }
-
           const { roomId, content, messageType = 'text' } = data;
           const user = (socket as any).user;
-
           if (!roomId || !content) {
-            socket.emit('error', {
-              message: 'Room ID and content are required',
-            });
+            socket.emit('error', { message: 'Room ID and content are required' });
             return;
           }
-
-          // Create message object (would normally save to database)
           const message = {
-            id: Date.now().toString(), // In real app, use proper ID generation
-            sender: {
-              id: user.id,
-              profile: user.profile,
-            },
+            id: Date.now().toString(),
+            sender: { id: user.id, profile: user.profile },
             content: content.trim(),
             messageType,
             timestamp: new Date(),
             roomId,
           };
-
-          // Emit to all users in the room
           this.io.to(roomId).emit('new-message', message);
-
           logger.info(`Message sent by ${socket.id} in room ${roomId}:`, {
             content: message.content,
           });
@@ -468,45 +318,29 @@ class App {
         }
       });
 
-      // Handle match updates
       socket.on('match-update', async (data) => {
         try {
           if (!(socket as any).authenticated) {
             socket.emit('error', { message: 'Authentication required' });
             return;
           }
-
           const { matchId, update, type } = data;
           const user = (socket as any).user;
-
           if (!matchId || !update) {
-            socket.emit('error', {
-              message: 'Match ID and update data are required',
-            });
+            socket.emit('error', { message: 'Match ID and update data are required' });
             return;
           }
-
-          // Create update object (would normally validate and save to database)
           const matchUpdate = {
             id: Date.now().toString(),
             matchId,
-            type: type || 'general', // 'score', 'status', 'general'
+            type: type || 'general',
             update,
-            updatedBy: {
-              id: user.id,
-              profile: user.profile,
-            },
+            updatedBy: { id: user.id, profile: user.profile },
             timestamp: new Date(),
           };
-
-          // Emit to match room and general match updates room
           this.io.to(`match:${matchId}`).emit('match-updated', matchUpdate);
           this.io.to('match-updates').emit('match-updated', matchUpdate);
-
-          logger.info(`Match update from ${socket.id} for match ${matchId}:`, {
-            type,
-            update,
-          });
+          logger.info(`Match update from ${socket.id} for match ${matchId}:`, { type, update });
         } catch (error) {
           logger.error(`Match update failed for ${socket.id}:`, error);
           socket.emit('error', { message: 'Failed to update match' });
@@ -525,31 +359,17 @@ class App {
 
   public async start(): Promise<void> {
     try {
-      // Connect to database
       const database = Database.getInstance();
       await database.connect();
 
-      // Initialize all modules
       logger.info('🔧 Initializing modular monolith...');
-      const modules = [
-        iamModule,
-        usersModule,
-        matchesModule,
-        tournamentsModule,
-        teamsModule,
-        chatModule,
-        notificationsModule,
-        venuesModule,
-        analyticsModule,
-        aiModule,
-      ];
+      await Promise.all(
+        MODULES.map(async (module) => {
+          await module.initialize();
+          logger.info(`✓ Initialized module: ${module.getName()}`);
+        })
+      );
 
-      for (const module of modules) {
-        await module.initialize();
-        logger.info(`✓ Initialized module: ${module.getName()}`);
-      }
-
-      // Start server
       this.server.listen(config.app.port, () => {
         logger.info(`🚀 ${config.app.name} is running!`);
         logger.info(`🏗️  Architecture: Modular Monolith`);
@@ -557,17 +377,13 @@ class App {
         logger.info(`🌍 Environment: ${config.app.env}`);
         logger.info(`📊 Health: http://localhost:${config.app.port}/health`);
         logger.info(`📚 API: http://localhost:${config.app.port}${config.app.apiPrefix}`);
-        logger.info(`📦 Modules: ${modules.map((m) => m.getName()).join(', ')}`);
-
+        logger.info(`📦 Modules: ${MODULES.map((m) => m.getName()).join(', ')}`);
         if (config.app.env === 'development') {
           logger.info(`🔍 MongoDB: ${config.database.uri}`);
         }
-
-        // Initialize Application Performance Monitoring
         setupAPM();
       });
 
-      // Graceful shutdown
       process.on('SIGTERM', () => this.gracefulShutdown('SIGTERM'));
       process.on('SIGINT', () => this.gracefulShutdown('SIGINT'));
     } catch (error) {
@@ -578,10 +394,7 @@ class App {
 
   private gracefulShutdown(signal: string): void {
     logger.info(`Received ${signal}. Starting graceful shutdown...`);
-
     this.server.close(async () => {
-      logger.info('HTTP server closed');
-
       try {
         const database = Database.getInstance();
         await database.disconnect();
@@ -605,7 +418,6 @@ class App {
       }
     });
 
-    // Force close server after 30 seconds
     setTimeout(() => {
       logger.error('Could not close connections in time, forcefully shutting down');
       process.exit(1);

@@ -6,7 +6,14 @@ export interface IUserActivity extends Document {
   userId: Types.ObjectId;
   sessionId: string;
   activity: {
-    type: 'page_view' | 'match_join' | 'tournament_create' | 'message_send' | 'profile_update' | 'search' | 'api_call';
+    type:
+      | 'page_view'
+      | 'match_join'
+      | 'tournament_create'
+      | 'message_send'
+      | 'profile_update'
+      | 'search'
+      | 'api_call';
     resource: string;
     resourceId?: string;
     metadata?: Record<string, unknown>;
@@ -51,6 +58,7 @@ export interface IPerformanceMetrics extends Document {
       time: number;
     }>;
   };
+  correlationId: string;
   cacheHits: number;
   cacheMisses: number;
 }
@@ -82,191 +90,215 @@ export interface ISystemHealth extends Document {
 }
 
 // Schemas
-const userActivitySchema = new Schema<IUserActivity>({
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    index: true
-  },
-  sessionId: {
-    type: String,
-    required: true,
-    index: true
-  },
-  activity: {
-    type: {
-      type: String,
-      enum: ['page_view', 'match_join', 'tournament_create', 'message_send', 'profile_update', 'search', 'api_call'],
+const userActivitySchema = new Schema<IUserActivity>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
-      index: true
+      index: true,
     },
-    resource: {
+    sessionId: {
       type: String,
       required: true,
-      index: true
+      index: true,
     },
-    resourceId: String,
-    metadata: Schema.Types.Mixed
-  },
-  duration: Number,
-  timestamp: {
-    type: Date,
-    default: Date.now,
-    index: true
-  },
-  location: {
-    country: String,
-    region: String,
-    city: String,
-    coordinates: [Number]
-  },
-  device: {
-    type: {
-      type: String,
-      enum: ['desktop', 'mobile', 'tablet'],
-      required: true
+    activity: {
+      type: {
+        type: String,
+        enum: [
+          'page_view',
+          'match_join',
+          'tournament_create',
+          'message_send',
+          'profile_update',
+          'search',
+          'api_call',
+        ],
+        required: true,
+        index: true,
+      },
+      resource: {
+        type: String,
+        required: true,
+        index: true,
+      },
+      resourceId: String,
+      metadata: Schema.Types.Mixed,
     },
-    os: String,
-    browser: String,
-    userAgent: String
+    duration: Number,
+    timestamp: {
+      type: Date,
+      default: Date.now,
+      // Note: No inline index here - TTL index is defined separately below
+    },
+    location: {
+      country: String,
+      region: String,
+      city: String,
+      coordinates: [Number],
+    },
+    device: {
+      type: {
+        type: String,
+        enum: ['desktop', 'mobile', 'tablet'],
+        required: true,
+      },
+      os: String,
+      browser: String,
+      userAgent: String,
+    },
+    performance: {
+      loadTime: Number,
+      responseTime: Number,
+      errors: [String],
+    },
   },
-  performance: {
-    loadTime: Number,
-    responseTime: Number,
-    errors: [String]
+  {
+    timestamps: true,
+    collection: 'user_activities',
   }
-}, {
-  timestamps: true,
-  collection: 'user_activities'
-});
+);
 
-const performanceMetricsSchema = new Schema<IPerformanceMetrics>({
-  endpoint: {
-    type: String,
-    required: true,
-    index: true
-  },
-  method: {
-    type: String,
-    enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    required: true
-  },
-  responseTime: {
-    type: Number,
-    required: true,
-    index: true
-  },
-  statusCode: {
-    type: Number,
-    required: true,
-    index: true
-  },
-  requestSize: Number,
-  responseSize: Number,
-  timestamp: {
-    type: Date,
-    default: Date.now,
-    index: true
-  },
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  requestErrors: [String],
-  dbQueries: {
-    count: { type: Number, default: 0 },
-    totalTime: { type: Number, default: 0 },
-    slowQueries: [{
-      query: String,
-      time: Number
-    }]
-  },
-  cacheHits: { type: Number, default: 0 },
-  cacheMisses: { type: Number, default: 0 }
-}, {
-  timestamps: true,
-  collection: 'performance_metrics'
-});
-
-const businessMetricsSchema = new Schema<IBusinessMetrics>({
-  metric: {
-    type: String,
-    required: true,
-    index: true
-  },
-  value: {
-    type: Number,
-    required: true
-  },
-  dimensions: {
-    type: Schema.Types.Mixed,
-    default: {}
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now,
-    index: true
-  },
-  aggregationType: {
-    type: String,
-    enum: ['sum', 'average', 'count', 'min', 'max'],
-    required: true
-  },
-  category: {
-    type: String,
-    enum: ['user_engagement', 'performance', 'revenue', 'security', 'content'],
-    required: true,
-    index: true
-  }
-}, {
-  timestamps: true,
-  collection: 'business_metrics'
-});
-
-const systemHealthSchema = new Schema<ISystemHealth>({
-  component: {
-    type: String,
-    enum: ['api', 'database', 'cache', 'external_service', 'queue'],
-    required: true,
-    index: true
-  },
-  status: {
-    type: String,
-    enum: ['healthy', 'degraded', 'down'],
-    required: true,
-    index: true
-  },
-  responseTime: {
-    type: Number,
-    required: true
-  },
-  errorRate: {
-    type: Number,
-    required: true
-  },
-  throughput: {
-    type: Number,
-    required: true
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now,
-    index: true
-  },
-  details: Schema.Types.Mixed,
-  alerts: [{
-    level: {
+const performanceMetricsSchema = new Schema<IPerformanceMetrics>(
+  {
+    endpoint: {
       type: String,
-      enum: ['info', 'warning', 'error', 'critical']
+      required: true,
+      index: true,
     },
-    message: String,
-    timestamp: Date
-  }]
-}, {
-  timestamps: true,
-  collection: 'system_health'
-});
+    method: {
+      type: String,
+      enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      required: true,
+    },
+    responseTime: {
+      type: Number,
+      required: true,
+      index: true,
+    },
+    statusCode: {
+      type: Number,
+      required: true,
+      index: true,
+    },
+    requestSize: Number,
+    responseSize: Number,
+    timestamp: {
+      type: Date,
+      default: Date.now,
+      // Note: No inline index here - TTL index is defined separately below
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    requestErrors: [String],
+    dbQueries: {
+      count: { type: Number, default: 0 },
+      totalTime: { type: Number, default: 0 },
+      slowQueries: [
+        {
+          query: String,
+          time: Number,
+        },
+      ],
+    },
+    cacheHits: { type: Number, default: 0 },
+    cacheMisses: { type: Number, default: 0 },
+  },
+  {
+    timestamps: true,
+    collection: 'performance_metrics',
+  }
+);
+
+const businessMetricsSchema = new Schema<IBusinessMetrics>(
+  {
+    metric: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    value: {
+      type: Number,
+      required: true,
+    },
+    dimensions: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now,
+      // Note: No inline index here - TTL index is defined separately below
+    },
+    aggregationType: {
+      type: String,
+      enum: ['sum', 'average', 'count', 'min', 'max'],
+      required: true,
+    },
+    category: {
+      type: String,
+      enum: ['user_engagement', 'performance', 'revenue', 'security', 'content'],
+      required: true,
+      index: true,
+    },
+  },
+  {
+    timestamps: true,
+    collection: 'business_metrics',
+  }
+);
+
+const systemHealthSchema = new Schema<ISystemHealth>(
+  {
+    component: {
+      type: String,
+      enum: ['api', 'database', 'cache', 'external_service', 'queue'],
+      required: true,
+      index: true,
+    },
+    status: {
+      type: String,
+      enum: ['healthy', 'degraded', 'down'],
+      required: true,
+      index: true,
+    },
+    responseTime: {
+      type: Number,
+      required: true,
+    },
+    errorRate: {
+      type: Number,
+      required: true,
+    },
+    throughput: {
+      type: Number,
+      required: true,
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now,
+      // Note: No inline index here - TTL index is defined separately below
+    },
+    details: Schema.Types.Mixed,
+    alerts: [
+      {
+        level: {
+          type: String,
+          enum: ['info', 'warning', 'error', 'critical'],
+        },
+        message: String,
+        timestamp: Date,
+      },
+    ],
+  },
+  {
+    timestamps: true,
+    collection: 'system_health',
+  }
+);
 
 // Indexes for performance
 userActivitySchema.index({ userId: 1, timestamp: -1 });
@@ -290,6 +322,9 @@ businessMetricsSchema.index({ timestamp: 1 }, { expireAfterSeconds: 365 * 24 * 6
 systemHealthSchema.index({ timestamp: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 }); // 7 days
 
 export const UserActivity = model<IUserActivity>('UserActivity', userActivitySchema);
-export const PerformanceMetrics = model<IPerformanceMetrics>('PerformanceMetrics', performanceMetricsSchema);
+export const PerformanceMetrics = model<IPerformanceMetrics>(
+  'PerformanceMetrics',
+  performanceMetricsSchema
+);
 export const BusinessMetrics = model<IBusinessMetrics>('BusinessMetrics', businessMetricsSchema);
 export const SystemHealth = model<ISystemHealth>('SystemHealth', systemHealthSchema);

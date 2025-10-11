@@ -36,6 +36,8 @@ A comprehensive, production-ready backend API for the Sports Companion Applicati
 - **MongoDB**: v5.0 or higher
 - **Redis**: v6.0 or higher (optional, for caching)
 - **Docker**: v20.0 or higher (for containerized deployment)
+- **AWS CLI**: v2.0 or higher (for cloud deployment)
+- **Terraform**: v1.5 or higher (for infrastructure management)
 
 ## 🛠️ Installation & Setup
 
@@ -76,13 +78,31 @@ This script will:
 
 3. **Environment Setup**
 
+   We provide an automated script to set up your local environment with secure secrets:
+
+   ```bash
+   # Run the interactive setup script
+   ./scripts/setup-local-env.sh
+   ```
+
+   Or manually create your local environment file:
+
    ```bash
    # Copy environment file for development
-   cp .env.development .env
+   cp .env.development .env.development.local
    
-   # Edit the .env file with your configuration
-   nano .env
+   # Generate secure secrets
+   openssl rand -base64 32  # For JWT_SECRET
+   openssl rand -base64 32  # For JWT_REFRESH_SECRET
+   openssl rand -base64 32  # For SESSION_SECRET
+   
+   # Edit the local file with your configuration
+   nano .env.development.local
    ```
+
+   > **Note**: The application uses environment-specific files (`.env.development`, `.env.test`, `.env.production`).
+   > Create `.env.{environment}.local` files for personal overrides that won't be committed to Git.
+   > See `docs/ENVIRONMENT_CONFIGURATION.md` for detailed configuration guide.
 
 4. **Start MongoDB** (if not using Docker)
 
@@ -716,6 +736,62 @@ For support and questions:
 
 ---
 
+## ☁️ DevOps & Production Deployment
+
+### 🚀 Production-Ready Infrastructure
+
+This project includes a complete, enterprise-grade DevOps setup for AWS deployment with:
+
+- ✅ **Multi-Environment Support**: Isolated dev, test, and production environments
+- ✅ **Container Orchestration**: AWS ECS with Fargate
+- ✅ **Infrastructure as Code**: Terraform configurations
+- ✅ **CI/CD Pipeline**: GitHub Actions with automated testing and deployment
+- ✅ **Monitoring & Logging**: CloudWatch, Prometheus, Grafana
+- ✅ **Security**: AWS Secrets Manager, VPC isolation, encrypted data
+- ✅ **Auto-scaling**: Load-based scaling for high availability
+- ✅ **Zero-downtime Deployments**: Blue/green deployment strategy
+
+### 📚 DevOps Documentation
+
+- **[DevOps Setup Guide](DEVOPS_SETUP.md)** - Complete infrastructure setup (1000+ lines)
+- **[Infrastructure Summary](INFRASTRUCTURE_SUMMARY.md)** - What has been created
+- **[Quick Reference](QUICK_REFERENCE.md)** - Common commands cheat sheet
+
+### 🎯 Quick Commands
+
+```bash
+# Local Development
+make install              # Install dependencies
+make dev                  # Start dev server
+make dev-docker           # Start with Docker
+
+# AWS Deployment
+make aws-setup            # Initialize AWS resources (one-time)
+make terraform-init       # Initialize Terraform
+make deploy-dev           # Deploy to development
+make deploy-prod          # Deploy to production
+
+# Monitoring
+make logs-prod            # View production logs
+```
+
+### 🏗️ Infrastructure Architecture
+
+```
+Internet → CloudFront → ALB → ECS Fargate
+                                  ↓
+                    DocumentDB + ElastiCache + S3
+```
+
+**Estimated AWS Costs**:
+
+- Development: ~$250/month
+- Production: ~$1,440/month
+
+For complete setup instructions, see **[DEVOPS_SETUP.md](DEVOPS_SETUP.md)**
+
+---
+
 ## 📖 Additional Documentation
 
 ### For Frontend Developers
@@ -737,5 +813,3 @@ For support and questions:
 ---
 
 ### Built with ❤️ for the sports community
-
-# sportification-be

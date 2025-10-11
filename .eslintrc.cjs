@@ -1,3 +1,4 @@
+const path = require('path');
 const prettierConfig = require('./.prettierrc');
 
 module.exports = {
@@ -7,36 +8,38 @@ module.exports = {
     es2021: true,
     jest: true,
   },
-  parser: "@typescript-eslint/parser",
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
-    project: ["./tsconfig.json"],
+    tsconfigRootDir: __dirname,
+    project: [path.resolve(__dirname, './tsconfig.json')],
+    ecmaVersion: 'latest',
+    sourceType: 'module',
     warnOnUnsupportedTypeScriptVersion: false,
   },
-  plugins: ["@typescript-eslint"],
+  plugins: ['@typescript-eslint'],
   extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "plugin:prettier/recommended"
+    'eslint:recommended',
+    'google',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:prettier/recommended',
   ],
-  ignorePatterns: ["dist", "node_modules", "*.config.js", "*.cjs"],
+  ignorePatterns: ['dist', 'node_modules', '*.config.js', '*.cjs'],
   rules: {
-    "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/no-misused-promises": [
-      "error",
+    '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/no-misused-promises': [
+      'error',
       {
-        "checksVoidReturn": false
-      }
+        checksVoidReturn: false,
+      },
     ],
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
-    "prettier/prettier": "warn"
+    'prettier/prettier': 'warn',
   },
-};
-module.exports.settings = {
-  prettier: prettierConfig,
+  settings: {
+    prettier: prettierConfig,
+  },
 };

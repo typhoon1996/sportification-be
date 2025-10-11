@@ -1,113 +1,128 @@
-import { Request, Response, NextFunction } from 'express';
-import { validationResult, ValidationChain } from 'express-validator';
-import { IApiError } from '../types';
-import logger from '../utils/logger';
+import {Request, Response, NextFunction} from "express";
+import {
+  validationResult,
+  ValidationChain,
+  ValidationError,
+  query,
+  param,
+} from "express-validator";
+import {IApiError} from "../types";
+import logger from "../utils/logger";
 
-// Middleware to handle validation errors
-export const handleValidationErrors = (req: Request, res: Response, next: NextFunction): void => {
+export interface ValidationErrorDetail {
+  field: string;
+  message: string;
+  value?: unknown;
+}
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
+
+const formatValidationErrors = (
+  errors: ValidationError[]
+): ValidationErrorDetail[] =>
+  errors.map(error => ({
+    field: error.type === "field" ? error.path : "unknown",
+    message: error.msg,
+    value: error.type === "field" ? error.value : undefined,
+  }));
+
+export const handleValidationErrors = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    const validationErrors = errors.array().map((error) => ({
-      field: error.type === 'field' ? (error as any).path : 'unknown',
-      message: error.msg,
-      value: error.type === 'field' ? (error as any).value : undefined,
-    }));
-
-    logger.warn('Validation errors:', validationErrors);
-
-    const apiError: IApiError = {
-      message: 'Validation failed',
-      statusCode: 400,
-      code: 'VALIDATION_ERROR',
-      details: validationErrors,
-    };
-
-    res.status(400).json({
-      success: false,
-      message: apiError.message,
-      errors: validationErrors.map((err) => err.message),
-      details: validationErrors,
-    });
+  if (errors.isEmpty()) {
+    next();
     return;
   }
 
-  next();
+  const validationErrors = formatValidationErrors(errors.array());
+
+  logger.warn("Validation failed", validationErrors);
+
+  const apiError: IApiError = {
+    message: "Validation failed",
+    statusCode: 400,
+    code: "VALIDATION_ERROR",
+    details: validationErrors,
+  };
+
+  res.status(apiError.statusCode).json({
+    success: false,
+    message: apiError.message,
+    errors: validationErrors.map(err => err.message),
+    details: validationErrors,
+  });
 };
 
-// Alias for common usage
 export const validateRequest = handleValidationErrors;
 
-// Wrapper to run validation chains
-export const validate = (validations: ValidationChain[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    // Run all validations
-    for (const validation of validations) {
-      await validation.run(req);
-    }
-
-    // Handle validation errors
+export const validate =
+  (validations: ValidationChain[]) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    await Promise.all(validations.map(validation => validation.run(req)));
     handleValidationErrors(req, res, next);
   };
-};
 
-// Custom validation helper for MongoDB ObjectIds
-export const isValidObjectId = (value: string): boolean => {
-  return /^[0-9a-fA-F]{24}$/.test(value);
-};
+export const isValidObjectId = (value: string): boolean =>
+  /^[0-9a-fA-F]{24}$/.test(value);
 
-// Custom validation for arrays
-export const isValidArray = (value: any, minLength = 0, maxLength = 100): boolean => {
-  return Array.isArray(value) && value.length >= minLength && value.length <= maxLength;
-};
+export const isValidArray = (
+  value: unknown,
+  minLength = 0,
+  maxLength = 100
+): boolean =>
+  Array.isArray(value) &&
+  value.length >= minLength &&
+  value.length <= maxLength;
 
-// Custom validation for email
-export const isValidEmail = (email: string): boolean => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
+export const isValidEmail = (email: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-// Custom validation for phone numbers
-export const isValidPhoneNumber = (phone: string): boolean => {
-  return /^\+?[1-9]\d{1,14}$/.test(phone.replace(/\s/g, ''));
-};
+export const isValidPhoneNumber = (phone: string): boolean =>
+  /^\+?[1-9]\d{1,14}$/.test(phone.replace(/\s/g, ""));
 
-// Custom validation for URLs
-export const isValidURL = (url: string): boolean => {
+export const isValidURL = (
+  url: string,
+  protocols: string[] = ["http:", "https:"]
+): boolean => {
   try {
-    new URL(url);
-    return true;
+    const parsed = new URL(url);
+    return protocols.includes(parsed.protocol);
   } catch {
     return false;
   }
 };
 
-// Custom validation for passwords
-export const isValidPassword = (password: string): boolean => {
-  // At least 8 characters, contains uppercase, lowercase, number
-  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/.test(password);
-};
+export const isValidPassword = (password: string): boolean =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
 
-// Sanitization helpers
-export const sanitizeString = (str: string): string => {
-  return str.trim().replace(/[<>]/g, '');
-};
+export const sanitizeString = (str?: string | null): string =>
+  (str ?? "").trim().replace(/[<>]/g, "");
 
-export const sanitizeHTML = (str: string): string => {
-  return str
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
-};
+export const sanitizeHTML = (str?: string | null): string =>
+  (str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .replace(/\//g, "&#x2F;");
 
-// Pagination validation
 export const validatePagination = (page?: string, limit?: string) => {
-  const pageNum = parseInt(page || '1', 10);
-  const limitNum = parseInt(limit || '10', 10);
+  const pageNum = Number.parseInt(page ?? `${DEFAULT_PAGE}`, 10);
+  const limitNum = Number.parseInt(limit ?? `${DEFAULT_LIMIT}`, 10);
 
-  const validatedPage = Math.max(1, pageNum);
-  const validatedLimit = Math.min(Math.max(1, limitNum), 100); // Max 100 items per page
+  const validatedPage = Number.isNaN(pageNum)
+    ? DEFAULT_PAGE
+    : Math.max(1, pageNum);
+  const validatedLimit = Number.isNaN(limitNum)
+    ? DEFAULT_LIMIT
+    : Math.min(Math.max(1, limitNum), MAX_LIMIT);
 
   return {
     page: validatedPage,
@@ -116,55 +131,62 @@ export const validatePagination = (page?: string, limit?: string) => {
   };
 };
 
-// Sort validation
 export const validateSort = (sort?: string): Record<string, 1 | -1> => {
-  if (!sort) return { createdAt: -1 }; // Default sort
+  if (!sort) return {createdAt: -1};
 
-  const sortObj: Record<string, 1 | -1> = {};
-  const sortFields = sort.split(',');
-
-  for (const field of sortFields) {
+  return sort.split(",").reduce<Record<string, 1 | -1>>((acc, field) => {
     const trimmed = field.trim();
-    if (trimmed.startsWith('-')) {
+    if (!trimmed) return acc;
+
+    if (trimmed.startsWith("-")) {
       const fieldName = trimmed.substring(1);
-      sortObj[fieldName] = -1;
+      if (fieldName) acc[fieldName] = -1;
     } else {
-      sortObj[trimmed] = 1;
+      acc[trimmed] = 1;
     }
-  }
 
-  return sortObj;
+    return acc;
+  }, {});
 };
 
-// File validation
-export const isValidFileType = (mimetype: string, allowedTypes: string[]): boolean => {
-  return allowedTypes.includes(mimetype);
-};
+export const isValidFileType = (
+  mimetype: string,
+  allowedTypes: string[]
+): boolean => allowedTypes.includes(mimetype);
 
-export const isValidFileSize = (size: number, maxSize: number): boolean => {
-  return size > 0 && size <= maxSize;
-};
+export const isValidFileSize = (size: number, maxSize: number): boolean =>
+  size > 0 && size <= maxSize;
 
-// Date validation
 export const isValidDate = (dateString: string): boolean => {
   const date = new Date(dateString);
-  return !isNaN(date.getTime());
+  return !Number.isNaN(date.getTime());
 };
 
 export const isFutureDate = (dateString: string): boolean => {
   const date = new Date(dateString);
-  return date > new Date();
+  return isValidDate(dateString) && date > new Date();
 };
 
 export const isPastDate = (dateString: string): boolean => {
   const date = new Date(dateString);
-  return date < new Date();
+  return isValidDate(dateString) && date < new Date();
 };
 
-// Common validation chains
-export const paginationValidation: ValidationChain[] = [];
+export const paginationValidation: ValidationChain[] = [
+  query("page").optional().isInt({min: 1}).toInt(),
+  query("limit").optional().isInt({min: 1, max: MAX_LIMIT}).toInt(),
+];
 
-export const idParamValidation: ValidationChain[] = [];
+export const idParamValidation: ValidationChain[] = [
+  param("id")
+    .custom(isValidObjectId)
+    .withMessage("Invalid identifier supplied"),
+];
 
-// Export commonly used validation functions
-export { validationResult, ValidationChain } from 'express-validator';
+export {
+  validationResult,
+  ValidationChain,
+  ValidationError,
+  matchedData,
+  matchedData as extractValidatedData,
+} from "express-validator";

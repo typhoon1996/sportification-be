@@ -76,7 +76,6 @@ const apiKeySchema = new Schema<IApiKey>(
     ],
     expiresAt: {
       type: Date,
-      index: true,
     },
   },
   {
