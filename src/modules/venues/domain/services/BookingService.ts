@@ -23,9 +23,9 @@ import {
   ValidationError,
   ConflictError,
 } from '../../../../shared/middleware/errorHandler';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 import { BookingEventPublisher } from '../../events/publishers/BookingEventPublisher';
-import emailService from '../../../../shared/utils/email';
+import emailService from '../../../../shared/services/email';
 
 export class BookingService {
   private readonly bookingRepository: BookingRepository;

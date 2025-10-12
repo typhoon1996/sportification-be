@@ -1,6 +1,6 @@
 import { eventBus, DomainEvent } from "../../../../shared/events/EventBus";
 import { NotificationService } from "../../domain/services/NotificationService";
-import { UserRegisteredEvent } from "../../../iam/events/publishers/IAMEventPublisher";
+import { UserRegisteredEvent } from "../../../iam/events/publishers/IamEventPublisher";
 import {
   FriendAddedEvent,
   FriendRemovedEvent,

@@ -4,7 +4,7 @@ import { sendSuccess, sendCreated, asyncHandler } from '../../../../shared/middl
 import { AuthRequest } from '../../../../shared/middleware/auth';
 import { validatePagination, validateSort } from '../../../../shared/middleware/validation';
 import { Tournament } from '../../../tournaments/domain/models/Tournament';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 
 export class TournamentController {
   private tournamentService: TournamentService;

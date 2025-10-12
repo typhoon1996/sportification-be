@@ -1,6 +1,6 @@
 import Redis, { RedisOptions } from 'ioredis';
 import config from './index';
-import logger from '../utils/logger';
+import logger from '../infrastructure/logging';
 
 const defaultOptions: RedisOptions = {
   maxRetriesPerRequest: config.redis.maxRetriesPerRequest,

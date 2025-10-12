@@ -1,14 +1,29 @@
-export * from './analytics';
-export * from './audit';
-export * from './cache';
-export * from './email';
-export * from './jwt';
-export * from './logger';
-export * from './ml';
-export * from './security';
-export * from './pagination';
-export * from './validator';
-export * from './fileUpload';
-export * from './queryBuilder';
-export * from './batchOperations';
-export * from './dataExport';
+/**
+ * Backwards Compatibility Layer
+ * 
+ * Re-exports from new locations to maintain existing imports.
+ * TODO: Update all imports to use new locations directly, then remove this file.
+ */
+
+// Services
+export * from '../services/email';
+export * from '../services/ml';
+export * from '../services/analytics';
+export * from '../services/audit';
+
+// Infrastructure
+export * from '../infrastructure/cache';
+export * from '../infrastructure/logging';
+export * from '../infrastructure/storage';
+export * from '../infrastructure/database';
+
+// Lib
+export * from '../lib/auth';
+export * from '../lib/validation/validator';
+export * from '../lib/security';
+export * from '../lib/pagination';
+export * from '../lib/webhooks';
+
+// Integrations
+export * from '../integrations/notifications';
+export * from '../integrations/batch';

@@ -23,9 +23,9 @@
     "start:dev": "NODE_ENV=development node dist/index.js",
     "start:test": "NODE_ENV=test node dist/index.js",
     "start:prod": "NODE_ENV=production node dist/index.js",
-    "dev": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
-    "dev:test": "NODE_ENV=test nodemon --exec ts-node src/index.ts",
-    "dev:debug": "NODE_ENV=development nodemon --exec node --inspect=0.0.0.0:9229 -r ts-node/register src/index.ts",
+    "dev": "NODE_ENV=development nodemon",
+    "dev:test": "NODE_ENV=test nodemon",
+    "dev:debug": "NODE_ENV=development nodemon --exec node --inspect=0.0.0.0:9229 -r ts-node/register -r tsconfig-paths/register --project config/tsconfig.json src/index.ts",
     "test": "NODE_ENV=test jest --config config/jest.config.js --detectOpenHandles",
     "test:watch": "NODE_ENV=test jest --config config/jest.config.js --watch",
     "test:coverage": "NODE_ENV=test jest --config config/jest.config.js --coverage",
@@ -199,6 +199,7 @@
     "supertest": "^7.1.4",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"
   },
   "engines": {

@@ -5,8 +5,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
-import cacheService from '../utils/cache';
+import logger from '../infrastructure/logging';
+import cacheService from '../infrastructure/cache';
 
 /**
  * Response transformation middleware

@@ -28,23 +28,27 @@ We are committed to providing a welcoming and inclusive environment for all cont
 ### Development Setup
 
 1. **Fork and Clone the Repository**
+
   ```bash
   git clone https://github.com/YOUR_USERNAME/sportificatoin-be.git
   cd sportificatoin-be
   ```
 
 2. **Install Dependencies**
+
   ```bash
   npm install
   ```
 
 3. **Set Up Environment Variables**
+
   ```bash
   cp .env.development .env
   # Edit .env with your configuration
   ```
 
 4. **Start Development Server**
+
   ```bash
   npm run dev
   ```
@@ -144,6 +148,7 @@ async function getUserProfile(
 ## Pull Request Process
 
 1. **Create a Feature Branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -154,6 +159,7 @@ async function getUserProfile(
    - Update documentation
 
 3. **Test Your Changes**
+
    ```bash
    npm run lint      # Check linting
    npm run build     # Ensure build succeeds
@@ -161,13 +167,16 @@ async function getUserProfile(
    ```
 
 4. **Commit Your Changes**
+
    ```bash
    git add .
    git commit -m "feat: add amazing feature"
    ```
+
    See [Commit Message Guidelines](#commit-message-guidelines) for format.
 
 5. **Push to Your Fork**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -290,7 +299,7 @@ perf(database): optimize query for user search
 
 ### Reporting Security Issues
 
-**DO NOT** create public issues for security vulnerabilities. Instead, email security@example.com with:
+**DO NOT** create public issues for security vulnerabilities. Instead, email <security@example.com> with:
 
 - Description of the vulnerability
 - Steps to reproduce

@@ -20,7 +20,7 @@ export {
   AccountDeactivatedEvent,
   MFAEnabledEvent,
   MFADisabledEvent,
-} from "./events/publishers/IAMEventPublisher";
+} from "./events/publishers/IamEventPublisher";
 
 // Export public types (if needed)
 export type { IUser } from "../../shared/types";

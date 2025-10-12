@@ -5,7 +5,7 @@ import { AuthRequest } from '../../../../shared/middleware/auth';
 import { validatePagination, validateSort } from '../../../../shared/middleware/validation';
 import { User } from '../../../users/domain/models/User';
 import { Profile } from '../../../users/domain/models/Profile';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 
 export class UserController {
   private userService: UserService;

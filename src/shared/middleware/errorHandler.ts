@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Error as MongooseError } from 'mongoose';
 import { IApiError, IApiResponse } from '../types';
 import config from '../config';
-import logger from '../utils/logger';
+import logger from '../infrastructure/logging';
 
 // Custom error class
 export class ApiError extends Error implements IApiError {

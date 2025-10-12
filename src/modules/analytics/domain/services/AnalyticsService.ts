@@ -1,5 +1,5 @@
 import { UserActivity } from '../../domain/models/Analytics';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 
 export class AnalyticsService {
   private static instance: AnalyticsService;

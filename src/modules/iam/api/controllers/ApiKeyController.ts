@@ -8,7 +8,7 @@ import {
   asyncHandler,
 } from '../../../../shared/middleware/errorHandler';
 import { AuthRequest } from '../../../../shared/middleware/auth';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 
 export class ApiKeyController {
   // Create new API key

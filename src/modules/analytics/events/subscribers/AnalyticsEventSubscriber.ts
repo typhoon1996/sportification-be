@@ -1,6 +1,6 @@
 import { eventBus, DomainEvent } from "../../../../shared/events/EventBus";
 import { AnalyticsService } from "../../domain/services/AnalyticsService";
-import { UserRegisteredEvent } from "../../../iam/events/publishers/IAMEventPublisher";
+import { UserRegisteredEvent } from "../../../iam/events/publishers/IamEventPublisher";
 import {
   MatchCreatedEvent,
   PlayerJoinedEvent,

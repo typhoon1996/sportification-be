@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import logger from '../utils/logger';
+import logger from '../infrastructure/logging';
 
 export interface DomainEvent {
   eventType: string;

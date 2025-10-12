@@ -4,7 +4,7 @@ import { sendSuccess, sendCreated, asyncHandler } from '../../../../shared/middl
 import { AuthRequest } from '../../../../shared/middleware/auth';
 import { validatePagination } from '../../../../shared/middleware/validation';
 import { Team } from '../../domain/models/Team';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 
 export class TeamController {
   private teamService: TeamService;

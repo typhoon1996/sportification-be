@@ -1,5 +1,5 @@
 import { Notification } from "../../domain/models/Notification";
-import logger from "../../../../shared/utils/logger";
+import logger from '../../../../shared/infrastructure/logging';
 
 export class NotificationService {
   async createNotification(

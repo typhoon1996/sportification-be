@@ -1,5 +1,5 @@
 import App from './app';
-import logger from './shared/utils/logger';
+import logger from './shared/infrastructure/logging';
 import { validateAndExit } from './shared/utils/validateEnv';
 import config from './shared/config';
 

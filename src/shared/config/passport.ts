@@ -5,7 +5,7 @@ import { Strategy as GitHubStrategy } from 'passport-github2';
 import { User } from '../../modules/users/domain/models';
 import { Profile } from '../../modules/users/domain/models';
 import config from './index';
-import logger from '../utils/logger';
+import logger from '../infrastructure/logging';
 
 // Serialize user for session
 passport.serializeUser((user: any, done) => {

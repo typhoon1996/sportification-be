@@ -5,7 +5,7 @@
  * when configuration is missing or invalid.
  */
 
-import logger from './logger';
+import logger from '../infrastructure/logging';
 
 interface ValidationRule {
   key: string;

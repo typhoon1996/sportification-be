@@ -7,7 +7,7 @@ import { BookingService } from '../../domain/services/BookingService';
 import { sendSuccess, sendCreated, asyncHandler } from '../../../../shared/middleware/errorHandler';
 import { AuthRequest } from '../../../../shared/middleware/auth';
 import { validatePagination } from '../../../../shared/middleware/validation';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 import {
   CreateBookingDTO,
   UpdateBookingDTO,

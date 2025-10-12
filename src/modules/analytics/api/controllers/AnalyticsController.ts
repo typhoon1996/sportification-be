@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AnalyticsService } from '../../../../shared/utils/analytics';
+import { AnalyticsService } from '../../../../shared/services/analytics';
 import {
   UserActivity,
   PerformanceMetrics,

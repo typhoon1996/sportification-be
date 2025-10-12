@@ -1,7 +1,7 @@
 import RedisStore from 'rate-limit-redis';
 import config from './index';
 import { createRedisClient, RedisClient } from './redis';
-import logger from '../utils/logger';
+import logger from '../infrastructure/logging';
 
 let rateLimitClient: RedisClient | undefined;
 

@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { ChatService } from '../../domain/services/ChatService';
 import { sendSuccess, sendCreated, asyncHandler } from '../../../../shared/middleware/errorHandler';
 import { AuthRequest } from '../../../../shared/middleware/auth';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 
 export class ChatController {
   private chatService: ChatService;

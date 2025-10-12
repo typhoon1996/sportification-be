@@ -6,8 +6,8 @@ import {
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
 import { AuthRequest } from "../../../../shared/middleware/auth";
-import { AuditLogger } from "../../../../shared/utils/audit";
-import logger from "../../../../shared/utils/logger";
+import { AuditLogger } from '../../../../shared/services/audit';
+import logger from '../../../../shared/infrastructure/logging';
 
 export class AuthController {
   private authService: AuthService;

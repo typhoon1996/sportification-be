@@ -1,4 +1,4 @@
-import { JWTUtil } from '../shared/utils/jwt';
+import { JWTUtil } from '../shared/lib/auth';
 
 describe('JWT Utility', () => {
   const testUserId = '507f1f77bcf86cd799439011';

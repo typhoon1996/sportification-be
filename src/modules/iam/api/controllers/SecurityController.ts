@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuditLog } from '../../../iam/domain/models/AuditLog';
-import { AuditLogger } from '../../../../shared/utils/audit';
+import { AuditLogger } from '../../../../shared/services/audit';
 import { ValidationError, sendSuccess, asyncHandler } from '../../../../shared/middleware/errorHandler';
 import { AuthRequest } from '../../../../shared/middleware/auth';
 

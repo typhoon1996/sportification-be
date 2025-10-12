@@ -1,4 +1,4 @@
-import { MFAUtil, SecurityUtil } from '../shared/utils/security';
+import { MFAUtil, SecurityUtil } from '../shared/lib/security';
 
 describe('MFAUtil', () => {
   describe('generateSecret', () => {

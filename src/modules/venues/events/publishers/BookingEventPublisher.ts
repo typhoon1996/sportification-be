@@ -3,7 +3,7 @@
  */
 
 import { eventBus } from '../../../../shared/events/EventBus';
-import logger from '../../../../shared/utils/logger';
+import logger from '../../../../shared/infrastructure/logging';
 
 export interface BookingCreatedEvent {
   bookingId: string;

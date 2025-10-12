@@ -8,7 +8,7 @@ import { Venue } from '../modules/venues/domain/models/Venue';
 import { Chat } from '../modules/chat/domain/models/Chat';
 import { Message } from '../modules/chat/domain/models/Message';
 import config from '../shared/config';
-import logger from '../shared/utils/logger';
+import logger from '../shared/infrastructure/logging';
 
 /**
  * Database Migration Script

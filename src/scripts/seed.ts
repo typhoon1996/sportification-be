@@ -7,7 +7,7 @@ import { Tournament } from '../modules/tournaments/domain/models/Tournament';
 import { Venue } from '../modules/venues/domain/models/Venue';
 import { Notification } from '../modules/notifications/domain/models/Notification';
 import config from '../shared/config';
-import logger from '../shared/utils/logger';
+import logger from '../shared/infrastructure/logging';
 import { MatchType, MatchStatus, TournamentStatus, NotificationType } from '../shared/types';
 
 /**

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiKey } from '../../modules/iam/domain/models';
-import logger from '../utils/logger';
+import logger from '../infrastructure/logging';
 import rateLimit from 'express-rate-limit';
 
 // Extend Express Request interface to include API key info

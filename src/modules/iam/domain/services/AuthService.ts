@@ -1,18 +1,18 @@
 import bcrypt from "bcryptjs";
 import { User } from "../../../users/domain/models/User";
 import { Profile } from "../../../users/domain/models/Profile";
-import { JWTUtil } from "../../../../shared/utils/jwt";
-import { IAMEventPublisher } from "../../events/publishers/IAMEventPublisher";
+import { JWTUtil } from '../../../../shared/lib/auth';
+import { IamEventPublisher } from "../../events/publishers/IamEventPublisher";
 import {
   AuthenticationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
 
 export class AuthService {
-  private eventPublisher: IAMEventPublisher;
+  private eventPublisher: IamEventPublisher;
 
   constructor() {
-    this.eventPublisher = new IAMEventPublisher();
+    this.eventPublisher = new IamEventPublisher();
   }
 
   async register(

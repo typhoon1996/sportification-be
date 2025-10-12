@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnalyticsService } from '../utils/analytics';
-import logger from '../utils/logger';
+import { AnalyticsService } from '../services/analytics';
+import logger from '../infrastructure/logging';
 import crypto from 'crypto';
 
 declare global {

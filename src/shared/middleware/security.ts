@@ -7,7 +7,7 @@ import hpp from 'hpp';
 import compression from 'compression';
 import cors from 'cors';
 import config from '../config';
-import logger from '../utils/logger';
+import logger from '../infrastructure/logging';
 import { getRateLimitStore } from '../config/rateLimitStore';
 
 let rateLimitFallbackLogged = false;
