@@ -1,18 +1,54 @@
-import { Router } from 'express';
-import { venueController } from '../controllers/VenueController';
-import { authenticate } from '../../../../shared/middleware/auth';
-import bookingRoutes from './bookings';
+import {Router} from "express";
+import {venueController} from "../controllers/VenueController";
+import {authenticate, authorize} from "../../../../shared/middleware/auth";
+import {validateRequest} from "../../../../shared/middleware/validation";
+import {
+  createVenueValidation,
+  idParamValidation,
+} from "../../../../shared/validators";
+import bookingRoutes from "./bookings";
 
 const router = Router();
 
-// Booking routes - mounted at /bookings
-router.use('/bookings', bookingRoutes);
+// Booking routes - mounted at /bookings (has its own auth)
+router.use("/bookings", bookingRoutes);
+
+// All venue routes require authentication
+router.use(authenticate);
 
 // Venue routes
-router.post('/', authenticate, venueController.createVenue);
-router.get('/', venueController.getVenues);
-router.get('/:id', venueController.getVenueById);
-router.put('/:id', authenticate, venueController.updateVenue);
-router.delete('/:id', authenticate, venueController.deleteVenue);
+router.post(
+  "/",
+  authorize(["admin", "moderator"]),
+  createVenueValidation,
+  validateRequest,
+  venueController.createVenue
+); // Admin/moderator only
+
+router.get("/", venueController.getVenues); // Any authenticated user can view
+
+router.get(
+  "/:id",
+  idParamValidation,
+  validateRequest,
+  venueController.getVenueById
+); // Any authenticated user can view
+
+router.put(
+  "/:id",
+  idParamValidation,
+  authorize(["admin", "moderator"]),
+  createVenueValidation,
+  validateRequest,
+  venueController.updateVenue
+); // Admin/moderator only
+
+router.delete(
+  "/:id",
+  idParamValidation,
+  validateRequest,
+  authorize(["admin"]),
+  venueController.deleteVenue
+); // Admin only
 
 export default router;

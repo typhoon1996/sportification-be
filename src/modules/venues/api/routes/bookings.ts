@@ -2,9 +2,9 @@
  * Booking Routes
  */
 
-import { Router } from 'express';
-import { bookingController } from '../controllers/BookingController';
-import { authenticate } from '../../../../shared/middleware/auth';
+import {Router} from "express";
+import {bookingController} from "../controllers/BookingController";
+import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {
   createBookingValidation,
   updateBookingValidation,
@@ -16,60 +16,94 @@ import {
   getBookingsValidation,
   getVenueCalendarValidation,
   getVenueAnalyticsValidation,
-} from '../validators/booking.validators';
+} from "../validators/booking.validators";
 
 const router = Router();
 
-// Public routes
+// All routes require authentication
+router.use(authenticate);
+
+// Booking availability check
 router.post(
-  '/check-availability',
+  "/check-availability",
   checkAvailabilityValidation,
   bookingController.checkAvailability
 );
 
-// Protected routes - require authentication
-router.post('/', authenticate, createBookingValidation, bookingController.createBooking);
+// Booking management
+router.post("/", createBookingValidation, bookingController.createBooking);
 
-router.get('/', authenticate, getBookingsValidation, bookingController.getBookings);
+router.get(
+  "/",
+  authorize(["admin", "moderator"]),
+  getBookingsValidation,
+  bookingController.getBookings
+); // Admin/moderator only
 
-router.get('/my-bookings', authenticate, bookingController.getMyBookings);
+router.get("/my-bookings", bookingController.getMyBookings); // Any authenticated user
 
-router.get('/dashboard/stats', authenticate, bookingController.getDashboardStats);
+router.get(
+  "/dashboard/stats",
+  authorize(["admin", "moderator"]),
+  bookingController.getDashboardStats
+); // Admin/moderator only
 
-router.get('/:id', authenticate, bookingIdValidation, bookingController.getBookingById);
+router.get("/:id", bookingIdValidation, bookingController.getBookingById); // Any authenticated user
 
-router.patch('/:id', authenticate, updateBookingValidation, bookingController.updateBooking);
-
-router.post('/:id/cancel', authenticate, cancelBookingValidation, bookingController.cancelBooking);
+router.patch("/:id", updateBookingValidation, bookingController.updateBooking); // Booking owner or admin
 
 router.post(
-  '/:id/confirm-payment',
-  authenticate,
+  "/:id/cancel",
+  cancelBookingValidation,
+  bookingController.cancelBooking
+); // Booking owner or admin
+
+router.post(
+  "/:id/confirm-payment",
+  authorize(["admin", "moderator"]),
   confirmPaymentValidation,
   bookingController.confirmPayment
-);
+); // Admin/moderator only
 
-router.post('/:id/checkin', authenticate, bookingIdValidation, bookingController.checkIn);
+router.post(
+  "/:id/checkin",
+  authorize(["admin", "moderator"]),
+  bookingIdValidation,
+  bookingController.checkIn
+); // Admin/moderator only
 
-router.post('/:id/checkout', authenticate, bookingIdValidation, bookingController.checkOut);
+router.post(
+  "/:id/checkout",
+  authorize(["admin", "moderator"]),
+  bookingIdValidation,
+  bookingController.checkOut
+); // Admin/moderator only
 
-router.post('/:id/no-show', authenticate, bookingIdValidation, bookingController.markNoShow);
+router.post(
+  "/:id/no-show",
+  authorize(["admin", "moderator"]),
+  bookingIdValidation,
+  bookingController.markNoShow
+); // Admin/moderator only
 
 // Venue-specific booking routes
-router.get('/venue/:venueId', authenticate, venueIdValidation, bookingController.getVenueBookings);
+router.get(
+  "/venue/:venueId",
+  venueIdValidation,
+  bookingController.getVenueBookings
+); // Any authenticated user
 
 router.get(
-  '/venue/:venueId/analytics',
-  authenticate,
+  "/venue/:venueId/analytics",
+  authorize(["admin", "moderator"]),
   getVenueAnalyticsValidation,
   bookingController.getVenueAnalytics
-);
+); // Admin/moderator only
 
 router.get(
-  '/venue/:venueId/calendar',
-  authenticate,
+  "/venue/:venueId/calendar",
   getVenueCalendarValidation,
   bookingController.getVenueCalendar
-);
+); // Any authenticated user
 
 export default router;

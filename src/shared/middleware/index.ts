@@ -1,7 +1,25 @@
-export * from './apiKeyAuth';
-export * from './auth';
-export * from './errorHandler';
-export * from './logging';
-export * from './performance';
-export * from './security';
-export * from './validation';
+// API Key Authentication
+export * from "./apiKeyAuth";
+
+// Authentication & Authorization
+export * from "./auth";
+
+// Error Handling
+export * from "./errorHandler";
+
+// Logging
+export * from "./logging";
+
+// Performance
+export * from "./performance";
+
+// Security
+export * from "./security";
+
+// Validation
+export {
+  ValidationErrorDetail,
+  handleValidationErrors,
+  validateRequest,
+  validatePagination,
+} from "./validation";

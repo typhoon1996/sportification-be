@@ -81,6 +81,24 @@ docs/
   - Error handling
   - WebSocket events
 
+### 🔒 Security & Authentication
+
+- **[Route Protection Summary](ROUTE_PROTECTION_SUMMARY.md)** - Complete route protection overview
+  - Authentication requirements
+  - Role-based authorization
+  - Security measures
+  - Protection status by module
+- **[Route Protection Implementation](ROUTE_PROTECTION_IMPLEMENTATION.md)** - Implementation details
+  - What was changed
+  - Protection strategy
+  - Testing guide
+  - Migration guide for clients
+- **[Auth Quick Reference](AUTH_QUICK_REFERENCE.md)** - Quick reference guide
+  - Common patterns
+  - Testing cheat sheet
+  - Token management
+  - Troubleshooting
+
 ---
 
 ## 🎯 Feature Documentation

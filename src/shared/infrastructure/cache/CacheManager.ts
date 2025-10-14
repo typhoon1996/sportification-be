@@ -1,5 +1,5 @@
 import logger from "../logging";
-import { createRedisClient, RedisClient } from "../../config/redis";
+import {createRedisClient, RedisClient} from "../../config/redis";
 
 /**
  * Redis Cache Service
@@ -9,11 +9,11 @@ import { createRedisClient, RedisClient } from "../../config/redis";
  */
 
 class CacheService {
-  private readonly redis: RedisClient;
+  private readonly _redis: RedisClient;
   private isConnected: boolean = false;
 
   constructor() {
-    this.redis = createRedisClient({
+    this._redis = createRedisClient({
       lazyConnect: true,
       keyPrefix: "sportification:cache:",
     });
@@ -21,24 +21,31 @@ class CacheService {
     this.setupEventHandlers();
   }
 
+  /**
+   * Get the redis client instance for direct operations
+   */
+  get redis(): RedisClient {
+    return this._redis;
+  }
+
   private setupEventHandlers(): void {
-    this.redis.on("connect", () => {
+    this._redis.on("connect", () => {
       this.isConnected = true;
     });
 
-    this.redis.on("ready", () => {
+    this._redis.on("ready", () => {
       this.isConnected = true;
     });
 
-    this.redis.on("error", () => {
+    this._redis.on("error", () => {
       this.isConnected = false;
     });
 
-    this.redis.on("close", () => {
+    this._redis.on("close", () => {
       this.isConnected = false;
     });
 
-    this.redis.on("reconnecting", () => {
+    this._redis.on("reconnecting", () => {
       this.isConnected = false;
     });
   }
@@ -48,7 +55,7 @@ class CacheService {
    */
   async connect(): Promise<void> {
     try {
-      await this.redis.connect();
+      await this._redis.connect();
       logger.info("🎉 Redis cache service initialized");
     } catch (error) {
       logger.error("💥 Failed to connect to Redis:", error);
@@ -60,7 +67,7 @@ class CacheService {
    * Disconnect from Redis and clean up resources
    */
   async disconnect(): Promise<void> {
-    this.redis.disconnect();
+    this._redis.disconnect();
     this.isConnected = false;
     logger.info("👋 Redis connection closed");
   }
@@ -71,7 +78,7 @@ class CacheService {
    * @returns True if connected and ready, false otherwise
    */
   isReady(): boolean {
-    return this.isConnected && this.redis.status === "ready";
+    return this.isConnected && this._redis.status === "ready";
   }
 
   /**
@@ -98,9 +105,9 @@ class CacheService {
       const serializedValue = JSON.stringify(value);
 
       if (expirationSeconds) {
-        await this.redis.setex(key, expirationSeconds, serializedValue);
+        await this._redis.setex(key, expirationSeconds, serializedValue);
       } else {
-        await this.redis.set(key, serializedValue);
+        await this._redis.set(key, serializedValue);
       }
 
       logger.debug(`📝 Cached data for key: ${key}`);
@@ -126,7 +133,7 @@ class CacheService {
    */
   async get<T>(key: string): Promise<T | null> {
     try {
-      const cachedValue = await this.redis.get(key);
+      const cachedValue = await this._redis.get(key);
 
       if (cachedValue === null) {
         logger.debug(`🔍 Cache miss for key: ${key}`);
@@ -146,7 +153,7 @@ class CacheService {
    */
   async delete(key: string): Promise<boolean> {
     try {
-      const result = await this.redis.del(key);
+      const result = await this._redis.del(key);
       logger.debug(`🗑️  Deleted cache key: ${key}`);
       return result === 1;
     } catch (error) {
@@ -160,7 +167,7 @@ class CacheService {
    */
   async exists(key: string): Promise<boolean> {
     try {
-      const result = await this.redis.exists(key);
+      const result = await this._redis.exists(key);
       return result === 1;
     } catch (error) {
       logger.error(`❌ Failed to check existence of key ${key}:`, error);
@@ -173,7 +180,7 @@ class CacheService {
    */
   async expire(key: string, seconds: number): Promise<boolean> {
     try {
-      const result = await this.redis.expire(key, seconds);
+      const result = await this._redis.expire(key, seconds);
       return result === 1;
     } catch (error) {
       logger.error(`❌ Failed to set expiration for key ${key}:`, error);
@@ -186,7 +193,7 @@ class CacheService {
    */
   async ttl(key: string): Promise<number> {
     try {
-      return await this.redis.ttl(key);
+      return await this._redis.ttl(key);
     } catch (error) {
       logger.error(`❌ Failed to get TTL for key ${key}:`, error);
       return -1;
@@ -198,7 +205,7 @@ class CacheService {
    */
   async increment(key: string, by: number = 1): Promise<number> {
     try {
-      const result = await this.redis.incrby(key, by);
+      const result = await this._redis.incrby(key, by);
       logger.debug(`📈 Incremented ${key} by ${by}, new value: ${result}`);
       return result;
     } catch (error) {
@@ -242,7 +249,7 @@ class CacheService {
    */
   async flushAll(): Promise<void> {
     try {
-      await this.redis.flushall();
+      await this._redis.flushall();
       logger.warn("🧹 Flushed all Redis cache");
     } catch (error) {
       logger.error("❌ Failed to flush Redis cache:", error);
@@ -255,7 +262,7 @@ class CacheService {
    */
   async getInfo(): Promise<string> {
     try {
-      return await this.redis.info();
+      return await this._redis.info();
     } catch (error) {
       logger.error("❌ Failed to get Redis info:", error);
       throw error;
@@ -267,7 +274,7 @@ class CacheService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const result = await this.redis.ping();
+      const result = await this._redis.ping();
       return result === "PONG";
     } catch (error) {
       logger.error("❌ Redis health check failed:", error);
@@ -322,7 +329,7 @@ class CacheService {
     identifier: string,
     limit: number,
     windowSeconds: number
-  ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
+  ): Promise<{allowed: boolean; remaining: number; resetTime: number}> {
     const key = `rate_limit:${identifier}`;
     const current = await this.increment(key);
 
