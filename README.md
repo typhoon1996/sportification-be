@@ -2,8 +2,6 @@
 
 A comprehensive, production-ready backend API for the Sports Companion Application. This backend provides a robust foundation for connecting sports enthusiasts worldwide through matches, tournaments, real-time chat, and social features.
 
-> **📢 Note**: The codebase has been recently restructured for better organization! See [RESTRUCTURE_COMPLETE.md](RESTRUCTURE_COMPLETE.md) for details and [FILE_LOCATIONS.md](FILE_LOCATIONS.md) for a quick reference guide.
-
 ## 🚀 Features
 
 ### Core Functionality

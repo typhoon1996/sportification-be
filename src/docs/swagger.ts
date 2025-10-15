@@ -1,33 +1,93 @@
 import swaggerJSDoc, {SwaggerDefinition} from "swagger-jsdoc";
 
+/**
+ * @constant swaggerDefinition
+ * @description Comprehensive OpenAPI 3.0 specification for the Sportification backend.
+ * Defines API metadata, server environments, tag taxonomy, reusable schemas,
+ * shared response envelopes, authentication schemes, and global error templates.
+ * Use this document to drive Swagger UI, client generation, and automated contract tests.
+ *
+ * Architecture: Modular Monolith with Event-Driven Communication
+ * - Each module is a bounded context (IAM, Users, Matches, Tournaments, Teams, Venues, Chat, Notifications, Analytics)
+ * - Inter-module communication via EventBus (pub/sub pattern)
+ * - Clean Architecture layers: API → Domain → Data → Events
+ * - Future-ready for microservices extraction via Strangler Fig pattern
+ */
+const swaggerDescription = [
+  "**Modular Monolith Backend for the Sportification Platform**",
+  "",
+  "## Architecture Overview",
+  "Built using **Clean Architecture** and **Domain-Driven Design (DDD)** principles.",
+  "Each module is a self-contained bounded context, ready for future microservices extraction.",
+  "",
+  "## Key Features",
+  "- 🔐 **Authentication & Authorization** · JWT access + refresh tokens with optional MFA",
+  "- 📢 **Event-Driven Architecture** · Pub/Sub communication via EventBus (zero direct module coupling)",
+  "- ⚡ **Real-Time Communication** · Socket.IO for match updates, chat, and notifications",
+  "- 📊 **Analytics & AI** · Built-in observability, performance metrics, and ML-assisted recommendations",
+  "- 🛡️ **Security** · Rate limiting, API keys, audit logs, and IP restrictions",
+  "- 🏟️ **Core Features** · Matches, Tournaments, Teams, Venues, Bookings, Chat",
+  "",
+  "## Modules",
+  "- **IAM** (Authentication) - No dependencies",
+  "- **Users** (Profiles) - Depends on: IAM",
+  "- **Matches** - Depends on: Users, Venues",
+  "- **Tournaments** - Depends on: Matches, Users",
+  "- **Teams** - Depends on: Users",
+  "- **Venues** (incl. Bookings) - No dependencies",
+  "- **Chat** - Depends on: Users, Matches, Tournaments, Teams",
+  "- **Notifications** - Cross-cutting (subscribes to all events)",
+  "- **Analytics** - Cross-cutting (subscribes to all events)",
+  "",
+  "## Usage Guidelines",
+  "- **Authentication**: Include `Authorization: Bearer <access_token>` on protected endpoints",
+  "- **Rate Limits**:",
+  "  - General: 100 req / 15 min",
+  "  - Auth endpoints: 20 req / 15 min",
+  "  - File uploads: 10 req / 15 min",
+  "- **Pagination**: Default page size: 10, Max: 100",
+  "- **Response Envelope**:",
+  "```json",
+  "{",
+  '  "success": true,',
+  '  "message": "Operation completed successfully",',
+  '  "data": {},',
+  '  "errors": [],',
+  '  "meta": {',
+  '    "pagination": {',
+  '      "page": 1,',
+  '      "limit": 10,',
+  '      "total": 100,',
+  '      "pages": 10',
+  "    }",
+  "  }",
+  "}",
+  "```",
+  "",
+  "## Status Codes",
+  "- **200** OK - Success (GET, PATCH)",
+  "- **201** Created - Resource created (POST)",
+  "- **204** No Content - Success, no response body (DELETE)",
+  "- **400** Bad Request - Validation error",
+  "- **401** Unauthorized - Authentication required/failed",
+  "- **403** Forbidden - Insufficient permissions",
+  "- **404** Not Found - Resource doesn't exist",
+  "- **409** Conflict - Business rule violation",
+  "- **429** Too Many Requests - Rate limit exceeded",
+  "- **500** Internal Server Error - Unhandled server error",
+  "- **503** Service Unavailable - External service down",
+  "",
+  "## Event-Driven Communication",
+  "Modules communicate via EventBus using the pattern: `{module}.{entity}.{action}`",
+  "Example events: `iam.user.registered`, `matches.match.created`, `users.friend.added`",
+].join("\n");
+
 const swaggerDefinition: SwaggerDefinition = {
   openapi: "3.0.0",
   info: {
     title: "Sportification API",
     version: "1.0.0",
-    description: `
-      Modular monolith backend for the Sportification platform.
-
-      Highlights
-      - **Authentication** · JWT access + refresh tokens with optional MFA
-      - **Event-Driven Modules** · Matches, Tournaments, Teams, Chat, Notifications
-      - **Real-Time** · Socket.IO for match feeds, chat, and system alerts
-      - **Analytics & Insights** · Built-in observability and AI-assisted recommendations
-
-      Usage
-      - Include \`Authorization: Bearer <access_token>\` on protected endpoints.
-      - Rate limits: 100 req / 15 min (general) unless overridden per route.
-      - Response envelope:
-        \`\`\`json
-        {
-          "success": true,
-          "message": "string",
-          "data": {},
-          "errors": [],
-          "meta": {}
-        }
-        \`\`\`
-    `.trim(),
+    description: swaggerDescription,
     contact: {
       name: "Sportification Backend Team",
       email: "support@sportification.app",
@@ -1329,12 +1389,27 @@ const swaggerDefinition: SwaggerDefinition = {
 const options = {
   definition: swaggerDefinition,
   apis: [
-    "./src/app.ts",
-    "./src/modules/**/api/routes/*.ts",
-    "./src/modules/**/api/controllers/*.ts",
-    "./src/shared/routes/*.ts",
+    "./src/app.ts", // Main application routes
+    "./src/modules/**/api/routes/*.ts", // Module route definitions
+    "./src/modules/**/api/controllers/*.ts", // Controller implementations with JSDoc
+    "./src/shared/routes/*.ts", // Shared/common routes
+    "./src/shared/middleware/*.ts", // Middleware documentation
   ],
 };
 
+/**
+ * Generated OpenAPI specification
+ * Use this in your Express app with swagger-ui-express:
+ *
+ * @example
+ * import swaggerUi from 'swagger-ui-express';
+ * import { specs } from './docs/swagger';
+ *
+ * app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(specs));
+ */
 export const specs = swaggerJSDoc(options);
+
+/**
+ * Default export for convenience
+ */
 export default specs;
