@@ -1,0 +1,151 @@
+{
+  "name": "08. Chat",
+  "description": "Chat and messaging functionality",
+  "item": [
+    {
+      "name": "Create Chat",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    if (response.data && response.data.chat) {",
+              "        pm.environment.set('chatId', response.data.chat._id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"match\",\n  \"name\": \"Match Discussion\",\n  \"participants\": [\"{{userId}}\"],\n  \"entityId\": \"{{matchId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/chats",
+          "host": ["{{baseUrl}}"],
+          "path": ["chats"]
+        },
+        "description": "Create a new chat room (match, tournament, team, or direct)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get My Chats",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/chats?page=1&limit=20&type=match",
+          "host": ["{{baseUrl}}"],
+          "path": ["chats"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            },
+            {
+              "key": "type",
+              "value": "match",
+              "description": "Filter by chat type: match, tournament, team, direct"
+            }
+          ]
+        },
+        "description": "Get all chats for the authenticated user"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Chat Messages",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/chats/:chatId/messages?page=1&limit=50",
+          "host": ["{{baseUrl}}"],
+          "path": ["chats", ":chatId", "messages"],
+          "variable": [
+            {
+              "key": "chatId",
+              "value": "{{chatId}}"
+            }
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "50"
+            }
+          ]
+        },
+        "description": "Get messages from a chat room with pagination"
+      },
+      "response": []
+    },
+    {
+      "name": "Send Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Hello team! Ready for the match?\",\n  \"type\": \"text\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/chats/:chatId/messages",
+          "host": ["{{baseUrl}}"],
+          "path": ["chats", ":chatId", "messages"],
+          "variable": [
+            {
+              "key": "chatId",
+              "value": "{{chatId}}"
+            }
+          ]
+        },
+        "description": "Send a message to a chat room"
+      },
+      "response": []
+    }
+  ]
+}

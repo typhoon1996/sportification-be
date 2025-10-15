@@ -1,0 +1,192 @@
+{
+  "name": "02. Users",
+  "description": "User management endpoints - Profile, Friends, Search",
+  "item": [
+    {
+      "name": "Get Current User Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me"]
+        },
+        "description": "Get the authenticated user's profile information"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Current User Profile",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"johndoe_updated\",\n  \"profile\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe Updated\",\n    \"bio\": \"Passionate sports enthusiast\",\n    \"location\": \"New York, NY\"\n  },\n  \"sports\": [\"football\", \"basketball\", \"tennis\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me"]
+        },
+        "description": "Update the authenticated user's profile"
+      },
+      "response": []
+    },
+    {
+      "name": "Get User By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/:userId",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", ":userId"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            }
+          ]
+        },
+        "description": "Get a specific user's public profile by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Search Users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users?search=john&page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["users"],
+          "query": [
+            {
+              "key": "search",
+              "value": "john",
+              "description": "Search term for username, firstName, or lastName"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Search for users by name or username"
+      },
+      "response": []
+    },
+    {
+      "name": "Add Friend",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"friendId\": \"{{userId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/friends",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "friends"]
+        },
+        "description": "Send a friend request to another user"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Friends List",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/friends?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "friends"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Get the authenticated user's friends list"
+      },
+      "response": []
+    },
+    {
+      "name": "Remove Friend",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/friends/:friendId",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "friends", ":friendId"],
+          "variable": [
+            {
+              "key": "friendId",
+              "value": "{{userId}}"
+            }
+          ]
+        },
+        "description": "Remove a user from friends list"
+      },
+      "response": []
+    }
+  ]
+}

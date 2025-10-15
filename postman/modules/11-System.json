@@ -1,0 +1,62 @@
+{
+  "name": "11. System",
+  "description": "System health and API information",
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check API health status (no authentication required)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get API Info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "Get API version and basic information"
+      },
+      "response": []
+    },
+    {
+      "name": "Swagger Documentation (JSON)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/docs/swagger.json",
+          "host": ["{{baseUrl}}"],
+          "path": ["docs", "swagger.json"]
+        },
+        "description": "Get OpenAPI specification in JSON format"
+      },
+      "response": []
+    },
+    {
+      "name": "Swagger UI",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/docs",
+          "host": ["{{baseUrl}}"],
+          "path": ["docs"]
+        },
+        "description": "Access Swagger UI for interactive API documentation"
+      },
+      "response": []
+    }
+  ]
+}

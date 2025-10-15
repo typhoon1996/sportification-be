@@ -1,0 +1,211 @@
+{
+  "name": "12. API Keys",
+  "description": "API key management for third-party integrations",
+  "item": [
+    {
+      "name": "Create API Key",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    if (response.data && response.data.apiKey) {",
+              "        pm.environment.set('apiKeyId', response.data.apiKey._id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Mobile App Integration\",\n  \"description\": \"API key for mobile app\",\n  \"permissions\": [\"read:matches\", \"write:matches\"],\n  \"expiresAt\": \"2026-12-31T23:59:59Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api-keys",
+          "host": ["{{baseUrl}}"],
+          "path": ["api-keys"]
+        },
+        "description": "Create a new API key for third-party integration"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All API Keys",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api-keys?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api-keys"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get all API keys for the authenticated user"
+      },
+      "response": []
+    },
+    {
+      "name": "Get API Key By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api-keys/:apiKeyId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api-keys", ":apiKeyId"],
+          "variable": [
+            {
+              "key": "apiKeyId",
+              "value": "{{apiKeyId}}"
+            }
+          ]
+        },
+        "description": "Get details of a specific API key"
+      },
+      "response": []
+    },
+    {
+      "name": "Update API Key",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Mobile App Key\",\n  \"permissions\": [\"read:matches\", \"write:matches\", \"read:tournaments\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api-keys/:apiKeyId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api-keys", ":apiKeyId"],
+          "variable": [
+            {
+              "key": "apiKeyId",
+              "value": "{{apiKeyId}}"
+            }
+          ]
+        },
+        "description": "Update API key details and permissions"
+      },
+      "response": []
+    },
+    {
+      "name": "Revoke API Key",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api-keys/:apiKeyId/revoke",
+          "host": ["{{baseUrl}}"],
+          "path": ["api-keys", ":apiKeyId", "revoke"],
+          "variable": [
+            {
+              "key": "apiKeyId",
+              "value": "{{apiKeyId}}"
+            }
+          ]
+        },
+        "description": "Revoke an API key (cannot be undone)"
+      },
+      "response": []
+    },
+    {
+      "name": "Regenerate API Key",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api-keys/:apiKeyId/regenerate",
+          "host": ["{{baseUrl}}"],
+          "path": ["api-keys", ":apiKeyId", "regenerate"],
+          "variable": [
+            {
+              "key": "apiKeyId",
+              "value": "{{apiKeyId}}"
+            }
+          ]
+        },
+        "description": "Regenerate API key secret (old key becomes invalid)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get API Key Usage Stats",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api-keys/:apiKeyId/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["api-keys", ":apiKeyId", "stats"],
+          "variable": [
+            {
+              "key": "apiKeyId",
+              "value": "{{apiKeyId}}"
+            }
+          ]
+        },
+        "description": "Get usage statistics for an API key"
+      },
+      "response": []
+    }
+  ]
+}

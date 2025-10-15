@@ -1,0 +1,508 @@
+{
+  "name": "07. Venue Bookings",
+  "description": "Venue booking management - Create, Manage, Check-in, Payment",
+  "item": [
+    {
+      "name": "Create Booking",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    if (response.data && response.data.booking) {",
+              "        pm.environment.set('bookingId', response.data.booking._id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"venueId\": \"{{venueId}}\",\n  \"startTime\": \"2025-10-20T14:00:00Z\",\n  \"endTime\": \"2025-10-20T16:00:00Z\",\n  \"purpose\": \"Team practice\",\n  \"notes\": \"Need extra equipment\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            }
+          ]
+        },
+        "description": "Create a new venue booking for a specific time slot"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Bookings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings?page=1&limit=10&status=confirmed",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            }
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "status",
+              "value": "confirmed",
+              "description": "Filter by status: pending, confirmed, checked-in, completed, cancelled, no-show"
+            }
+          ]
+        },
+        "description": "Get all bookings for a venue"
+      },
+      "response": []
+    },
+    {
+      "name": "Get My Bookings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/bookings/my-bookings?page=1&limit=10&status=confirmed",
+          "host": ["{{baseUrl}}"],
+          "path": ["bookings", "my-bookings"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "status",
+              "value": "confirmed",
+              "description": "Filter by status"
+            }
+          ]
+        },
+        "description": "Get all bookings for the authenticated user"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Booking By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Get detailed information about a specific booking"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Booking",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"confirmed\",\n  \"notes\": \"Updated booking notes\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Update booking details"
+      },
+      "response": []
+    },
+    {
+      "name": "Cancel Booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/cancel",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId", "cancel"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Cancel a booking"
+      },
+      "response": []
+    },
+    {
+      "name": "Check-In Booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/checkin",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId", "checkin"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Check-in to a confirmed booking"
+      },
+      "response": []
+    },
+    {
+      "name": "Complete Booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/complete",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId", "complete"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Mark a booking as completed"
+      },
+      "response": []
+    },
+    {
+      "name": "Check Availability",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/availability?date=2025-10-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", "availability"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            }
+          ],
+          "query": [
+            {
+              "key": "date",
+              "value": "2025-10-20",
+              "description": "Date to check availability (YYYY-MM-DD)"
+            }
+          ]
+        },
+        "description": "Check venue availability for a specific date"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Booking Stats",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", "stats"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            }
+          ]
+        },
+        "description": "Get booking statistics for a venue"
+      },
+      "response": []
+    },
+    {
+      "name": "Apply Promo Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"promoCode\": \"SUMMER2025\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/promo",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId", "promo"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Apply a promo code to a booking for discount"
+      },
+      "response": []
+    },
+    {
+      "name": "Process Payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"method\": \"card\",\n  \"amount\": 100\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/payment",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId", "payment"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Process payment for a booking"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Payment Receipt",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/receipt",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId", "receipt"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Get payment receipt for a booking"
+      },
+      "response": []
+    },
+    {
+      "name": "Request Refund",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Venue not available\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/refund",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId", "refund"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Request a refund for a cancelled booking"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Booking",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId", "bookings", ":bookingId"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            },
+            {
+              "key": "bookingId",
+              "value": "{{bookingId}}"
+            }
+          ]
+        },
+        "description": "Delete a booking (admin only)"
+      },
+      "response": []
+    }
+  ]
+}

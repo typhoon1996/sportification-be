@@ -1,0 +1,125 @@
+{
+  "name": "13. Security",
+  "description": "Security and account protection features",
+  "item": [
+    {
+      "name": "Enable 2FA",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/security/2fa/enable",
+          "host": ["{{baseUrl}}"],
+          "path": ["security", "2fa", "enable"]
+        },
+        "description": "Enable two-factor authentication for the user account"
+      },
+      "response": []
+    },
+    {
+      "name": "Disable 2FA",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/security/2fa/disable",
+          "host": ["{{baseUrl}}"],
+          "path": ["security", "2fa", "disable"]
+        },
+        "description": "Disable two-factor authentication (requires 2FA code)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Active Sessions",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/security/sessions",
+          "host": ["{{baseUrl}}"],
+          "path": ["security", "sessions"]
+        },
+        "description": "Get all active sessions for the user account"
+      },
+      "response": []
+    },
+    {
+      "name": "Revoke Session",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/security/sessions/:sessionId",
+          "host": ["{{baseUrl}}"],
+          "path": ["security", "sessions", ":sessionId"],
+          "variable": [
+            {
+              "key": "sessionId",
+              "value": "session-id-here"
+            }
+          ]
+        },
+        "description": "Revoke a specific active session"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Audit Logs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/security/audit-logs?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["security", "audit-logs"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Get security audit logs for the user account"
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,0 +1,350 @@
+{
+  "name": "14. Admin Analytics",
+  "description": "Admin-level analytics and reporting (Admin only)",
+  "item": [
+    {
+      "name": "Get User Growth",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/users/growth?startDate=2025-01-01&endDate=2025-10-10",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "users", "growth"],
+          "query": [
+            {
+              "key": "startDate",
+              "value": "2025-01-01"
+            },
+            {
+              "key": "endDate",
+              "value": "2025-10-10"
+            }
+          ]
+        },
+        "description": "Get user registration growth analytics (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Active Users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/users/active?timeframe=30d",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "users", "active"],
+          "query": [
+            {
+              "key": "timeframe",
+              "value": "30d",
+              "description": "Timeframe: 7d, 30d, 90d"
+            }
+          ]
+        },
+        "description": "Get daily/weekly/monthly active users (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Match Statistics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/matches/stats?sport=football",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "matches", "stats"],
+          "query": [
+            {
+              "key": "sport",
+              "value": "football"
+            }
+          ]
+        },
+        "description": "Get aggregated match statistics (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Tournament Analytics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/tournaments/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "tournaments", "stats"]
+        },
+        "description": "Get tournament participation and completion rates (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Venue Utilization",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/venues/utilization",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "venues", "utilization"]
+        },
+        "description": "Get venue booking and utilization rates (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Revenue Analytics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/revenue?startDate=2025-01-01&endDate=2025-10-10",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "revenue"],
+          "query": [
+            {
+              "key": "startDate",
+              "value": "2025-01-01"
+            },
+            {
+              "key": "endDate",
+              "value": "2025-10-10"
+            }
+          ]
+        },
+        "description": "Get revenue and payment analytics (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Engagement Metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/engagement?timeframe=30d",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "engagement"],
+          "query": [
+            {
+              "key": "timeframe",
+              "value": "30d"
+            }
+          ]
+        },
+        "description": "Get user engagement metrics (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Retention Analytics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/retention",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "retention"]
+        },
+        "description": "Get user retention cohort analysis (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Popular Sports",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/sports/popular?limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "sports", "popular"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get most popular sports by participation (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Geographic Distribution",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/geography",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "geography"]
+        },
+        "description": "Get user and venue geographic distribution (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get System Performance",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/system/performance",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "system", "performance"]
+        },
+        "description": "Get system performance metrics (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get API Usage Stats",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/api/usage?startDate=2025-01-01&endDate=2025-10-10",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "api", "usage"],
+          "query": [
+            {
+              "key": "startDate",
+              "value": "2025-01-01"
+            },
+            {
+              "key": "endDate",
+              "value": "2025-10-10"
+            }
+          ]
+        },
+        "description": "Get API endpoint usage statistics (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Error Reports",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/errors?severity=high&page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "errors"],
+          "query": [
+            {
+              "key": "severity",
+              "value": "high",
+              "description": "Filter by severity: low, medium, high, critical"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Get error and exception reports (Admin only)"
+      },
+      "response": []
+    },
+    {
+      "name": "Export Analytics Report",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reportType\": \"monthly_summary\",\n  \"startDate\": \"2025-01-01\",\n  \"endDate\": \"2025-01-31\",\n  \"format\": \"pdf\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/admin/analytics/export",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "analytics", "export"]
+        },
+        "description": "Export analytics report in PDF/CSV format (Admin only)"
+      },
+      "response": []
+    }
+  ]
+}

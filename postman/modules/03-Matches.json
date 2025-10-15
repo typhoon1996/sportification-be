@@ -1,0 +1,254 @@
+{
+  "name": "03. Matches",
+  "description": "Match management endpoints - Create, Join, Update, Complete matches",
+  "item": [
+    {
+      "name": "Create Match",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    if (response.data && response.data.match) {",
+              "        pm.environment.set('matchId', response.data.match._id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sport\": \"football\",\n  \"schedule\": {\n    \"date\": \"2025-10-20\",\n    \"time\": \"18:00\"\n  },\n  \"venue\": \"{{venueId}}\",\n  \"maxParticipants\": 10,\n  \"description\": \"Friendly football match\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/matches",
+          "host": ["{{baseUrl}}"],
+          "path": ["matches"]
+        },
+        "description": "Create a new match with sport, schedule, and venue"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Matches",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/matches?page=1&limit=10&status=upcoming&sport=football",
+          "host": ["{{baseUrl}}"],
+          "path": ["matches"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "status",
+              "value": "upcoming",
+              "description": "Filter by status: upcoming, ongoing, completed, cancelled"
+            },
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "Filter by sport type"
+            }
+          ]
+        },
+        "description": "Get all matches with optional filters for status and sport"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Match By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/matches/:matchId",
+          "host": ["{{baseUrl}}"],
+          "path": ["matches", ":matchId"],
+          "variable": [
+            {
+              "key": "matchId",
+              "value": "{{matchId}}"
+            }
+          ]
+        },
+        "description": "Get detailed information about a specific match"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Match",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"schedule\": {\n    \"date\": \"2025-10-25\",\n    \"time\": \"19:00\"\n  },\n  \"maxParticipants\": 12,\n  \"status\": \"upcoming\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/matches/:matchId",
+          "host": ["{{baseUrl}}"],
+          "path": ["matches", ":matchId"],
+          "variable": [
+            {
+              "key": "matchId",
+              "value": "{{matchId}}"
+            }
+          ]
+        },
+        "description": "Update match details (only match creator can update)"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Match",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/matches/:matchId",
+          "host": ["{{baseUrl}}"],
+          "path": ["matches", ":matchId"],
+          "variable": [
+            {
+              "key": "matchId",
+              "value": "{{matchId}}"
+            }
+          ]
+        },
+        "description": "Delete a match (only match creator or admin can delete)"
+      },
+      "response": []
+    },
+    {
+      "name": "Join Match",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/matches/:matchId/join",
+          "host": ["{{baseUrl}}"],
+          "path": ["matches", ":matchId", "join"],
+          "variable": [
+            {
+              "key": "matchId",
+              "value": "{{matchId}}"
+            }
+          ]
+        },
+        "description": "Join an upcoming match as a participant"
+      },
+      "response": []
+    },
+    {
+      "name": "Leave Match",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/matches/:matchId/leave",
+          "host": ["{{baseUrl}}"],
+          "path": ["matches", ":matchId", "leave"],
+          "variable": [
+            {
+              "key": "matchId",
+              "value": "{{matchId}}"
+            }
+          ]
+        },
+        "description": "Leave a match you have joined"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Match Score",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"score\": {\n    \"team1\": 3,\n    \"team2\": 2\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/matches/:matchId/score",
+          "host": ["{{baseUrl}}"],
+          "path": ["matches", ":matchId", "score"],
+          "variable": [
+            {
+              "key": "matchId",
+              "value": "{{matchId}}"
+            }
+          ]
+        },
+        "description": "Update the score for an ongoing or completed match"
+      },
+      "response": []
+    }
+  ]
+}

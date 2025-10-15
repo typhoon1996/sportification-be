@@ -1,0 +1,246 @@
+{
+  "name": "04. Tournaments",
+  "description": "Tournament management endpoints - Create, Join, Bracket management",
+  "item": [
+    {
+      "name": "Create Tournament",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    if (response.data && response.data.tournament) {",
+              "        pm.environment.set('tournamentId', response.data.tournament._id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Summer Championship 2025\",\n  \"description\": \"Annual summer football championship\",\n  \"sport\": \"football\",\n  \"maxParticipants\": 16,\n  \"startDate\": \"2025-06-15T10:00:00Z\",\n  \"venue\": \"{{venueId}}\",\n  \"prizePool\": 5000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tournaments",
+          "host": ["{{baseUrl}}"],
+          "path": ["tournaments"]
+        },
+        "description": "Create a new tournament with bracket structure"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Tournaments",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tournaments?page=1&limit=10&status=upcoming&sport=football",
+          "host": ["{{baseUrl}}"],
+          "path": ["tournaments"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "status",
+              "value": "upcoming",
+              "description": "Filter by status: upcoming, ongoing, completed, cancelled"
+            },
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "Filter by sport type"
+            }
+          ]
+        },
+        "description": "Get all tournaments with optional filters"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Tournament By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tournaments/:tournamentId",
+          "host": ["{{baseUrl}}"],
+          "path": ["tournaments", ":tournamentId"],
+          "variable": [
+            {
+              "key": "tournamentId",
+              "value": "{{tournamentId}}"
+            }
+          ]
+        },
+        "description": "Get detailed information about a specific tournament including bracket"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Tournament",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Summer Championship 2025 - Updated\",\n  \"description\": \"Updated tournament description\",\n  \"status\": \"ongoing\",\n  \"prizePool\": 7500\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tournaments/:tournamentId",
+          "host": ["{{baseUrl}}"],
+          "path": ["tournaments", ":tournamentId"],
+          "variable": [
+            {
+              "key": "tournamentId",
+              "value": "{{tournamentId}}"
+            }
+          ]
+        },
+        "description": "Update tournament details (only organizer can update)"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Tournament",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tournaments/:tournamentId",
+          "host": ["{{baseUrl}}"],
+          "path": ["tournaments", ":tournamentId"],
+          "variable": [
+            {
+              "key": "tournamentId",
+              "value": "{{tournamentId}}"
+            }
+          ]
+        },
+        "description": "Delete a tournament (only organizer or admin can delete)"
+      },
+      "response": []
+    },
+    {
+      "name": "Join Tournament",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tournaments/:tournamentId/join",
+          "host": ["{{baseUrl}}"],
+          "path": ["tournaments", ":tournamentId", "join"],
+          "variable": [
+            {
+              "key": "tournamentId",
+              "value": "{{tournamentId}}"
+            }
+          ]
+        },
+        "description": "Register to participate in a tournament"
+      },
+      "response": []
+    },
+    {
+      "name": "Leave Tournament",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tournaments/:tournamentId/leave",
+          "host": ["{{baseUrl}}"],
+          "path": ["tournaments", ":tournamentId", "leave"],
+          "variable": [
+            {
+              "key": "tournamentId",
+              "value": "{{tournamentId}}"
+            }
+          ]
+        },
+        "description": "Withdraw from a tournament before it starts"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Tournament Bracket",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tournaments/:tournamentId/bracket",
+          "host": ["{{baseUrl}}"],
+          "path": ["tournaments", ":tournamentId", "bracket"],
+          "variable": [
+            {
+              "key": "tournamentId",
+              "value": "{{tournamentId}}"
+            }
+          ]
+        },
+        "description": "Get the tournament bracket with all matches and progression"
+      },
+      "response": []
+    }
+  ]
+}

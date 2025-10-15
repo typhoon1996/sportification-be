@@ -1,0 +1,166 @@
+{
+  "name": "06. Venues",
+  "description": "Venue management endpoints - Create, Search, Manage venues",
+  "item": [
+    {
+      "name": "Create Venue",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    if (response.data && response.data.venue) {",
+              "        pm.environment.set('venueId', response.data.venue._id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"City Sports Complex\",\n  \"description\": \"Modern indoor/outdoor sports facility\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [-73.935242, 40.730610],\n    \"address\": \"123 Main St, New York, NY 10001\"\n  },\n  \"sports\": [\"football\", \"basketball\", \"tennis\"],\n  \"facilities\": [\"parking\", \"lockers\", \"showers\"],\n  \"pricing\": {\n    \"hourly\": 50,\n    \"daily\": 300\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/venues",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues"]
+        },
+        "description": "Create a new venue with location and facilities"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Venues",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues?page=1&limit=10&sport=football",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "Filter by sport"
+            }
+          ]
+        },
+        "description": "Get all venues with optional filters"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Venue By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            }
+          ]
+        },
+        "description": "Get detailed information about a specific venue"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Venue",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"City Sports Complex - Updated\",\n  \"description\": \"Updated venue description\",\n  \"pricing\": {\n    \"hourly\": 60,\n    \"daily\": 350\n  },\n  \"facilities\": [\"parking\", \"lockers\", \"showers\", \"wifi\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            }
+          ]
+        },
+        "description": "Update venue details (only venue owner or admin can update)"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Venue",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/venues/:venueId",
+          "host": ["{{baseUrl}}"],
+          "path": ["venues", ":venueId"],
+          "variable": [
+            {
+              "key": "venueId",
+              "value": "{{venueId}}"
+            }
+          ]
+        },
+        "description": "Delete a venue (only venue owner or admin can delete)"
+      },
+      "response": []
+    }
+  ]
+}

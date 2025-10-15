@@ -1,0 +1,216 @@
+{
+  "name": "05. Teams",
+  "description": "Team management endpoints - Create, Join, Manage members",
+  "item": [
+    {
+      "name": "Create Team",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    if (response.data && response.data.team) {",
+              "        pm.environment.set('teamId', response.data.team._id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Thunder Strikers\",\n  \"description\": \"Competitive football team\",\n  \"sport\": \"football\",\n  \"maxMembers\": 20,\n  \"isPrivate\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/teams",
+          "host": ["{{baseUrl}}"],
+          "path": ["teams"]
+        },
+        "description": "Create a new team (creator becomes captain)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Teams",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/teams?page=1&limit=10&sport=football",
+          "host": ["{{baseUrl}}"],
+          "path": ["teams"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "Filter by sport type"
+            }
+          ]
+        },
+        "description": "Get all teams with optional sport filter"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Team By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/teams/:teamId",
+          "host": ["{{baseUrl}}"],
+          "path": ["teams", ":teamId"],
+          "variable": [
+            {
+              "key": "teamId",
+              "value": "{{teamId}}"
+            }
+          ]
+        },
+        "description": "Get detailed information about a specific team"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Team",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Thunder Strikers - Updated\",\n  \"description\": \"Updated team description\",\n  \"maxMembers\": 25,\n  \"isPrivate\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/teams/:teamId",
+          "host": ["{{baseUrl}}"],
+          "path": ["teams", ":teamId"],
+          "variable": [
+            {
+              "key": "teamId",
+              "value": "{{teamId}}"
+            }
+          ]
+        },
+        "description": "Update team details (only captain can update)"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Team",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/teams/:teamId",
+          "host": ["{{baseUrl}}"],
+          "path": ["teams", ":teamId"],
+          "variable": [
+            {
+              "key": "teamId",
+              "value": "{{teamId}}"
+            }
+          ]
+        },
+        "description": "Delete a team (only captain or admin can delete)"
+      },
+      "response": []
+    },
+    {
+      "name": "Join Team",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/teams/:teamId/join",
+          "host": ["{{baseUrl}}"],
+          "path": ["teams", ":teamId", "join"],
+          "variable": [
+            {
+              "key": "teamId",
+              "value": "{{teamId}}"
+            }
+          ]
+        },
+        "description": "Request to join a team"
+      },
+      "response": []
+    },
+    {
+      "name": "Leave Team",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/teams/:teamId/leave",
+          "host": ["{{baseUrl}}"],
+          "path": ["teams", ":teamId", "leave"],
+          "variable": [
+            {
+              "key": "teamId",
+              "value": "{{teamId}}"
+            }
+          ]
+        },
+        "description": "Leave a team you are a member of"
+      },
+      "response": []
+    }
+  ]
+}

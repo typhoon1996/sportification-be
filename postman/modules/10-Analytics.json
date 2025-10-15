@@ -1,0 +1,113 @@
+{
+  "name": "10. Analytics",
+  "description": "User analytics and performance metrics",
+  "item": [
+    {
+      "name": "Get User Activity",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/analytics/activity?startDate=2025-01-01&endDate=2025-10-10",
+          "host": ["{{baseUrl}}"],
+          "path": ["analytics", "activity"],
+          "query": [
+            {
+              "key": "startDate",
+              "value": "2025-01-01",
+              "description": "Start date for analytics (YYYY-MM-DD)"
+            },
+            {
+              "key": "endDate",
+              "value": "2025-10-10",
+              "description": "End date for analytics (YYYY-MM-DD)"
+            }
+          ]
+        },
+        "description": "Get user activity analytics for the authenticated user"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Performance Metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/analytics/performance?sport=football&timeframe=30d",
+          "host": ["{{baseUrl}}"],
+          "path": ["analytics", "performance"],
+          "query": [
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "Filter by sport"
+            },
+            {
+              "key": "timeframe",
+              "value": "30d",
+              "description": "Timeframe: 7d, 30d, 90d, 1y"
+            }
+          ]
+        },
+        "description": "Get performance metrics (wins, losses, participation rate)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Match Statistics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/analytics/matches/stats?sport=football",
+          "host": ["{{baseUrl}}"],
+          "path": ["analytics", "matches", "stats"],
+          "query": [
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "Filter by sport"
+            }
+          ]
+        },
+        "description": "Get detailed match statistics for the user"
+      },
+      "response": []
+    },
+    {
+      "name": "Get System Health",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/analytics/system/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["analytics", "system", "health"]
+        },
+        "description": "Get system health metrics (admin only)"
+      },
+      "response": []
+    }
+  ]
+}
