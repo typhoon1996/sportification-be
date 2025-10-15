@@ -158,7 +158,52 @@ class App {
     this.app.use(passport.initialize());
     this.app.use(passport.session());
 
-    // Health check endpoint
+    /**
+     * @swagger
+     * /health:
+     *   get:
+     *     summary: Health check endpoint
+     *     description: Check API health and get system information
+     *     tags:
+     *       - System
+     *     responses:
+     *       200:
+     *         description: API is healthy
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 status:
+     *                   type: string
+     *                   example: "OK"
+     *                 architecture:
+     *                   type: string
+     *                   example: "modular-monolith"
+     *                 timestamp:
+     *                   type: string
+     *                   format: date-time
+     *                 environment:
+     *                   type: string
+     *                   example: "development"
+     *                 version:
+     *                   type: string
+     *                   example: "1.0.0"
+     *                 uptime:
+     *                   type: number
+     *                   description: Process uptime in seconds
+     *                 memory:
+     *                   type: object
+     *                   description: Memory usage statistics
+     *                 nodejs:
+     *                   type: string
+     *                   example: "v18.17.0"
+     *                 modules:
+     *                   type: array
+     *                   items:
+     *                     type: string
+     *                   example: ["iam", "users", "matches", "tournaments"]
+     */
     this.app.get("/health", (req, res) => {
       res.status(200).json({
         status: "OK",
@@ -173,7 +218,43 @@ class App {
       });
     });
 
-    // API info endpoint
+    /**
+     * @swagger
+     * /api/v1:
+     *   get:
+     *     summary: API information
+     *     description: Get API details, version, and available features
+     *     tags:
+     *       - System
+     *     responses:
+     *       200:
+     *         description: API information retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 name:
+     *                   type: string
+     *                   example: "Sportification API"
+     *                 version:
+     *                   type: string
+     *                   example: "1.0.0"
+     *                 description:
+     *                   type: string
+     *                   example: "Sports Companion API - Connecting sports enthusiasts worldwide"
+     *                 documentation:
+     *                   type: string
+     *                   example: "/api/v1/docs"
+     *                 status:
+     *                   type: string
+     *                   example: "active"
+     *                 features:
+     *                   type: array
+     *                   items:
+     *                     type: string
+     *                   example: ["User Management", "Match Organization", "Tournament Brackets"]
+     */
     this.app.get("/api/v1", (req, res) => {
       res.status(200).json({
         name: config.app.name,
@@ -205,11 +286,40 @@ class App {
       })
     );
 
+    /**
+     * @swagger
+     * /api/v1/openapi.json:
+     *   get:
+     *     summary: OpenAPI Specification
+     *     description: Get the OpenAPI specification in JSON format
+     *     tags:
+     *       - System
+     *     responses:
+     *       200:
+     *         description: OpenAPI specification
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               description: OpenAPI 3.0 specification document
+     */
     this.app.get("/api/v1/openapi.json", (req, res) => {
       res.setHeader("Content-Type", "application/json");
       res.json(swaggerSpecs);
     });
 
+    /**
+     * @swagger
+     * /docs:
+     *   get:
+     *     summary: Documentation redirect
+     *     description: Redirects to the Swagger UI documentation
+     *     tags:
+     *       - System
+     *     responses:
+     *       302:
+     *         description: Redirect to /api/v1/docs
+     */
     this.app.get("/docs", (req, res) => {
       res.redirect("/api/v1/docs");
     });
