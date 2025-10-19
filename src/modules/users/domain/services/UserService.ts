@@ -3,6 +3,42 @@ import { Profile } from '../../../users/domain/models/Profile';
 import { UserEventPublisher } from '../../events/publishers/UserEventPublisher';
 import { AuthenticationError, ConflictError } from '../../../../shared/middleware/errorHandler';
 
+/**
+ * User Service - Business Logic for User Management
+ * 
+ * Handles all business logic related to user profile management, social features,
+ * and user data operations. Manages user-profile relationships and publishes
+ * domain events for other modules.
+ * 
+ * Key Responsibilities:
+ * - User profile retrieval and updates
+ * - Friend relationship management (bidirectional)
+ * - User search and discovery
+ * - Achievement tracking
+ * - User statistics management
+ * - Privacy settings
+ * - Email verification status
+ * 
+ * Data Model:
+ * - User: Authentication and core account data
+ * - Profile: Public user information and social data
+ * - Bidirectional linking between User and Profile
+ * 
+ * Business Rules:
+ * - Profile updates separated from user updates
+ * - Friend relationships are bidirectional
+ * - Email uniqueness enforced at registration
+ * - Achievement points tracked automatically
+ * - Privacy settings respected in search results
+ * 
+ * Event Publication:
+ * - user.profile_updated - When profile changes
+ * - user.friend_added - When friend relationship created
+ * - user.friend_removed - When friend relationship deleted
+ * - user.achievement_earned - When new achievement unlocked
+ * 
+ * @class UserService
+ */
 export class UserService {
   private eventPublisher: UserEventPublisher;
 
@@ -10,6 +46,22 @@ export class UserService {
     this.eventPublisher = new UserEventPublisher();
   }
 
+  /**
+   * Get user by ID with populated profile and achievements
+   * 
+   * Retrieves complete user information including profile data and achievements.
+   * Returns sanitized user data without sensitive fields like password hash.
+   * 
+   * @async
+   * @param {string} userId - ID of the user to retrieve
+   * @returns {Promise<Object>} User object with populated profile and achievements
+   * 
+   * @throws {AuthenticationError} If user not found
+   * 
+   * @example
+   * const user = await userService.getUserById(userId);
+   * // Returns: { id, email, profile, achievements, stats, preferences, ... }
+   */
   async getUserById(userId: string) {
     const user = await User.findById(userId)
       .populate('profile')
@@ -31,6 +83,44 @@ export class UserService {
     };
   }
 
+  /**
+   * Update user profile information
+   * 
+   * Updates user and profile data with proper separation of concerns.
+   * User document updates (preferences, stats) handled separately from
+   * Profile document updates (public information). Publishes event for
+   * other modules to react to profile changes.
+   * 
+   * Process:
+   * 1. Separates user updates from profile updates
+   * 2. Updates User document if user fields present
+   * 3. Updates Profile document if profile fields present
+   * 4. Publishes user.profile_updated event
+   * 5. Returns updated user with populated profile
+   * 
+   * @async
+   * @param {string} userId - ID of the user to update
+   * @param {Object} updates - Object containing fields to update
+   * @param {string} updates.firstName - User's first name
+   * @param {string} updates.lastName - User's last name
+   * @param {string} updates.bio - User bio/description
+   * @param {string} updates.avatar - Avatar image URL
+   * @param {string} updates.location - User location
+   * @param {string} updates.phoneNumber - Contact phone number
+   * @param {any} updates.preferences - User preferences
+   * @param {any} updates.stats - User statistics
+   * @returns {Promise<Object>} Updated user with populated profile
+   * 
+   * @throws {AuthenticationError} If user not found
+   * 
+   * @example
+   * const user = await userService.updateProfile(userId, {
+   *   firstName: "John",
+   *   lastName: "Doe",
+   *   bio: "Sports enthusiast",
+   *   location: "New York"
+   * });
+   */
   async updateProfile(
     userId: string,
     updates: {

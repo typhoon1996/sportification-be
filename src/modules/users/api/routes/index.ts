@@ -4,6 +4,31 @@ import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {updateProfileValidation} from "../../../../shared/validators";
 
+/**
+ * User Routes Module
+ * 
+ * Handles all user-related API endpoints including user management, profile operations,
+ * and social features (friends). All routes require authentication.
+ * 
+ * Base Path: /api/v1/users
+ * 
+ * Route Categories:
+ * - User Management: List, search, view users (some admin-only)
+ * - Profile Operations: View and update user profiles
+ * - Social Features: Friend management (add/remove friends, view friend list)
+ * 
+ * Security:
+ * - All routes require authentication (JWT token)
+ * - Admin-only routes: GET /users (list all)
+ * - User routes: Profile and friend operations
+ * 
+ * Features:
+ * - Pagination support for list endpoints
+ * - Search functionality with filters
+ * - Friend relationship management
+ * - Profile privacy controls
+ */
+
 const router = Router();
 
 // All routes require authentication

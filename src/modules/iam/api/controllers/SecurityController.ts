@@ -4,8 +4,73 @@ import { AuditLogger } from '../../../../shared/services/audit';
 import { ValidationError, sendSuccess, asyncHandler } from '../../../../shared/middleware/errorHandler';
 import { AuthRequest } from '../../../../shared/middleware/auth';
 
+/**
+ * Security Controller - Security Monitoring and Audit
+ * 
+ * Provides comprehensive security monitoring, audit logging, and threat detection capabilities.
+ * Handles security dashboards, audit trails, authentication monitoring, and security alerts.
+ * 
+ * Key Features:
+ * - Real-time security dashboard with threat metrics
+ * - Comprehensive audit logging for all security events
+ * - Authentication monitoring (login attempts, MFA events)
+ * - Security alert management with severity levels
+ * - Failed login tracking and IP-based threat detection
+ * - Security metrics aggregation and reporting
+ * 
+ * Access Control:
+ * - Users can view their own security data
+ * - Admins can view global security metrics
+ * - All security events are automatically logged
+ * 
+ * Security Events Tracked:
+ * - Login attempts (success/failure)
+ * - API key usage
+ * - MFA operations
+ * - Permission changes
+ * - Password resets
+ * - Session management
+ * - Suspicious activities
+ * 
+ * @class SecurityController
+ */
 export class SecurityController {
-  // Get security dashboard data
+  /**
+   * Get security dashboard
+   * 
+   * Retrieves a comprehensive security dashboard with real-time metrics, threat indicators,
+   * and security event summaries. Admins can view global dashboard, regular users see their own data.
+   * Logs dashboard access for audit purposes.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with dashboard data
+   * 
+   * Query Parameters:
+   * @property {boolean} global - Request global dashboard (admin only)
+   * 
+   * Dashboard Includes:
+   * - Failed login attempts
+   * - Security events by severity
+   * - Recent alerts
+   * - MFA status
+   * - API key usage
+   * - Suspicious activity indicators
+   * 
+   * @example
+   * GET /api/v1/iam/security/dashboard?global=true
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {
+   *     failedLogins: 3,
+   *     securityAlerts: { high: 1, medium: 2 },
+   *     recentEvents: [...],
+   *     mfaStatus: { enabled: true }
+   *   }
+   * }
+   */
   static getDashboard = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { global } = req.query;
     const userId = global === 'true' ? undefined : req.user.id;
@@ -31,7 +96,40 @@ export class SecurityController {
     sendSuccess(res, dashboardData, 'Security dashboard data retrieved successfully');
   });
 
-  // Get audit logs
+  /**
+   * Get audit logs
+   * 
+   * Retrieves paginated audit logs with advanced filtering capabilities.
+   * Provides complete audit trail of security-related events. Maximum 100 logs per request
+   * to prevent performance issues.
+   * 
+   * @async
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with paginated audit logs
+   * 
+   * @throws {ValidationError} If date formats are invalid
+   * 
+   * Query Parameters:
+   * @property {string} userId - Filter by user ID
+   * @property {string} severity - Filter by severity (low, medium, high, critical)
+   * @property {string} action - Filter by action type (login, login_failed, etc.)
+   * @property {string} startDate - Start date (ISO 8601 format)
+   * @property {string} endDate - End date (ISO 8601 format)
+   * @property {number} page - Page number (default: 1)
+   * @property {number} limit - Items per page (default: 50, max: 100)
+   * 
+   * @example
+   * GET /api/v1/iam/security/audit-logs?severity=high&startDate=2025-01-01&page=1&limit=50
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {
+   *     logs: [...],
+   *     pagination: { page: 1, limit: 50, total: 150, pages: 3 }
+   *   }
+   * }
+   */
   static getAuditLogs = asyncHandler(async (req: Request, res: Response) => {
     const { userId, severity, action, startDate, endDate, page = 1, limit = 50 } = req.query;
 
@@ -93,7 +191,53 @@ export class SecurityController {
     );
   });
 
-  // Get security metrics
+  /**
+   * Get security metrics
+   * 
+   * Provides aggregated security metrics for a specified time period.
+   * Includes authentication statistics, security events by severity, MFA usage,
+   * and threat indicators like top failed login IPs. Admins get global metrics,
+   * regular users get personal metrics.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with comprehensive security metrics
+   * 
+   * Query Parameters:
+   * @property {string} period - Time period (24h, 7d, 30d, 90d) - default: 7d
+   * 
+   * Metrics Included:
+   * - Total security events
+   * - Failed vs successful logins
+   * - Login success rate percentage
+   * - API key usage count
+   * - Security events by severity (low, medium, high, critical)
+   * - MFA events (enabled, disabled, used)
+   * - Top 10 IPs with failed login attempts
+   * 
+   * @example
+   * GET /api/v1/iam/security/metrics?period=30d
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {
+   *     period: "30d",
+   *     summary: {
+   *       totalEvents: 1523,
+   *       failedLogins: 45,
+   *       successfulLogins: 234,
+   *       loginSuccessRate: 84
+   *     },
+   *     security: {
+   *       eventsBySeverity: { low: 10, medium: 5, high: 2, critical: 0 }
+   *     },
+   *     authentication: {
+   *       topFailedIPs: [{ ip: "192.168.1.100", attempts: 12 }]
+   *     }
+   *   }
+   * }
+   */
   static getSecurityMetrics = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { period = '7d' } = req.query;
 
@@ -269,7 +413,43 @@ export class SecurityController {
     sendSuccess(res, metrics, 'Security metrics retrieved successfully');
   });
 
-  // Get recent security alerts
+  /**
+   * Get recent security alerts
+   * 
+   * Retrieves recent high and critical severity security events from the last 7 days.
+   * Provides real-time threat awareness and suspicious activity monitoring.
+   * Admins see global alerts, regular users see their own alerts.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with list of security alerts
+   * 
+   * Query Parameters:
+   * @property {number} limit - Maximum number of alerts to return (default: 20)
+   * 
+   * Alert Severities:
+   * - high: Requires attention but not immediate
+   * - critical: Requires immediate action
+   * 
+   * @example
+   * GET /api/v1/iam/security/alerts?limit=10
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {
+   *     alerts: [
+   *       {
+   *         _id: "...",
+   *         action: "multiple_failed_logins",
+   *         severity: "high",
+   *         timestamp: "2025-10-19T10:00:00Z",
+   *         details: { attempts: 5, ip: "192.168.1.100" }
+   *       }
+   *     ]
+   *   }
+   * }
+   */
   static getSecurityAlerts = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { limit = 20 } = req.query;
 
@@ -286,7 +466,33 @@ export class SecurityController {
     sendSuccess(res, { alerts }, 'Security alerts retrieved successfully');
   });
 
-  // Mark alert as acknowledged
+  /**
+   * Acknowledge a security alert
+   * 
+   * Marks a security alert as acknowledged by the user or administrator.
+   * Creates an audit log entry of the acknowledgment for compliance tracking.
+   * Users can only acknowledge their own alerts unless they're admins.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with success message
+   * 
+   * @throws {ValidationError} If alert not found or permission denied
+   * 
+   * Authorization:
+   * - Users can acknowledge their own alerts
+   * - Admins can acknowledge any alert
+   * 
+   * @example
+   * POST /api/v1/iam/security/alerts/:alertId/acknowledge
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {},
+   *   message: "Alert acknowledged successfully"
+   * }
+   */
   static acknowledgeAlert = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { alertId } = req.params;
 
