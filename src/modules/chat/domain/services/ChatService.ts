@@ -1,45 +1,91 @@
-import { Chat } from "../../domain/models/Chat";
-import { Message } from "../../domain/models/Message";
-import { ChatEventPublisher } from "../../events/publishers/ChatEventPublisher";
-import { NotFoundError } from "../../../../shared/middleware/errorHandler";
+import { Chat } from '../../domain/models/Chat';
+import { Message } from '../../domain/models/Message';
+import { ChatEventPublisher } from '../../events/publishers/ChatEventPublisher';
+import { NotFoundError } from '../../../../shared/middleware/errorHandler';
+import {
+  IChatService,
+  IMessageService,
+  IChatValidationService,
+  IChatEventPublisher,
+} from '../interfaces';
+import { MessageService } from './MessageService';
+import { ChatValidationService } from './ChatValidationService';
 
 /**
- * ChatService - Business logic for chat and messaging
- * 
- * Manages chat room creation, message sending, and message history retrieval.
- * Supports both direct (1-on-1) and group chat types. Publishes domain events
- * for real-time notifications and WebSocket integration.
- * 
+ * ChatService - Main orchestration service for chat management (Refactored with SOLID)
+ *
+ * Orchestrates chat and messaging operations by delegating to specialized services.
+ * Follows SOLID principles with dependency injection and single responsibility.
+ *
+ * Architecture:
+ * - Delegates message operations to MessageService (SRP)
+ * - Delegates validation to ChatValidationService (SRP)
+ * - Depends on interfaces, not concrete implementations (DIP)
+ * - Extensible through service swapping (OCP)
+ *
+ * SOLID Principles Applied:
+ * - SRP: Orchestration only, delegates to specialized services
+ * - DIP: Depends on IMessageService, IChatValidationService, IChatEventPublisher interfaces
+ * - OCP: Can extend with new services without modifying this class
+ * - LSP: Any implementation of interfaces can be substituted
+ * - ISP: Interfaces are focused and single-purpose
+ *
  * Features:
  * - Direct and group chat creation
  * - Message sending with participant validation
  * - Message history retrieval
  * - Last message tracking
  * - Event publication for real-time updates
+ *
+ * @example
+ * // With dependency injection (testable)
+ * const service = new ChatService(mockMessageService, mockValidationService, mockEventPublisher);
+ *
+ * // With default implementations (production)
+ * const service = new ChatService();
  */
-export class ChatService {
-  private eventPublisher: ChatEventPublisher;
+export class ChatService implements IChatService {
+  private messageService: IMessageService;
+  private validationService: IChatValidationService;
+  private eventPublisher: IChatEventPublisher;
 
-  constructor() {
-    this.eventPublisher = new ChatEventPublisher();
+  /**
+   * Constructor with dependency injection (DIP)
+   *
+   * Accepts service implementations via constructor, enabling:
+   * - Easy mocking for unit tests
+   * - Service swapping for different implementations
+   * - Loose coupling between services
+   *
+   * @param messageService - Message handling service (default: MessageService)
+   * @param validationService - Validation service (default: ChatValidationService)
+   * @param eventPublisher - Event publisher (default: ChatEventPublisher)
+   */
+  constructor(
+    messageService?: IMessageService,
+    validationService?: IChatValidationService,
+    eventPublisher?: IChatEventPublisher
+  ) {
+    this.messageService = messageService || new MessageService();
+    this.validationService = validationService || new ChatValidationService();
+    this.eventPublisher = eventPublisher || new ChatEventPublisher();
   }
 
   /**
    * Create a new chat room
-   * 
+   *
    * Creates a chat with the specified participants. The creator is automatically
    * included as a participant. Publishes chat.created event for real-time notifications.
-   * 
-   * @async
-   * @param {string} creatorId - User ID of the chat creator
-   * @param {string[]} participantIds - Array of user IDs to include (excluding creator)
-   * @param {string} [type='group'] - Chat type: 'direct' or 'group'
-   * @returns {Promise<Chat>} Created chat document
-   * 
+   *
+   * @param creatorId - User ID of the chat creator
+   * @param participantIds - Array of user IDs to include (excluding creator)
+   * @param type - Chat type: 'direct' or 'group' (default: 'group')
+   * @returns Created chat document
+   *
    * @example
    * // Create a direct chat
    * const chat = await chatService.createChat('user123', ['user456'], 'direct');
-   * 
+   *
    * @example
    * // Create a group chat
    * const groupChat = await chatService.createChat('user123', ['user456', 'user789'], 'group');
@@ -47,8 +93,15 @@ export class ChatService {
   async createChat(
     creatorId: string,
     participantIds: string[],
-    type: string = "group"
-  ) {
+    type: string = 'group'
+  ): Promise<Chat> {
+    // Delegate validation (SRP, DIP)
+    this.validationService.validateChatCreation({
+      creatorId,
+      participantIds,
+      type,
+    });
+
     const chat = new Chat({
       participants: [creatorId, ...participantIds],
       type,
@@ -69,110 +122,96 @@ export class ChatService {
 
   /**
    * Send a message in a chat
-   * 
-   * Creates a new message in the specified chat and updates the chat's last message.
-   * Publishes message.sent event with recipient IDs for real-time delivery via WebSocket.
-   * 
-   * @async
-   * @param {string} chatId - Chat ID where message is sent
-   * @param {string} senderId - User ID of the message sender
-   * @param {string} content - Message content/text
-   * @returns {Promise<Message>} Created message document
-   * 
+   *
+   * Validates message content and participant access, then delegates message
+   * sending to MessageService.
+   *
+   * @param chatId - Chat ID where message is sent
+   * @param senderId - User ID of the message sender
+   * @param content - Message content/text
+   * @returns Created message document
+   *
    * @throws {NotFoundError} If chat does not exist
-   * 
+   * @throws {ValidationError} If content is invalid or user not authorized
+   *
    * @example
    * const message = await chatService.sendMessage('chat123', 'user456', 'Hello everyone!');
    */
-  async sendMessage(chatId: string, senderId: string, content: string) {
+  async sendMessage(
+    chatId: string,
+    senderId: string,
+    content: string
+  ): Promise<Message> {
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
-      throw new NotFoundError("Chat");
+      throw new NotFoundError('Chat');
     }
 
-    const message = new Message({
-      chat: chatId,
-      sender: senderId,
-      content,
-    });
+    // Delegate validation (SRP, DIP)
+    this.validationService.validateParticipant(chat, senderId);
+    this.validationService.validateMessageContent(content);
 
-    await message.save();
-
-    // Update chat's last message
-    chat.lastMessage = message.id;
-    await chat.save();
-
-    // Publish event
-    this.eventPublisher.publishMessageSent({
-      messageId: message.id,
-      chatId,
+    // Delegate message handling (SRP, DIP)
+    return this.messageService.sendMessage(
+      chat,
       senderId,
       content,
-      recipientIds: chat.participants
-        .filter((p) => p.toString() !== senderId)
-        .map((p) => p.toString()),
-    });
-
-    return message;
+      this.eventPublisher
+    );
   }
 
   /**
    * Retrieve message history for a chat
-   * 
-   * Fetches messages for a specific chat with pagination. Validates that the
-   * requesting user is a participant in the chat before returning messages.
+   *
+   * Validates participant access and delegates message retrieval to MessageService.
    * Messages are returned in reverse chronological order (newest first).
-   * 
-   * @async
-   * @param {string} chatId - Chat ID to retrieve messages from
-   * @param {string} userId - User ID requesting messages (must be participant)
-   * @param {number} [limit=50] - Maximum number of messages to retrieve
-   * @returns {Promise<Message[]>} Array of message documents with populated sender
-   * 
+   *
+   * @param chatId - Chat ID to retrieve messages from
+   * @param userId - User ID requesting messages (must be participant)
+   * @param limit - Maximum number of messages to retrieve (default: 50)
+   * @returns Array of message documents with populated sender
+   *
    * @throws {NotFoundError} If chat does not exist
-   * @throws {Error} If user is not a participant in the chat
-   * 
+   * @throws {ValidationError} If user is not a participant in the chat
+   *
    * @example
    * const messages = await chatService.getMessages('chat123', 'user456', 20);
    */
-  async getMessages(chatId: string, userId: string, limit: number = 50) {
+  async getMessages(
+    chatId: string,
+    userId: string,
+    limit: number = 50
+  ): Promise<Message[]> {
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
-      throw new NotFoundError("Chat");
+      throw new NotFoundError('Chat');
     }
 
-    // Verify user is participant
-    if (!chat.participants.some((p) => p.toString() === userId)) {
-      throw new Error("User not authorized to view this chat");
-    }
+    // Delegate validation (SRP, DIP)
+    this.validationService.validateParticipant(chat, userId);
 
-    const messages = await Message.find({ chat: chatId })
-      .populate("sender", "profile")
-      .sort({ createdAt: -1 })
-      .limit(limit);
-
-    return messages;
+    // Delegate message retrieval (SRP, DIP)
+    return this.messageService.getMessages(chatId, limit);
   }
 
   /**
    * Get all chats for a user
-   * 
+   *
    * Retrieves all chats where the user is a participant. Populates participant
    * profiles and last message for display. Sorts by most recently updated first.
-   * 
-   * @async
-   * @param {string} userId - User ID to get chats for
-   * @returns {Promise<Chat[]>} Array of chat documents with populated data
-   * 
+   *
+   * @param userId - User ID to get chats for
+   * @returns Array of chat documents with populated data
+   *
    * @example
    * const userChats = await chatService.getUserChats('user123');
    */
-  async getUserChats(userId: string) {
+  async getUserChats(userId: string): Promise<Chat[]> {
     const chats = await Chat.find({ participants: userId })
-      .populate("participants", "profile")
-      .populate("lastMessage")
+      .populate('participants', 'profile')
+      .populate('lastMessage')
       .sort({ updatedAt: -1 });
 
     return chats;

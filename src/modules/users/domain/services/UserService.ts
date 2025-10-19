@@ -1,287 +1,170 @@
-import { User } from '../../../users/domain/models/User';
-import { Profile } from '../../../users/domain/models/Profile';
-import { UserEventPublisher } from '../../events/publishers/UserEventPublisher';
-import { AuthenticationError, ConflictError } from '../../../../shared/middleware/errorHandler';
+import {User} from "../../../users/domain/models/User";
+import {ProfileService} from "./ProfileService";
+import {FriendService} from "./FriendService";
+import {UserEventPublisher} from "../../events/publishers/UserEventPublisher";
+import {
+  IUserService,
+  IProfileService,
+  IFriendService,
+  IUserEventPublisher,
+  IUserData,
+  IProfileUpdate,
+  ISearchResult,
+} from "../interfaces";
+import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
 
 /**
- * User Service - Business Logic for User Management
- * 
- * Handles all business logic related to user profile management, social features,
- * and user data operations. Manages user-profile relationships and publishes
- * domain events for other modules.
- * 
- * Key Responsibilities:
- * - User profile retrieval and updates
- * - Friend relationship management (bidirectional)
- * - User search and discovery
- * - Achievement tracking
- * - User statistics management
- * - Privacy settings
- * - Email verification status
- * 
- * Data Model:
- * - User: Authentication and core account data
- * - Profile: Public user information and social data
- * - Bidirectional linking between User and Profile
- * 
- * Business Rules:
- * - Profile updates separated from user updates
- * - Friend relationships are bidirectional
- * - Email uniqueness enforced at registration
- * - Achievement points tracked automatically
- * - Privacy settings respected in search results
- * 
- * Event Publication:
- * - user.profile_updated - When profile changes
- * - user.friend_added - When friend relationship created
- * - user.friend_removed - When friend relationship deleted
- * - user.achievement_earned - When new achievement unlocked
- * 
+ * User Service - Business Logic for User Management (Refactored)
+ *
+ * Refactored to follow SOLID principles with dependency injection.
+ * Delegates specialized tasks to ProfileService and FriendService.
+ *
+ * Key Improvements:
+ * - Single Responsibility: Delegates profile and friend operations
+ * - Dependency Inversion: Depends on interfaces, not concrete classes
+ * - Open/Closed: Extensible through interface implementations
+ *
  * @class UserService
+ * @implements {IUserService}
  */
-export class UserService {
-  private eventPublisher: UserEventPublisher;
+export class UserService implements IUserService {
+  private readonly profileService: IProfileService;
+  private readonly friendService: IFriendService;
+  private readonly eventPublisher: IUserEventPublisher;
 
-  constructor() {
-    this.eventPublisher = new UserEventPublisher();
+  /**
+   * Constructor with Dependency Injection
+   *
+   * @param profileService - Profile management service
+   * @param friendService - Friend relationship service
+   * @param eventPublisher - Event publisher for domain events
+   */
+  constructor(
+    profileService?: IProfileService,
+    friendService?: IFriendService,
+    eventPublisher?: IUserEventPublisher
+  ) {
+    this.profileService = profileService || new ProfileService();
+    this.friendService = friendService || new FriendService();
+    this.eventPublisher = eventPublisher || new UserEventPublisher();
   }
 
   /**
    * Get user by ID with populated profile and achievements
-   * 
-   * Retrieves complete user information including profile data and achievements.
-   * Returns sanitized user data without sensitive fields like password hash.
-   * 
+   *
+   * Delegates to ProfileService for profile retrieval.
+   *
    * @async
    * @param {string} userId - ID of the user to retrieve
-   * @returns {Promise<Object>} User object with populated profile and achievements
-   * 
+   * @returns {Promise<IUserData>} User object with populated profile
    * @throws {AuthenticationError} If user not found
-   * 
-   * @example
-   * const user = await userService.getUserById(userId);
-   * // Returns: { id, email, profile, achievements, stats, preferences, ... }
    */
-  async getUserById(userId: string) {
-    const user = await User.findById(userId)
-      .populate('profile')
-      .populate('achievements', 'name description icon points');
-
-    if (!user) {
-      throw new AuthenticationError('User not found');
-    }
-
-    return {
-      id: user.id,
-      email: user.email,
-      profile: user.profile,
-      achievements: user.achievements,
-      stats: user.stats,
-      preferences: user.preferences,
-      isEmailVerified: user.isEmailVerified,
-      lastLoginAt: user.lastLoginAt,
-    };
+  async getUserById(userId: string): Promise<IUserData> {
+    return this.profileService.getProfile(userId);
   }
 
   /**
    * Update user profile information
-   * 
-   * Updates user and profile data with proper separation of concerns.
-   * User document updates (preferences, stats) handled separately from
-   * Profile document updates (public information). Publishes event for
-   * other modules to react to profile changes.
-   * 
-   * Process:
-   * 1. Separates user updates from profile updates
-   * 2. Updates User document if user fields present
-   * 3. Updates Profile document if profile fields present
-   * 4. Publishes user.profile_updated event
-   * 5. Returns updated user with populated profile
-   * 
+   *
+   * Delegates to ProfileService for profile updates.
+   *
    * @async
    * @param {string} userId - ID of the user to update
-   * @param {Object} updates - Object containing fields to update
-   * @param {string} updates.firstName - User's first name
-   * @param {string} updates.lastName - User's last name
-   * @param {string} updates.bio - User bio/description
-   * @param {string} updates.avatar - Avatar image URL
-   * @param {string} updates.location - User location
-   * @param {string} updates.phoneNumber - Contact phone number
-   * @param {any} updates.preferences - User preferences
-   * @param {any} updates.stats - User statistics
-   * @returns {Promise<Object>} Updated user with populated profile
-   * 
+   * @param {IProfileUpdate} updates - Object containing fields to update
+   * @returns {Promise<IUserData>} Updated user with populated profile
    * @throws {AuthenticationError} If user not found
-   * 
-   * @example
-   * const user = await userService.updateProfile(userId, {
-   *   firstName: "John",
-   *   lastName: "Doe",
-   *   bio: "Sports enthusiast",
-   *   location: "New York"
-   * });
    */
   async updateProfile(
     userId: string,
-    updates: {
-      firstName?: string;
-      lastName?: string;
-      bio?: string;
-      avatar?: string;
-      location?: string;
-      phoneNumber?: string;
-      preferences?: any;
-      stats?: any;
-    }
-  ) {
-    // Separate user updates from profile updates
-    const userUpdates: any = {};
-    const profileUpdates: any = {};
-
-    // Fields that belong to user model
-    const userFields = ['preferences', 'stats'];
-    // Fields that belong to profile model
-    const profileFields = ['firstName', 'lastName', 'bio', 'avatar', 'location', 'phoneNumber'];
-
-    Object.keys(updates).forEach((key) => {
-      if (userFields.includes(key)) {
-        userUpdates[key] = updates[key as keyof typeof updates];
-      } else if (profileFields.includes(key)) {
-        profileUpdates[key] = updates[key as keyof typeof updates];
-      }
-    });
-
-    const updatePromises = [];
-
-    // Update user if there are user updates
-    if (Object.keys(userUpdates).length > 0) {
-      updatePromises.push(
-        User.findByIdAndUpdate(userId, userUpdates, {
-          new: true,
-          runValidators: true,
-        })
-      );
-    }
-
-    // Update profile if there are profile updates
-    if (Object.keys(profileUpdates).length > 0) {
-      updatePromises.push(
-        Profile.findOneAndUpdate({ user: userId }, profileUpdates, {
-          new: true,
-          runValidators: true,
-        })
-      );
-    }
-
-    if (updatePromises.length === 0) {
-      throw new Error('No valid fields to update');
-    }
-
-    await Promise.all(updatePromises);
-
-    // Get updated user with profile
-    const updatedUser = await User.findById(userId).populate('profile').populate('achievements');
-
-    // Publish event
-    this.eventPublisher.publishProfileUpdated({
-      userId: updatedUser!.id,
-      updates: Object.keys(updates),
-      timestamp: new Date(),
-    });
-
-    return {
-      id: updatedUser!.id,
-      email: updatedUser!.email,
-      profile: updatedUser!.profile,
-      achievements: updatedUser!.achievements,
-      stats: updatedUser!.stats,
-      preferences: updatedUser!.preferences,
-    };
+    updates: IProfileUpdate
+  ): Promise<IUserData> {
+    return this.profileService.updateProfile(userId, updates);
   }
 
-  async addFriend(userId: string, friendId: string) {
-    if (userId === friendId) {
-      throw new Error('Cannot add yourself as a friend');
-    }
-
-    const user = await User.findById(userId);
-    const friend = await User.findById(friendId);
-
-    if (!user || !friend) {
-      throw new AuthenticationError('User not found');
-    }
-
-    // Check if already friends
-    if (user.friends?.includes(friendId as any)) {
-      throw new ConflictError('Already friends');
-    }
-
-    // Add friend to both users
-    user.friends = user.friends || [];
-    user.friends.push(friendId as any);
-    await user.save();
-
-    friend.friends = friend.friends || [];
-    friend.friends.push(userId as any);
-    await friend.save();
-
-    // Publish event
-    this.eventPublisher.publishFriendAdded({
-      userId,
-      friendId,
-      timestamp: new Date(),
-    });
-
-    return { success: true };
+  /**
+   * Add a friend
+   *
+   * Delegates to FriendService for friend management.
+   *
+   * @param {string} userId - User ID
+   * @param {string} friendId - Friend ID to add
+   * @returns {Promise<{success: boolean}>} Success indicator
+   */
+  async addFriend(
+    userId: string,
+    friendId: string
+  ): Promise<{success: boolean}> {
+    return this.friendService.addFriend(userId, friendId);
   }
 
-  async removeFriend(userId: string, friendId: string) {
-    const user = await User.findById(userId);
-    const friend = await User.findById(friendId);
-
-    if (!user || !friend) {
-      throw new AuthenticationError('User not found');
-    }
-
-    // Remove friend from both users
-    user.friends = user.friends?.filter((id) => id.toString() !== friendId) || [];
-    await user.save();
-
-    friend.friends = friend.friends?.filter((id) => id.toString() !== userId) || [];
-    await friend.save();
-
-    // Publish event
-    this.eventPublisher.publishFriendRemoved({
-      userId,
-      friendId,
-      timestamp: new Date(),
-    });
-
-    return { success: true };
+  /**
+   * Remove a friend
+   *
+   * Delegates to FriendService for friend management.
+   *
+   * @param {string} userId - User ID
+   * @param {string} friendId - Friend ID to remove
+   * @returns {Promise<{success: boolean}>} Success indicator
+   */
+  async removeFriend(
+    userId: string,
+    friendId: string
+  ): Promise<{success: boolean}> {
+    return this.friendService.removeFriend(userId, friendId);
   }
 
-  async getFriends(userId: string) {
-    const user = await User.findById(userId).populate('friends', 'email profile');
-
-    if (!user) {
-      throw new AuthenticationError('User not found');
-    }
-
-    return user.friends || [];
+  /**
+   * Get user's friends
+   *
+   * Delegates to FriendService for friend retrieval.
+   *
+   * @param {string} userId - User ID
+   * @returns {Promise<any[]>} List of friends
+   */
+  async getFriends(userId: string): Promise<any[]> {
+    return this.friendService.getFriends(userId);
   }
 
-  async searchUsers(query: string, limit = 20, offset = 0) {
+  /**
+   * Bulk add friends
+   *
+   * Delegates to FriendService for bulk operations.
+   *
+   * @param {string} userId - User ID
+   * @param {string[]} friendIds - Array of friend IDs
+   * @returns {Promise<{success: boolean; added: number}>} Result
+   */
+  async bulkAddFriends(
+    userId: string,
+    friendIds: string[]
+  ): Promise<{success: boolean; added: number}> {
+    return this.friendService.bulkAddFriends(userId, friendIds);
+  }
+
+  /**
+   * Search users
+   *
+   * @param {string} query - Search query
+   * @param {number} limit - Max results (default: 20)
+   * @param {number} offset - Pagination offset (default: 0)
+   * @returns {Promise<ISearchResult>} Search results
+   */
+  async searchUsers(
+    query: string,
+    limit = 20,
+    offset = 0
+  ): Promise<ISearchResult> {
     const users = await User.find({
-      $or: [{ email: { $regex: query, $options: 'i' } }],
+      $or: [{email: {$regex: query, $options: "i"}}],
       isActive: true,
     })
       .skip(offset)
       .limit(limit)
-      .populate('profile', 'firstName lastName username avatar')
-      .select('email profile stats');
+      .populate("profile", "firstName lastName username avatar")
+      .select("email profile stats");
 
     const total = await User.countDocuments({
-      $or: [{ email: { $regex: query, $options: 'i' } }],
+      $or: [{email: {$regex: query, $options: "i"}}],
       isActive: true,
     });
 
@@ -292,11 +175,18 @@ export class UserService {
     };
   }
 
-  async getUserStats(userId: string) {
-    const user = await User.findById(userId).select('stats achievements');
+  /**
+   * Get user statistics
+   *
+   * @param {string} userId - User ID
+   * @returns {Promise<any>} User stats
+   * @throws {AuthenticationError} If user not found
+   */
+  async getUserStats(userId: string): Promise<any> {
+    const user = await User.findById(userId).select("stats achievements");
 
     if (!user) {
-      throw new AuthenticationError('User not found');
+      throw new AuthenticationError("User not found");
     }
 
     return {
@@ -305,14 +195,21 @@ export class UserService {
     };
   }
 
-  async updateUserStats(userId: string, statsUpdate: any) {
+  /**
+   * Update user statistics
+   *
+   * @param {string} userId - User ID
+   * @param {any} statsUpdate - Stats to update
+   * @returns {Promise<any>} Updated stats
+   * @throws {AuthenticationError} If user not found
+   */
+  async updateUserStats(userId: string, statsUpdate: any): Promise<any> {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new AuthenticationError('User not found');
+      throw new AuthenticationError("User not found");
     }
 
-    // Merge stats
     user.stats = {
       ...user.stats,
       ...statsUpdate,
@@ -320,7 +217,6 @@ export class UserService {
 
     await user.save();
 
-    // Publish stats updated event
     this.eventPublisher.publishStatsUpdated({
       userId,
       stats: user.stats,
@@ -330,69 +226,43 @@ export class UserService {
     return user.stats;
   }
 
-  async deactivateUser(userId: string) {
+  /**
+   * Deactivate user account
+   *
+   * @param {string} userId - User ID
+   * @returns {Promise<{success: boolean}>} Success indicator
+   * @throws {AuthenticationError} If user not found
+   */
+  async deactivateUser(userId: string): Promise<{success: boolean}> {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new AuthenticationError('User not found');
+      throw new AuthenticationError("User not found");
     }
 
     user.isActive = false;
     await user.save();
 
-    return { success: true };
+    return {success: true};
   }
 
-  async reactivateUser(userId: string) {
+  /**
+   * Reactivate user account
+   *
+   * @param {string} userId - User ID
+   * @returns {Promise<{success: boolean}>} Success indicator
+   * @throws {AuthenticationError} If user not found
+   */
+  async reactivateUser(userId: string): Promise<{success: boolean}> {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new AuthenticationError('User not found');
+      throw new AuthenticationError("User not found");
     }
 
     user.isActive = true;
     await user.save();
 
-    return { success: true };
-  }
-
-  async bulkAddFriends(userId: string, friendIds: string[]) {
-    const user = await User.findById(userId);
-
-    if (!user) {
-      throw new AuthenticationError('User not found');
-    }
-
-    const validFriendIds: string[] = [];
-
-    for (const friendId of friendIds) {
-      if (friendId !== userId && !user.friends?.includes(friendId as any)) {
-        validFriendIds.push(friendId);
-      }
-    }
-
-    if (validFriendIds.length === 0) {
-      return { success: true, added: 0 };
-    }
-
-    // Verify all friends exist
-    const friends = await User.find({
-      _id: { $in: validFriendIds },
-      isActive: true,
-    });
-
-    if (friends.length !== validFriendIds.length) {
-      throw new AuthenticationError('Some users not found');
-    }
-
-    // Add to user's friends list
-    user.friends = user.friends || [];
-    user.friends.push(...(validFriendIds as any));
-    await user.save();
-
-    // Add user to each friend's list
-    await User.updateMany({ _id: { $in: validFriendIds } }, { $addToSet: { friends: userId } });
-
-    return { success: true, added: validFriendIds.length };
+    return {success: true};
   }
 }
