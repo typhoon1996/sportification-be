@@ -1,19 +1,19 @@
-import { Match } from "../../../matches/domain/models/Match";
-import { MatchEventPublisher } from "../../events/publishers/MatchEventPublisher";
+import {Match} from "../../../matches/domain/models/Match";
+import {MatchEventPublisher} from "../../events/publishers/MatchEventPublisher";
 import {
   NotFoundError,
   ValidationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
-import { MatchStatus, MatchType } from "../../../../shared/types";
+import {MatchStatus, MatchType} from "../../../../shared/types";
 
 /**
  * Match Service - Business Logic for Match Management
- * 
+ *
  * Handles all business logic related to sports match creation, participation,
  * scoring, and lifecycle management. Implements match rules, validation, and
  * publishes domain events for other modules to consume.
- * 
+ *
  * Key Responsibilities:
  * - Match creation with validation and defaults
  * - Participant management (join/leave logic)
@@ -21,7 +21,7 @@ import { MatchStatus, MatchType } from "../../../../shared/types";
  * - Score tracking and winner determination
  * - Match cancellation and deletion
  * - Privacy controls (public vs private matches)
- * 
+ *
  * Business Rules:
  * - Matches must be scheduled in the future
  * - Creator automatically becomes first participant
@@ -31,14 +31,14 @@ import { MatchStatus, MatchType } from "../../../../shared/types";
  * - Status transitions follow defined lifecycle
  * - Public matches have default capacity of 10
  * - Private matches have default capacity of 2
- * 
+ *
  * Event Publication:
  * - match.created - When match is created
  * - match.player_joined - When participant joins
  * - match.player_left - When participant leaves
  * - match.status_changed - When status updated
  * - match.score_updated - When score is recorded
- * 
+ *
  * @class MatchService
  */
 export class MatchService {
@@ -50,11 +50,11 @@ export class MatchService {
 
   /**
    * Create a new sports match
-   * 
+   *
    * Creates a new match with validation, defaults, and initial participant setup.
    * The creator automatically becomes the first participant. Validates that the
    * scheduled date is in the future and publishes a match.created event.
-   * 
+   *
    * Process:
    * 1. Validates scheduled date is in future
    * 2. Sets defaults (type, capacity, status)
@@ -62,14 +62,14 @@ export class MatchService {
    * 4. Adds creator as first participant
    * 5. Populates related data
    * 6. Publishes match.created event
-   * 
+   *
    * @async
    * @param {string} userId - ID of the user creating the match
    * @param {any} matchData - Match details (sport, schedule, venue, etc.)
    * @returns {Promise<Match>} Created match with populated fields
-   * 
+   *
    * @throws {ValidationError} If scheduled date is in the past
-   * 
+   *
    * @example
    * const match = await matchService.createMatch(userId, {
    *   sport: "Basketball",
@@ -105,9 +105,9 @@ export class MatchService {
 
     await match.save();
     await match.populate([
-      { path: "createdBy", select: "profile" },
-      { path: "participants", select: "profile" },
-      { path: "venue", select: "name location" },
+      {path: "createdBy", select: "profile"},
+      {path: "participants", select: "profile"},
+      {path: "venue", select: "name location"},
     ]);
 
     // Publish event
@@ -124,25 +124,25 @@ export class MatchService {
 
   /**
    * Join an existing match as a participant
-   * 
+   *
    * Adds a user to the match participants list with validation checks.
    * Ensures match capacity is not exceeded and user is not already participating.
    * Only allows joining matches in 'upcoming' status.
-   * 
+   *
    * Validation Rules:
    * - Match must exist
    * - Match status must be 'upcoming'
    * - User must not already be participating
    * - Match must not be at max capacity
-   * 
+   *
    * @async
    * @param {string} userId - ID of the user joining
    * @param {string} matchId - ID of the match to join
    * @returns {Promise<Match>} Updated match with new participant
-   * 
+   *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If already participating, match full, or match not upcoming
-   * 
+   *
    * @example
    * const match = await matchService.joinMatch(userId, matchId);
    * // User added to match.participants array
@@ -186,24 +186,24 @@ export class MatchService {
 
   /**
    * Leave a match as a participant
-   * 
+   *
    * Removes a user from the match participants list. The match creator cannot
    * leave their own match - they must cancel/delete it instead. Only allows
    * leaving matches in 'upcoming' status.
-   * 
+   *
    * Business Rules:
    * - Creator cannot leave their own match
    * - Can only leave upcoming matches
    * - User must be a current participant
-   * 
+   *
    * @async
    * @param {string} userId - ID of the user leaving
    * @param {string} matchId - ID of the match to leave
    * @returns {Promise<Match>} Updated match without the user
-   * 
+   *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If user is creator, not participating, or match not upcoming
-   * 
+   *
    * @example
    * const match = await matchService.leaveMatch(userId, matchId);
    * // User removed from match.participants array
@@ -229,7 +229,7 @@ export class MatchService {
     }
 
     match.participants = match.participants.filter(
-      (p) => p.toString() !== userId
+      p => p.toString() !== userId
     );
     await match.save();
 
@@ -239,7 +239,7 @@ export class MatchService {
       userId,
     });
 
-    return { success: true };
+    return {success: true};
   }
 
   async updateMatchStatus(
@@ -265,7 +265,7 @@ export class MatchService {
       this.eventPublisher.publishMatchCompleted({
         matchId: match.id,
         winnerId: match.winner?.toString(),
-        participants: match.participants.map((p) => p.toString()),
+        participants: match.participants.map(p => p.toString()),
         sport: match.sport,
       });
     } else if (status === MatchStatus.CANCELLED) {
@@ -303,7 +303,7 @@ export class MatchService {
       this.eventPublisher.publishMatchCompleted({
         matchId: match.id,
         winnerId: winner,
-        participants: match.participants.map((p) => p.toString()),
+        participants: match.participants.map(p => p.toString()),
         sport: match.sport,
       });
     }
