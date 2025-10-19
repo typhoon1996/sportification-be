@@ -1,5 +1,4 @@
 const path = require('path');
-const prettierConfig = require('./.prettierrc');
 
 module.exports = {
   root: true,
@@ -38,8 +37,5 @@ module.exports = {
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
     'prettier/prettier': 'warn',
-  },
-  settings: {
-    prettier: prettierConfig,
   },
 };
