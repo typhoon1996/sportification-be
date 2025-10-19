@@ -1,152 +1,126 @@
-import bcrypt from "bcryptjs";
-import { User } from "../../../users/domain/models/User";
-import { Profile } from "../../../users/domain/models/Profile";
-import { JWTUtil } from '../../../../shared/lib/auth';
-import { IamEventPublisher } from "../../events/publishers/IamEventPublisher";
+/**
+ * AuthService - Authentication Business Logic (Refactored)
+ *
+ * This service manages all authentication-related operations.
+ * Refactored to follow SOLID principles and best practices.
+ *
+ * Key Improvements:
+ * - Dependency Injection: Services injected via constructor
+ * - Single Responsibility: Delegates to specialized services (Token, Password)
+ * - Interface Segregation: Depends on abstractions, not concrete classes
+ * - DRY: Eliminated code duplication
+ * - KISS: Simplified complex flows
+ *
+ * Architecture:
+ * - Controller → AuthService → TokenService/PasswordService → User Model
+ * - Events published for inter-module communication
+ *
+ * @class AuthService
+ * @implements {IAuthService}
+ */
+
+import {User} from "../../../users/domain/models/User";
+import {Profile} from "../../../users/domain/models/Profile";
+import {TokenService} from "./TokenService";
+import {PasswordService} from "./PasswordService";
+import {IamEventPublisher} from "../../events/publishers/IamEventPublisher";
+import {
+  IAuthService,
+  ITokenService,
+  IPasswordService,
+  IEventPublisher,
+  IUserRegistrationData,
+  IAuthResult,
+  IMfaRequired,
+} from "../interfaces";
 import {
   AuthenticationError,
   ConflictError,
+  ValidationError,
 } from "../../../../shared/middleware/errorHandler";
+import logger from "../../../../shared/infrastructure/logging";
 
-/**
- * AuthService - Handles authentication business logic
- * 
- * This service manages all authentication-related operations including user registration,
- * login, token management, and session handling. It implements secure authentication
- * practices with JWT tokens and bcrypt password hashing.
- * 
- * Key Responsibilities:
- * - User registration with validation
- * - Login authentication and token generation
- * - Refresh token management
- * - Password change and reset operations
- * - Account deactivation
- * - Event publication for authentication actions
- * 
- * Security Features:
- * - Password hashing with bcrypt (10 rounds)
- * - JWT access tokens (7-day expiry)
- * - JWT refresh tokens (30-day expiry)
- * - Refresh token rotation on use
- * - Email uniqueness validation
- * - Username uniqueness validation
- * 
- * @class AuthService
- */
-export class AuthService {
-  private eventPublisher: IamEventPublisher;
+export class AuthService implements IAuthService {
+  // DIP: Depend on abstractions (interfaces) not concrete implementations
+  private readonly tokenService: ITokenService;
+  private readonly passwordService: IPasswordService;
+  private readonly eventPublisher: IEventPublisher;
 
   /**
-   * Initializes the AuthService with event publisher for domain events
+   * Constructor with Dependency Injection
+   *
+   * Services are injected to allow:
+   * - Easy testing with mocks
+   * - Flexible service swapping
+   * - Loose coupling
+   *
+   * @param tokenService - Token management service
+   * @param passwordService - Password management service
+   * @param eventPublisher - Event publisher for domain events
    */
-  constructor() {
-    this.eventPublisher = new IamEventPublisher();
+  constructor(
+    tokenService?: ITokenService,
+    passwordService?: IPasswordService,
+    eventPublisher?: IEventPublisher
+  ) {
+    // DI with default implementations (can be overridden for testing)
+    this.tokenService = tokenService || new TokenService();
+    this.passwordService = passwordService || new PasswordService();
+    this.eventPublisher = eventPublisher || new IamEventPublisher();
   }
 
   /**
    * Register a new user account
-   * 
-   * Creates a new user with email/password credentials and profile information.
-   * Performs validation to ensure email and username uniqueness. Automatically
-   * generates and returns JWT access and refresh tokens upon successful registration.
-   * 
-   * Process Flow:
-   * 1. Validate email is not already registered
-   * 2. Validate username is not already taken
-   * 3. Create profile with user information
-   * 4. Create user with hashed password
-   * 5. Link user and profile bidirectionally
-   * 6. Generate JWT token pair
-   * 7. Store refresh token in user document
-   * 8. Publish user.registered event
-   * 9. Return user data with tokens
-   * 
-   * @async
-   * @param {string} email - User's email address (will be lowercased)
-   * @param {string} password - User's password (will be hashed with bcrypt)
-   * @param {string} firstName - User's first name
-   * @param {string} lastName - User's last name
-   * @param {string} username - Desired username (will be lowercased)
-   * @returns {Promise<{user: User, profile: Profile, accessToken: string, refreshToken: string}>}
-   * 
-   * @throws {ConflictError} If email already exists in the system
-   * @throws {ConflictError} If username is already taken
-   * 
-   * @example
-   * const result = await authService.register(
-   *   'user@example.com',
-   *   'SecurePass123!',
-   *   'John',
-   *   'Doe',
-   *   'johndoe'
-   * );
-   * // Returns: { user, profile, accessToken, refreshToken }
+   *
+   * Refactored to:
+   * - Use PasswordService for validation and hashing
+   * - Use TokenService for token generation
+   * - Simplified user creation flow
+   * - Better error handling
+   *
+   * @param {IUserRegistrationData} data - Registration data
+   * @returns {Promise<IAuthResult>} User data with tokens
+   * @throws {ConflictError} If email or username already exists
+   * @throws {ValidationError} If password doesn't meet requirements
    */
-  async register(
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-    username: string
-  ) {
-    // Check if user already exists by email
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
-      throw new ConflictError("User with this email already exists");
+  async register(data: IUserRegistrationData): Promise<IAuthResult> {
+    const {email, password, firstName, lastName, username} = data;
+
+    // Validate password strength
+    const passwordValidation =
+      this.passwordService.validatePasswordStrength(password);
+    if (!passwordValidation.isValid) {
+      throw new ValidationError(passwordValidation.errors.join(", "));
     }
 
-    // Check if username is already taken
-    const existingProfile = await Profile.findByUsername(username);
-    if (existingProfile) {
-      throw new ConflictError("Username is already taken");
-    }
+    // Check for existing user
+    await this.validateUserDoesNotExist(email, username);
 
-    // Create profile first with user information
-    const profile = new Profile({
+    // Hash password using PasswordService
+    const hashedPassword = await this.passwordService.hashPassword(password);
+
+    // Create profile and user
+    const {user, profile} = await this.createUserAndProfile({
+      email: email.toLowerCase(),
+      password: hashedPassword,
       firstName,
       lastName,
       username: username.toLowerCase(),
-      user: null, // Will be set after user creation
     });
 
-    // Create user with hashed password (hashing happens in User model pre-save hook)
-    const user = new User({
-      email: email.toLowerCase(),
-      password,
-      profile: profile._id,
-      preferences: {
-        theme: "light",
-        notifications: true,
-        language: "en",
-      },
-      stats: {
-        matchesPlayed: 0,
-        wins: 0,
-        losses: 0,
-      },
-    });
+    // Generate tokens using TokenService
+    const tokens = this.tokenService.generateTokenPair(user.id, user.email);
 
-    // Set bidirectional reference between user and profile
-    profile.user = user._id as any;
-
-    // Save both documents atomically
-    await Promise.all([user.save(), profile.save()]);
-
-    // Generate JWT access and refresh tokens
-    const tokens = JWTUtil.generateTokenPair(user.id, user.email);
-
-    // Store refresh token in user document for validation
+    // Store refresh token
     user.addRefreshToken(tokens.refreshToken);
     await user.save();
 
-    // Publish domain event for other modules to react
-    this.eventPublisher.publishUserRegistered({
+    // Publish domain event
+    this.publishUserRegisteredEvent(user, profile);
+
+    logger.info("User registered successfully", {
       userId: user.id,
       email: user.email,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      username: profile.username,
-      profileId: profile.id,
     });
 
     return {
@@ -160,78 +134,62 @@ export class AuthService {
     };
   }
 
-  async login(email: string, password: string) {
-    // Find user with password field
-    const user = await User.findByEmail(email);
-    if (!user || !user.isActive) {
+  /**
+   * Authenticate user and generate tokens
+   *
+   * Refactored to:
+   * - Use PasswordService for comparison
+   * - Use TokenService for generation
+   * - Simplified MFA check
+   * - Better error messages
+   *
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {Promise<IAuthResult | IMfaRequired>} Auth result or MFA challenge
+   * @throws {AuthenticationError} If credentials invalid or account locked
+   */
+  async login(
+    email: string,
+    password: string
+  ): Promise<IAuthResult | IMfaRequired> {
+    // Find and validate user
+    const user = await this.findUserForLogin(email);
+    await this.validateUserCanLogin(user);
+
+    // Verify password using PasswordService
+    const isPasswordValid = await this.verifyUserPassword(user, password);
+    if (!isPasswordValid) {
+      await user.incrementLoginAttempts();
       throw new AuthenticationError("Invalid credentials");
     }
 
-    // Check if account is locked
-    if (user.isAccountLocked()) {
-      throw new AuthenticationError(
-        "Account is temporarily locked due to too many failed attempts"
-      );
+    // Reset failed attempts on successful login
+    await this.resetFailedLoginAttempts(user);
+
+    // Check if MFA is required
+    if (this.isMfaRequired(user)) {
+      return this.createMfaChallenge(user);
     }
 
-    // Get user with password for comparison
-    const userWithPassword = await User.findById(user._id)
-      .select("+password +refreshTokens +mfaSettings")
-      .populate("profile");
-    if (!userWithPassword) {
-      throw new AuthenticationError("Invalid credentials");
-    }
+    // Generate tokens using TokenService
+    const tokens = this.tokenService.generateTokenPair(user.id, user.email);
 
-    // Check password (only if user has a password set)
-    if (userWithPassword.password) {
-      const isPasswordValid = await userWithPassword.comparePassword(password);
-      if (!isPasswordValid) {
-        // Increment failed login attempts
-        await user.incrementLoginAttempts();
-        throw new AuthenticationError("Invalid credentials");
-      }
-    } else {
-      // User only has social logins
-      throw new AuthenticationError("Please use social login for this account");
-    }
-
-    // Reset login attempts on successful password verification
-    if (user.securitySettings?.loginAttempts > 0) {
-      await user.resetLoginAttempts();
-    }
-
-    // Check if MFA is enabled
-    if (userWithPassword.mfaSettings?.isEnabled) {
-      return {
-        requiresMFA: true,
-        userId: userWithPassword.id,
-        email: userWithPassword.email,
-      };
-    }
-
-    // Generate tokens
-    const tokens = JWTUtil.generateTokenPair(
-      userWithPassword.id,
-      userWithPassword.email
-    );
-
-    // Add refresh token and update last login
-    userWithPassword.addRefreshToken(tokens.refreshToken);
-    userWithPassword.lastLoginAt = new Date();
-    await userWithPassword.save();
+    // Update user session info
+    await this.updateUserSession(user, tokens.refreshToken);
 
     // Publish event
-    this.eventPublisher.publishUserLoggedIn({
-      userId: userWithPassword.id,
-      email: userWithPassword.email,
-      timestamp: new Date(),
+    this.publishUserLoggedInEvent(user);
+
+    logger.info("User logged in successfully", {
+      userId: user.id,
+      email: user.email,
     });
 
     return {
       user: {
-        id: userWithPassword.id,
-        email: userWithPassword.email,
-        profile: userWithPassword.profile,
+        id: user.id,
+        email: user.email,
+        profile: user.profile,
         isEmailVerified: user.isEmailVerified,
         lastLoginAt: user.lastLoginAt,
       },
@@ -239,72 +197,96 @@ export class AuthService {
     };
   }
 
-  async refreshToken(refreshToken: string) {
+  /**
+   * Refresh access token using refresh token
+   *
+   * Refactored to use TokenService for verification and generation.
+   *
+   * @param {string} refreshToken - Valid refresh token
+   * @returns {Promise<{tokens: any}>} New token pair
+   * @throws {AuthenticationError} If token invalid or user not found
+   */
+  async refreshToken(refreshToken: string): Promise<{tokens: any}> {
     if (!refreshToken) {
       throw new AuthenticationError("Refresh token is required");
     }
 
-    // Verify refresh token
-    const decoded = JWTUtil.verifyRefreshToken(refreshToken);
+    // Verify token using TokenService
+    const decoded = this.tokenService.verifyRefreshToken(refreshToken);
 
-    // Find user and check if refresh token exists
-    const user = await User.findById(decoded.userId)
-      .select("+refreshTokens")
-      .populate("profile");
+    // Validate user and token
+    const user = await this.validateRefreshToken(decoded.userId, refreshToken);
 
-    if (!user || !user.isActive) {
-      throw new AuthenticationError("Invalid refresh token");
-    }
+    // Generate new token pair
+    const tokens = this.tokenService.generateTokenPair(user.id, user.email);
 
-    if (!user.refreshTokens?.includes(refreshToken)) {
-      // Clear all refresh tokens for security
-      user.clearRefreshTokens();
-      await user.save();
-      throw new AuthenticationError("Invalid refresh token");
-    }
-
-    // Generate new tokens
-    const tokens = JWTUtil.generateTokenPair(user.id, user.email);
-
-    // Replace old refresh token with new one
+    // Rotate refresh token (security best practice)
     user.removeRefreshToken(refreshToken);
     user.addRefreshToken(tokens.refreshToken);
     await user.save();
 
-    return { tokens };
+    logger.info("Token refreshed", {userId: user.id});
+
+    return {tokens};
   }
 
-  async logout(userId: string, refreshToken?: string) {
+  /**
+   * Logout user and invalidate tokens
+   *
+   * @param {string} userId - User ID
+   * @param {string} refreshToken - Optional specific token to invalidate
+   * @returns {Promise<{success: boolean}>} Success indicator
+   */
+  async logout(
+    userId: string,
+    refreshToken?: string
+  ): Promise<{success: boolean}> {
     const user = await User.findById(userId).select("+refreshTokens");
     if (!user) {
       throw new AuthenticationError("User not found");
     }
 
+    // Invalidate tokens
     if (refreshToken) {
-      // Remove specific refresh token
       user.removeRefreshToken(refreshToken);
     } else {
-      // Clear all refresh tokens
       user.clearRefreshTokens();
     }
 
     await user.save();
 
     // Publish event
-    this.eventPublisher.publishUserLoggedOut({
-      userId: user.id,
-      email: user.email,
-      timestamp: new Date(),
-    });
+    this.publishUserLoggedOutEvent(user);
 
-    return { success: true };
+    logger.info("User logged out", {userId: user.id});
+
+    return {success: true};
   }
 
+  /**
+   * Change user password
+   *
+   * Refactored to use PasswordService for validation and hashing.
+   *
+   * @param {string} userId - User ID
+   * @param {string} currentPassword - Current password
+   * @param {string} newPassword - New password
+   * @returns {Promise<{success: boolean}>} Success indicator
+   * @throws {AuthenticationError} If current password incorrect
+   * @throws {ValidationError} If new password doesn't meet requirements
+   */
   async changePassword(
     userId: string,
     currentPassword: string,
     newPassword: string
-  ) {
+  ): Promise<{success: boolean}> {
+    // Validate new password strength
+    const validation =
+      this.passwordService.validatePasswordStrength(newPassword);
+    if (!validation.isValid) {
+      throw new ValidationError(validation.errors.join(", "));
+    }
+
     // Get user with password
     const user = await User.findById(userId).select("+password +refreshTokens");
     if (!user) {
@@ -312,38 +294,50 @@ export class AuthService {
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+    const isCurrentPasswordValid = await this.passwordService.comparePassword(
+      currentPassword,
+      user.password!
+    );
     if (!isCurrentPasswordValid) {
       throw new AuthenticationError("Current password is incorrect");
     }
 
-    // Update password
-    user.password = newPassword;
+    // Hash new password
+    user.password = await this.passwordService.hashPassword(newPassword);
 
     // Clear all refresh tokens for security
     user.clearRefreshTokens();
-
     await user.save();
 
     // Publish event
-    this.eventPublisher.publishPasswordChanged({
-      userId: user.id,
-      email: user.email,
-      timestamp: new Date(),
-    });
+    this.publishPasswordChangedEvent(user);
 
-    return { success: true };
+    logger.info("Password changed", {userId: user.id});
+
+    return {success: true};
   }
 
-  async deactivateAccount(userId: string, password: string) {
-    // Get user with password
+  /**
+   * Deactivate user account
+   *
+   * @param {string} userId - User ID
+   * @param {string} password - Password confirmation
+   * @returns {Promise<{success: boolean}>} Success indicator
+   */
+  async deactivateAccount(
+    userId: string,
+    password: string
+  ): Promise<{success: boolean}> {
     const user = await User.findById(userId).select("+password +refreshTokens");
     if (!user) {
       throw new AuthenticationError("User not found");
     }
 
     // Verify password
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await this.passwordService.comparePassword(
+      password,
+      user.password!
+    );
     if (!isPasswordValid) {
       throw new AuthenticationError("Password is incorrect");
     }
@@ -354,16 +348,20 @@ export class AuthService {
     await user.save();
 
     // Publish event
-    this.eventPublisher.publishAccountDeactivated({
-      userId: user.id,
-      email: user.email,
-      timestamp: new Date(),
-    });
+    this.publishAccountDeactivatedEvent(user);
 
-    return { success: true };
+    logger.info("Account deactivated", {userId: user.id});
+
+    return {success: true};
   }
 
-  async getProfile(userId: string) {
+  /**
+   * Get user profile
+   *
+   * @param {string} userId - User ID
+   * @returns {Promise<any>} User profile data
+   */
+  async getProfile(userId: string): Promise<any> {
     const user = await User.findById(userId)
       .populate("profile")
       .populate("achievements", "name description icon points");
@@ -382,5 +380,260 @@ export class AuthService {
       isEmailVerified: user.isEmailVerified,
       lastLoginAt: user.lastLoginAt,
     };
+  }
+
+  // ==================== Private Helper Methods ====================
+  // Following KISS principle - break complex logic into smaller methods
+
+  /**
+   * Validate that email and username are not already taken
+   * @private
+   */
+  private async validateUserDoesNotExist(
+    email: string,
+    username: string
+  ): Promise<void> {
+    const [existingUser, existingProfile] = await Promise.all([
+      User.findByEmail(email),
+      Profile.findByUsername(username),
+    ]);
+
+    if (existingUser) {
+      throw new ConflictError("User with this email already exists");
+    }
+
+    if (existingProfile) {
+      throw new ConflictError("Username is already taken");
+    }
+  }
+
+  /**
+   * Create user and profile documents
+   * @private
+   */
+  private async createUserAndProfile(data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+  }): Promise<{user: any; profile: any}> {
+    // Create profile
+    const profile = new Profile({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      username: data.username,
+      user: null,
+    });
+
+    // Create user
+    const user = new User({
+      email: data.email,
+      password: data.password,
+      profile: profile._id,
+      preferences: {
+        theme: "light",
+        notifications: true,
+        language: "en",
+      },
+      stats: {
+        matchesPlayed: 0,
+        wins: 0,
+        losses: 0,
+      },
+    });
+
+    // Link profile to user
+    profile.user = user._id as any;
+
+    // Save both
+    await Promise.all([user.save(), profile.save()]);
+
+    return {user, profile};
+  }
+
+  /**
+   * Find user for login with required fields
+   * @private
+   */
+  private async findUserForLogin(email: string): Promise<any> {
+    const user = await User.findByEmail(email);
+    if (!user) {
+      throw new AuthenticationError("Invalid credentials");
+    }
+
+    // Get user with password and sensitive fields
+    const userWithPassword = await User.findById(user._id)
+      .select("+password +refreshTokens +mfaSettings")
+      .populate("profile");
+
+    if (!userWithPassword) {
+      throw new AuthenticationError("Invalid credentials");
+    }
+
+    return userWithPassword;
+  }
+
+  /**
+   * Validate user can login
+   * @private
+   */
+  private async validateUserCanLogin(user: any): Promise<void> {
+    if (!user.isActive) {
+      throw new AuthenticationError("Account is deactivated");
+    }
+
+    if (user.isAccountLocked()) {
+      throw new AuthenticationError(
+        "Account is temporarily locked due to too many failed attempts"
+      );
+    }
+  }
+
+  /**
+   * Verify user password
+   * @private
+   */
+  private async verifyUserPassword(
+    user: any,
+    password: string
+  ): Promise<boolean> {
+    if (!user.password) {
+      throw new AuthenticationError("Please use social login for this account");
+    }
+
+    return this.passwordService.comparePassword(password, user.password);
+  }
+
+  /**
+   * Reset failed login attempts
+   * @private
+   */
+  private async resetFailedLoginAttempts(user: any): Promise<void> {
+    if (user.securitySettings?.loginAttempts > 0) {
+      await user.resetLoginAttempts();
+    }
+  }
+
+  /**
+   * Check if MFA is required
+   * @private
+   */
+  private isMfaRequired(user: any): boolean {
+    return user.mfaSettings?.isEnabled === true;
+  }
+
+  /**
+   * Create MFA challenge response
+   * @private
+   */
+  private createMfaChallenge(user: any): IMfaRequired {
+    return {
+      requiresMFA: true,
+      userId: user.id,
+      email: user.email,
+    };
+  }
+
+  /**
+   * Update user session info
+   * @private
+   */
+  private async updateUserSession(
+    user: any,
+    refreshToken: string
+  ): Promise<void> {
+    user.addRefreshToken(refreshToken);
+    user.lastLoginAt = new Date();
+    await user.save();
+  }
+
+  /**
+   * Validate refresh token and return user
+   * @private
+   */
+  private async validateRefreshToken(
+    userId: string,
+    refreshToken: string
+  ): Promise<any> {
+    const user = await User.findById(userId)
+      .select("+refreshTokens")
+      .populate("profile");
+
+    if (!user || !user.isActive) {
+      throw new AuthenticationError("Invalid refresh token");
+    }
+
+    if (!user.refreshTokens?.includes(refreshToken)) {
+      // Clear all tokens if invalid token is used (security measure)
+      user.clearRefreshTokens();
+      await user.save();
+      throw new AuthenticationError("Invalid refresh token");
+    }
+
+    return user;
+  }
+
+  /**
+   * Publish user registered event
+   * @private
+   */
+  private publishUserRegisteredEvent(user: any, profile: any): void {
+    this.eventPublisher.publishUserRegistered({
+      userId: user.id,
+      email: user.email,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      username: profile.username,
+      profileId: profile.id,
+    });
+  }
+
+  /**
+   * Publish user logged in event
+   * @private
+   */
+  private publishUserLoggedInEvent(user: any): void {
+    this.eventPublisher.publishUserLoggedIn({
+      userId: user.id,
+      email: user.email,
+      timestamp: new Date(),
+    });
+  }
+
+  /**
+   * Publish user logged out event
+   * @private
+   */
+  private publishUserLoggedOutEvent(user: any): void {
+    this.eventPublisher.publishUserLoggedOut({
+      userId: user.id,
+      email: user.email,
+      timestamp: new Date(),
+    });
+  }
+
+  /**
+   * Publish password changed event
+   * @private
+   */
+  private publishPasswordChangedEvent(user: any): void {
+    this.eventPublisher.publishPasswordChanged({
+      userId: user.id,
+      email: user.email,
+      timestamp: new Date(),
+    });
+  }
+
+  /**
+   * Publish account deactivated event
+   * @private
+   */
+  private publishAccountDeactivatedEvent(user: any): void {
+    this.eventPublisher.publishAccountDeactivated({
+      userId: user.id,
+      email: user.email,
+      timestamp: new Date(),
+    });
   }
 }
