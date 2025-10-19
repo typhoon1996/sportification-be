@@ -6,23 +6,35 @@ import {
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
 import {MatchStatus, MatchType} from "../../../../shared/types";
+import {
+  IMatchService,
+  IMatchValidationService,
+  IMatchParticipantService,
+  IMatchEventPublisher,
+  IMatchData,
+} from "../interfaces";
+import {MatchValidationService} from "./MatchValidationService";
+import {MatchParticipantService} from "./MatchParticipantService";
 
 /**
- * Match Service - Business Logic for Match Management
+ * Match Service - Business Logic for Match Management (Refactored with SOLID principles)
  *
- * Handles all business logic related to sports match creation, participation,
- * scoring, and lifecycle management. Implements match rules, validation, and
- * publishes domain events for other modules to consume.
+ * Orchestrates match operations by delegating to specialized services.
+ * Follows Single Responsibility Principle - only handles orchestration and coordination.
+ *
+ * Architecture:
+ * - Uses Dependency Injection for all services
+ * - Delegates validation to MatchValidationService
+ * - Delegates participant management to MatchParticipantService
+ * - Depends on abstractions (interfaces), not concrete implementations
  *
  * Key Responsibilities:
- * - Match creation with validation and defaults
- * - Participant management (join/leave logic)
- * - Match status lifecycle (upcoming → ongoing → completed)
- * - Score tracking and winner determination
- * - Match cancellation and deletion
- * - Privacy controls (public vs private matches)
+ * - Orchestrate match creation workflow
+ * - Coordinate participant operations
+ * - Manage match lifecycle transitions
+ * - Handle database operations
  *
- * Business Rules:
+ * Business Rules (enforced by specialized services):
  * - Matches must be scheduled in the future
  * - Creator automatically becomes first participant
  * - Creator cannot leave their own match
@@ -32,31 +44,42 @@ import {MatchStatus, MatchType} from "../../../../shared/types";
  * - Public matches have default capacity of 10
  * - Private matches have default capacity of 2
  *
- * Event Publication:
- * - match.created - When match is created
- * - match.player_joined - When participant joins
- * - match.player_left - When participant leaves
- * - match.status_changed - When status updated
- * - match.score_updated - When score is recorded
- *
  * @class MatchService
+ * @implements {IMatchService}
  */
-export class MatchService {
-  private eventPublisher: MatchEventPublisher;
+export class MatchService implements IMatchService {
+  private validationService: IMatchValidationService;
+  private participantService: IMatchParticipantService;
+  private eventPublisher: IMatchEventPublisher;
 
-  constructor() {
-    this.eventPublisher = new MatchEventPublisher();
+  /**
+   * Creates an instance of MatchService with dependency injection
+   *
+   * @param validationService - Optional validation service (defaults to MatchValidationService)
+   * @param participantService - Optional participant service (defaults to MatchParticipantService)
+   * @param eventPublisher - Optional event publisher (defaults to MatchEventPublisher)
+   */
+  constructor(
+    validationService?: IMatchValidationService,
+    participantService?: IMatchParticipantService,
+    eventPublisher?: IMatchEventPublisher
+  ) {
+    // DI with default implementations
+    this.validationService = validationService || new MatchValidationService();
+    this.participantService =
+      participantService || new MatchParticipantService();
+    this.eventPublisher = eventPublisher || new MatchEventPublisher();
   }
 
   /**
    * Create a new sports match
    *
    * Creates a new match with validation, defaults, and initial participant setup.
-   * The creator automatically becomes the first participant. Validates that the
-   * scheduled date is in the future and publishes a match.created event.
+   * The creator automatically becomes the first participant. Delegates validation
+   * to MatchValidationService and publishes a match.created event.
    *
    * Process:
-   * 1. Validates scheduled date is in future
+   * 1. Delegates schedule validation to validation service
    * 2. Sets defaults (type, capacity, status)
    * 3. Creates match document
    * 4. Adds creator as first participant
@@ -80,11 +103,10 @@ export class MatchService {
    * });
    */
   async createMatch(userId: string, matchData: any) {
-    // Validate schedule date is in the future
+    // Delegate validation to validation service (DIP)
+    this.validationService.validateSchedule(matchData.schedule);
+
     const scheduledDate = new Date(matchData.schedule.date);
-    if (scheduledDate <= new Date()) {
-      throw new ValidationError("Match date must be in the future");
-    }
 
     const match = new Match({
       type: matchData.type || MatchType.PUBLIC,
@@ -126,10 +148,10 @@ export class MatchService {
    * Join an existing match as a participant
    *
    * Adds a user to the match participants list with validation checks.
-   * Ensures match capacity is not exceeded and user is not already participating.
-   * Only allows joining matches in 'upcoming' status.
+   * Delegates validation to MatchValidationService and participant management
+   * to MatchParticipantService following SRP.
    *
-   * Validation Rules:
+   * Validation Rules (enforced by MatchValidationService):
    * - Match must exist
    * - Match status must be 'upcoming'
    * - User must not already be participating
@@ -155,33 +177,11 @@ export class MatchService {
       throw new NotFoundError("Match");
     }
 
-    if (match.status !== MatchStatus.UPCOMING) {
-      throw new ConflictError("Cannot join match that is not upcoming");
-    }
+    // Delegate validation to validation service (DIP)
+    this.validationService.validateCanJoin(match, userId);
 
-    if (match.participants.includes(userId as any)) {
-      throw new ConflictError("Already participating in this match");
-    }
-
-    if (
-      (match as any).maxParticipants &&
-      match.participants.length >= (match as any).maxParticipants
-    ) {
-      throw new ConflictError("Match is full");
-    }
-
-    match.participants.push(userId as any);
-    await match.save();
-
-    // Publish event
-    this.eventPublisher.publishPlayerJoined({
-      matchId: match.id,
-      userId,
-      sport: match.sport,
-    });
-
-    await match.populate("participants", "profile");
-    return match;
+    // Delegate participant management to participant service (DIP)
+    return this.participantService.addParticipant(match, userId);
   }
 
   /**
@@ -216,30 +216,11 @@ export class MatchService {
       throw new NotFoundError("Match");
     }
 
-    if (!match.participants.includes(userId as any)) {
-      throw new ConflictError("Not participating in this match");
-    }
+    // Delegate validation to validation service (DIP)
+    this.validationService.validateCanLeave(match, userId);
 
-    if (match.createdBy.toString() === userId) {
-      throw new ConflictError("Match creator cannot leave the match");
-    }
-
-    if (match.status === MatchStatus.ONGOING) {
-      throw new ConflictError("Cannot leave match that is ongoing");
-    }
-
-    match.participants = match.participants.filter(
-      p => p.toString() !== userId
-    );
-    await match.save();
-
-    // Publish event
-    this.eventPublisher.publishPlayerLeft({
-      matchId: match.id,
-      userId,
-    });
-
-    return {success: true};
+    // Delegate participant management to participant service (DIP)
+    return this.participantService.removeParticipant(match, userId);
   }
 
   async updateMatchStatus(
