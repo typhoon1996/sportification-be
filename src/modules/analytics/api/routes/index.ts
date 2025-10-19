@@ -1,3 +1,33 @@
+/**
+ * Analytics Routes Module
+ * 
+ * Base Path: /api/v1/analytics
+ * 
+ * Provides analytics and business intelligence endpoints.
+ * Delivers metrics, statistics, and insights for users and administrators.
+ * 
+ * Analytics Categories:
+ * - Overview analytics (general statistics)
+ * - User analytics (activity, performance, engagement)
+ * - Match analytics (participation, wins/losses)
+ * - Tournament analytics (performance, rankings)
+ * - Team analytics (member activity, achievements)
+ * - System analytics (platform usage, growth metrics)
+ * 
+ * Features:
+ * - Real-time dashboard data
+ * - User-specific performance metrics
+ * - Aggregated system statistics
+ * - Time-based filtering (daily, weekly, monthly)
+ * - Export capabilities
+ * 
+ * Security:
+ * - All routes require authentication
+ * - Users can view their own analytics
+ * - Admin-only routes for system-wide metrics
+ * - Role-based access to sensitive data
+ */
+
 import {Router} from "express";
 import {analyticsController} from "../controllers/SimpleAnalyticsController";
 import {authenticate} from "../../../../shared/middleware/auth";

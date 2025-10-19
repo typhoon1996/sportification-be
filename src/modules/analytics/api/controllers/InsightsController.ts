@@ -7,9 +7,52 @@ import { AuditLog } from '../../../iam/domain/models/AuditLog';
 import { sendSuccess, asyncHandler } from '../../../../shared/middleware/errorHandler';
 import { AuthRequest } from '../../../../shared/middleware/auth';
 
+/**
+ * InsightsController
+ * 
+ * Advanced analytics controller providing deep insights into application performance,
+ * user behavior, business metrics, and predictive analytics. This controller aggregates
+ * data from multiple sources to provide actionable insights for decision-making.
+ * 
+ * Features:
+ * - Application health monitoring and insights
+ * - User behavior analysis and journey mapping
+ * - Business performance metrics and KPIs
+ * - Predictive analytics and forecasting
+ * - Competitive analysis and benchmarking
+ * - Actionable recommendations based on data
+ * 
+ * Access: Admin only (all endpoints require admin authorization)
+ */
 export class InsightsController {
   /**
    * Get comprehensive application insights
+   * 
+   * Retrieves a holistic view of application performance including user statistics,
+   * activity metrics, content growth, engagement levels, performance metrics, and
+   * security events. Provides a health score and actionable recommendations.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request object with authenticated admin user
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with comprehensive insights dashboard
+   * 
+   * @throws {UnauthorizedError} If user is not authenticated
+   * @throws {ForbiddenError} If user is not an admin
+   * 
+   * @example
+   * GET /api/v1/analytics/insights/application
+   * Response: {
+   *   summary: { totalUsers, activeUsers, growthRate, retentionRate, healthScore },
+   *   userInsights: { total, new, active, growthRate, retentionRate },
+   *   activityInsights: { topActivities, totalActivities, averageActivitiesPerUser },
+   *   contentInsights: { newMatches, newTournaments, contentGrowthRate },
+   *   engagementInsights: { avgDuration, avgActivities, totalSessions },
+   *   performanceInsights: { avgResponseTime, uptime, errorRate, throughput },
+   *   securityInsights: { securityEvents, loginAttempts, threatLevel },
+   *   recommendations: [...],
+   *   lastUpdated: "2025-01-15T10:00:00Z"
+   * }
    */
   static getApplicationInsights = asyncHandler(async (req: AuthRequest, res: Response) => {
     const insights = await InsightsController.generateApplicationInsights();
@@ -18,6 +61,33 @@ export class InsightsController {
 
   /**
    * Get user behavior insights
+   * 
+   * Analyzes user behavior patterns including journey mapping, feature adoption rates,
+   * session analytics, dropoff points, and cohort analysis. Helps understand how users
+   * interact with the platform and identify areas for improvement.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request object with authenticated admin user
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with user behavior analysis
+   * 
+   * @throws {UnauthorizedError} If user is not authenticated
+   * @throws {ForbiddenError} If user is not an admin
+   * 
+   * Query Parameters:
+   * - period: Time period for analysis ('7d', '30d', or '90d', default: '30d')
+   * 
+   * @example
+   * GET /api/v1/analytics/insights/user-behavior?period=30d
+   * Response: {
+   *   period: "30d",
+   *   userJourney: [...],
+   *   featureAdoption: [...],
+   *   sessionAnalysis: {...},
+   *   dropoffAnalysis: {...},
+   *   cohortAnalysis: {...},
+   *   insights: [...]
+   * }
    */
   static getUserBehaviorInsights = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { period = '30d' } = req.query;
@@ -27,6 +97,27 @@ export class InsightsController {
 
   /**
    * Get business performance insights
+   * 
+   * Provides high-level business metrics including KPIs, trends, growth opportunities,
+   * and potential risks. Offers strategic recommendations based on business performance data.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request object with authenticated admin user
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with business performance metrics
+   * 
+   * @throws {UnauthorizedError} If user is not authenticated
+   * @throws {ForbiddenError} If user is not an admin
+   * 
+   * @example
+   * GET /api/v1/analytics/insights/business
+   * Response: {
+   *   kpis: { userGrowth, retention, engagement, satisfaction },
+   *   trends: { userGrowth, engagement, performance, errors },
+   *   opportunities: [{ type, title, impact, effort, description }, ...],
+   *   risks: [{ type, title, severity, description }, ...],
+   *   recommendations: [...]
+   * }
    */
   static getBusinessInsights = asyncHandler(async (req: AuthRequest, res: Response) => {
     const insights = await InsightsController.generateBusinessInsights();
@@ -35,6 +126,28 @@ export class InsightsController {
 
   /**
    * Get predictive insights and recommendations
+   * 
+   * Uses historical data to predict future trends including user growth, churn rates,
+   * capacity needs, and revenue projections. Provides actionable insights to proactively
+   * address predicted challenges and capitalize on opportunities.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request object with authenticated admin user
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with predictive analytics
+   * 
+   * @throws {UnauthorizedError} If user is not authenticated
+   * @throws {ForbiddenError} If user is not an admin
+   * 
+   * @example
+   * GET /api/v1/analytics/insights/predictive
+   * Response: {
+   *   userGrowth: { next30Days, next90Days, confidence },
+   *   churnPrediction: { riskUsers, churnRate, preventionActions },
+   *   capacityPrediction: { currentCapacity, predictedLoad, recommendation, timeline },
+   *   revenuePrediction: { next30Days, next90Days, growthRate },
+   *   actionableInsights: [{ insight, action, impact }, ...]
+   * }
    */
   static getPredictiveInsights = asyncHandler(async (req: AuthRequest, res: Response) => {
     const insights = await InsightsController.generatePredictiveInsights();
@@ -43,6 +156,29 @@ export class InsightsController {
 
   /**
    * Get competitive analysis insights
+   * 
+   * Provides market positioning, competitor analysis, industry benchmarks, and strategic
+   * opportunities. Helps understand where the platform stands relative to competitors
+   * and identify areas for competitive advantage.
+   * 
+   * Note: In production, this would integrate with external market data sources.
+   * Current implementation provides sample data for demonstration.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request object with authenticated admin user
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with competitive analysis
+   * 
+   * @throws {UnauthorizedError} If user is not authenticated
+   * @throws {ForbiddenError} If user is not an admin
+   * 
+   * @example
+   * GET /api/v1/analytics/insights/competitive
+   * Response: {
+   *   marketPosition: { rank, marketShare, competitorAnalysis },
+   *   benchmarks: { userEngagement, retention, performance },
+   *   opportunities: [...]
+   * }
    */
   static getCompetitiveInsights = asyncHandler(async (req: AuthRequest, res: Response) => {
     const insights = await InsightsController.generateCompetitiveInsights();

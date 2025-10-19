@@ -1,10 +1,23 @@
 # API Documentation
 
-Complete API reference for the Sportification Backend with comprehensive Swagger/OpenAPI schemas.
+Complete API reference for the Sportification Backend with comprehensive documentation for all endpoints.
 
 ## 📡 API Reference
 
-- **[API Documentation](API_DOCUMENTATION.md)** - Full API reference
+### 📚 Main Documentation Files
+
+- **[COMPLETE_API_REFERENCE.md](COMPLETE_API_REFERENCE.md)** - **NEW! Complete API reference with all endpoints**
+  - ✅ All 9 API modules fully documented
+  - ✅ Detailed request/response examples
+  - ✅ Parameter tables with validation rules
+  - ✅ Authentication requirements
+  - ✅ Error responses with codes
+  - ✅ curl examples for all endpoints
+  - ✅ Common patterns and formats
+  - ✅ Rate limiting information
+  - ✅ WebSocket events
+
+- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Extended API documentation
   - Authentication endpoints (login, register, OAuth, MFA)
   - User management APIs
   - Team management APIs
@@ -19,27 +32,56 @@ Complete API reference for the Sportification Backend with comprehensive Swagger
   - Rate limiting
   - WebSocket events
 
-## 🚀 Quick Start
+## 🚀 Quick Access
 
-### Authentication
+### Quick Reference Guides
+
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick access tables for all endpoints
+  - All endpoints organized by module
+  - Common query parameters
+  - Request examples
+  - Status codes reference
+
+- **[ENDPOINT_INDEX.md](ENDPOINT_INDEX.md)** - Comprehensive endpoint index
+  - Endpoints grouped by functionality
+  - Permission requirements
+  - Filtering and sorting options
+  - Quick navigation
+
+## 📖 Quick Start
+
+### 1. Register a User
 
 ```bash
-# Register a new user
-POST /api/auth/register
+POST /api/v1/auth/register
 Content-Type: application/json
 
 {
   "email": "user@example.com",
   "password": "SecurePass123!",
-  "username": "johndoe"
+  "profile": {
+    "firstName": "John",
+    "lastName": "Doe"
+  }
 }
 ```
 
-### Using the API
+### 2. Login
 
 ```bash
-# Get user profile (authenticated)
-GET /api/users/me
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "SecurePass123!"
+}
+```
+
+### 3. Use Authenticated Endpoints
+
+```bash
+GET /api/v1/auth/profile
 Authorization: Bearer <your-jwt-token>
 ```
 

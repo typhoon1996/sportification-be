@@ -7,6 +7,21 @@ import {
 } from '../../../../shared/middleware/errorHandler';
 import { TournamentStatus } from '../../../../shared/types';
 
+/**
+ * TournamentService - Business logic for tournament management
+ * 
+ * Manages tournament lifecycle including creation, participant registration,
+ * bracket generation, and match progression. Supports multiple tournament formats
+ * such as single-elimination, double-elimination, and round-robin.
+ * 
+ * Features:
+ * - Tournament creation with scheduling validation
+ * - Bracket generation for various formats
+ * - Participant registration and limits
+ * - Match tracking and winner determination
+ * - Status lifecycle management (upcoming → ongoing → completed)
+ * - Event publication for notifications
+ */
 export class TournamentService {
   private eventPublisher: TournamentEventPublisher;
 
@@ -14,6 +29,35 @@ export class TournamentService {
     this.eventPublisher = new TournamentEventPublisher();
   }
 
+  /**
+   * Create a new tournament
+   * 
+   * Creates a tournament with the specified format, schedule, and rules.
+   * Validates that the start date is in the future. Sets initial status to 'upcoming'.
+   * Publishes tournament.created event for notifications.
+   * 
+   * @async
+   * @param {string} userId - User ID of the tournament organizer
+   * @param {Object} tournamentData - Tournament creation data
+   * @param {string} tournamentData.name - Tournament name
+   * @param {string} [tournamentData.sport='General'] - Sport/activity type
+   * @param {Object} tournamentData.schedule - Tournament schedule
+   * @param {Date} tournamentData.schedule.startDate - Tournament start date
+   * @param {string} [tournamentData.format] - Tournament format (single-elimination, etc.)
+   * @param {number} [tournamentData.maxParticipants] - Maximum number of participants
+   * @returns {Promise<Tournament>} Created tournament document
+   * 
+   * @throws {ValidationError} If start date is not in the future
+   * 
+   * @example
+   * const tournament = await tournamentService.createTournament('user123', {
+   *   name: 'Summer Championship',
+   *   sport: 'basketball',
+   *   schedule: { startDate: new Date('2025-07-01') },
+   *   format: 'single-elimination',
+   *   maxParticipants: 16
+   * });
+   */
   async createTournament(userId: string, tournamentData: any) {
     const startDate = new Date(tournamentData.schedule.startDate);
     if (startDate <= new Date()) {
@@ -46,6 +90,31 @@ export class TournamentService {
     return tournament;
   }
 
+  /**
+   * Generate tournament bracket
+   * 
+   * Creates the tournament bracket structure based on registered participants.
+   * Only the tournament organizer can generate brackets. Tournament must be in
+   * 'upcoming' status with at least 2 participants.
+   * 
+   * Algorithm: Creates a single-elimination bracket by randomly shuffling participants
+   * and pairing them for first-round matches. Calculates required rounds based on
+   * participant count.
+   * 
+   * @async
+   * @param {string} tournamentId - Tournament ID to generate bracket for
+   * @param {string} userId - User ID attempting to generate (must be organizer)
+   * @returns {Promise<Object>} Success response with generated bracket structure
+   * 
+   * @throws {NotFoundError} If tournament does not exist
+   * @throws {ValidationError} If user is not the organizer
+   * @throws {ValidationError} If less than 2 participants registered
+   * @throws {ConflictError} If tournament is not in 'upcoming' status
+   * 
+   * @example
+   * const result = await tournamentService.generateBracket('tournament123', 'organizer123');
+   * // Returns: { success: true, bracket: { rounds: [...], totalRounds: 4 } }
+   */
   async generateBracket(tournamentId: string, userId: string) {
     const tournament = await Tournament.findById(tournamentId);
 
@@ -74,6 +143,17 @@ export class TournamentService {
     return { success: true, bracket };
   }
 
+  /**
+   * Create single-elimination bracket structure
+   * 
+   * Private helper method that generates a single-elimination bracket from
+   * a list of participants. Randomly shuffles participants and pairs them
+   * into matches. Calculates the number of rounds needed based on participant count.
+   * 
+   * @private
+   * @param {any[]} participants - Array of participant IDs
+   * @returns {Object} Bracket structure with rounds and matches
+   */
   private createSingleEliminationBracket(participants: any[]): any {
     // Shuffle participants
     const shuffled = [...participants].sort(() => Math.random() - 0.5);

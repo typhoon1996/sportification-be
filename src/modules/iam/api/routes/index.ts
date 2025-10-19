@@ -10,9 +10,41 @@ import {
 } from "../../../../shared/validators";
 import {authLimiter} from "../../../../shared/middleware/security";
 
+/**
+ * Authentication Routes
+ * 
+ * This module defines all authentication-related API endpoints including:
+ * - User registration and login
+ * - Token management (refresh, logout)
+ * - Profile management
+ * - Password operations
+ * 
+ * Security Features:
+ * - Rate limiting applied to all routes (20 requests per 15 minutes)
+ * - Request validation using express-validator
+ * - JWT authentication for protected routes
+ * 
+ * Base Path: /api/v1/auth
+ * 
+ * Public Routes (no authentication required):
+ * - POST /register - Create new user account
+ * - POST /login - Authenticate and receive tokens
+ * - POST /refresh-token - Get new access token
+ * 
+ * Protected Routes (authentication required):
+ * - POST /logout - Invalidate refresh token
+ * - GET /profile - Get authenticated user's profile
+ * - PUT /change-password - Update user password
+ * - DELETE /deactivate - Deactivate user account
+ */
+
 const router = Router();
 
-// Apply auth rate limiter to all routes
+/**
+ * Apply rate limiting middleware to all authentication routes
+ * Protects against brute force attacks and abuse
+ * Limit: 20 requests per 15 minutes per IP address
+ */
 router.use(authLimiter);
 
 /**
@@ -86,6 +118,19 @@ router.use(authLimiter);
  *         $ref: '#/components/responses/Conflict'
  *       429:
  *         description: Too many requests - rate limit exceeded
+ */
+/**
+ * POST /auth/register
+ * 
+ * Register a new user account
+ * 
+ * Middleware Chain:
+ * 1. authLimiter - Rate limiting (applied to all routes in this router)
+ * 2. registerValidation - Validates email format, password strength, required fields
+ * 3. validateRequest - Checks validation results and returns errors if any
+ * 4. authController.register - Handles registration logic
+ * 
+ * No authentication required (public endpoint)
  */
 router.post(
   "/register",
@@ -217,6 +262,18 @@ router.post(
  *               data: null
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
+ */
+/**
+ * POST /auth/logout
+ * 
+ * Logout user and invalidate refresh token
+ * 
+ * Middleware Chain:
+ * 1. authLimiter - Rate limiting (applied to all routes in this router)
+ * 2. authenticate - Verifies JWT access token and attaches user to request
+ * 3. authController.logout - Invalidates refresh token
+ * 
+ * Requires authentication
  */
 router.post("/logout", authenticate, authController.logout);
 

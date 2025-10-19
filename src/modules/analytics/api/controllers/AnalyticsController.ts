@@ -12,9 +12,56 @@ import { Tournament } from '../../../tournaments/domain/models/Tournament';
 import { ValidationError, sendSuccess, asyncHandler } from '../../../../shared/middleware/errorHandler';
 import { AuthRequest } from '../../../../shared/middleware/auth';
 
+/**
+ * AnalyticsController - Handles analytics and business intelligence HTTP requests
+ * 
+ * This controller provides comprehensive analytics endpoints for monitoring system performance,
+ * user engagement, business metrics, and predictive insights. It aggregates data from multiple
+ * sources to provide actionable intelligence for administrators and stakeholders.
+ * 
+ * Features:
+ * - Real-time dashboard with KPIs
+ * - User engagement and retention analytics
+ * - Performance monitoring and optimization insights
+ * - Business intelligence and revenue tracking
+ * - System health monitoring
+ * - Predictive analytics and forecasting
+ * - Custom report generation
+ * 
+ * Access Control:
+ * - Most endpoints restricted to Admin/Moderator roles
+ * - Some endpoints available to authenticated users for personal analytics
+ * 
+ * @class AnalyticsController
+ */
 export class AnalyticsController {
   /**
    * Get comprehensive dashboard with real-time analytics
+   * 
+   * Retrieves a real-time analytics dashboard with key performance indicators,
+   * user statistics, system metrics, and business insights. The dashboard provides
+   * an at-a-glance view of platform health and performance.
+   * 
+   * Dashboard Metrics:
+   * - Active users (daily/weekly/monthly)
+   * - Match and tournament statistics
+   * - System performance indicators
+   * - Revenue and engagement trends
+   * - Growth metrics and forecasts
+   * 
+   * @async
+   * @param {AuthRequest} req - Authenticated request with optional timeframe
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with dashboard data and insights
+   * 
+   * @requires Authentication - User must be authenticated
+   * @requires Authorization - Admin or Moderator role (enforced by route middleware)
+   * 
+   * Query Parameters:
+   * - timeframe: Analysis period (day, week, month, year) - default: week
+   * 
+   * @example
+   * GET /api/v1/analytics/dashboard?timeframe=month
    */
   static getAnalyticsDashboard = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { timeframe = 'week' } = req.query;
@@ -35,6 +82,35 @@ export class AnalyticsController {
 
   /**
    * Get user engagement analytics
+   * 
+   * Provides detailed analytics on user engagement including activity patterns,
+   * feature adoption, retention rates, and user behavior trends. Helps identify
+   * most engaged users and understand usage patterns.
+   * 
+   * Metrics Included:
+   * - Active users count and percentage
+   * - Session duration and frequency
+   * - Feature usage statistics
+   * - Engagement rate calculations
+   * - User activity timeline
+   * 
+   * @async
+   * @param {AuthRequest} req - Authenticated request with date range
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with engagement analytics
+   * 
+   * @requires Authentication - User must be authenticated
+   * @requires Authorization - Admin or Moderator role (enforced by route middleware)
+   * 
+   * Query Parameters:
+   * - startDate: Start date for analysis (ISO 8601 format) - required
+   * - endDate: End date for analysis (ISO 8601 format) - required
+   * - userId: Filter by specific user (optional)
+   * 
+   * @throws {ValidationError} If date parameters are missing or invalid
+   * 
+   * @example
+   * GET /api/v1/analytics/users?startDate=2025-01-01&endDate=2025-01-31
    */
   static getUserEngagementAnalytics = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { startDate, endDate, userId } = req.query;

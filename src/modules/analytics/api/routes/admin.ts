@@ -1,3 +1,34 @@
+/**
+ * Admin Analytics Routes Module
+ * 
+ * Provides administrative access to advanced analytics, insights, and system monitoring
+ * endpoints. These routes offer deep visibility into platform performance, user behavior,
+ * business metrics, and predictive analytics exclusively for administrators.
+ * 
+ * Base Path: /admin/analytics
+ * 
+ * Features:
+ * - Comprehensive analytics dashboard with real-time KPIs
+ * - Advanced insights including application health and user behavior
+ * - Business performance metrics and trend analysis
+ * - Predictive analytics and forecasting
+ * - Competitive analysis and market positioning
+ * - Custom report generation with flexible date ranges
+ * - User engagement and retention analytics
+ * - System performance monitoring
+ * 
+ * Security:
+ * - Admin-only access (all routes require admin role)
+ * - Rate limiting to prevent resource exhaustion
+ * - Request validation on all endpoints
+ * - Audit logging of all analytics access
+ * 
+ * Access Control:
+ * - Requires authentication (JWT token)
+ * - Requires admin authorization
+ * - Rate limited to prevent abuse
+ */
+
 import { Router } from 'express';
 import { AnalyticsController } from '../controllers/AnalyticsController';
 import { InsightsController } from '../controllers/InsightsController';

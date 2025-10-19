@@ -8,13 +8,80 @@ import {
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
 
+/**
+ * AuthService - Handles authentication business logic
+ * 
+ * This service manages all authentication-related operations including user registration,
+ * login, token management, and session handling. It implements secure authentication
+ * practices with JWT tokens and bcrypt password hashing.
+ * 
+ * Key Responsibilities:
+ * - User registration with validation
+ * - Login authentication and token generation
+ * - Refresh token management
+ * - Password change and reset operations
+ * - Account deactivation
+ * - Event publication for authentication actions
+ * 
+ * Security Features:
+ * - Password hashing with bcrypt (10 rounds)
+ * - JWT access tokens (7-day expiry)
+ * - JWT refresh tokens (30-day expiry)
+ * - Refresh token rotation on use
+ * - Email uniqueness validation
+ * - Username uniqueness validation
+ * 
+ * @class AuthService
+ */
 export class AuthService {
   private eventPublisher: IamEventPublisher;
 
+  /**
+   * Initializes the AuthService with event publisher for domain events
+   */
   constructor() {
     this.eventPublisher = new IamEventPublisher();
   }
 
+  /**
+   * Register a new user account
+   * 
+   * Creates a new user with email/password credentials and profile information.
+   * Performs validation to ensure email and username uniqueness. Automatically
+   * generates and returns JWT access and refresh tokens upon successful registration.
+   * 
+   * Process Flow:
+   * 1. Validate email is not already registered
+   * 2. Validate username is not already taken
+   * 3. Create profile with user information
+   * 4. Create user with hashed password
+   * 5. Link user and profile bidirectionally
+   * 6. Generate JWT token pair
+   * 7. Store refresh token in user document
+   * 8. Publish user.registered event
+   * 9. Return user data with tokens
+   * 
+   * @async
+   * @param {string} email - User's email address (will be lowercased)
+   * @param {string} password - User's password (will be hashed with bcrypt)
+   * @param {string} firstName - User's first name
+   * @param {string} lastName - User's last name
+   * @param {string} username - Desired username (will be lowercased)
+   * @returns {Promise<{user: User, profile: Profile, accessToken: string, refreshToken: string}>}
+   * 
+   * @throws {ConflictError} If email already exists in the system
+   * @throws {ConflictError} If username is already taken
+   * 
+   * @example
+   * const result = await authService.register(
+   *   'user@example.com',
+   *   'SecurePass123!',
+   *   'John',
+   *   'Doe',
+   *   'johndoe'
+   * );
+   * // Returns: { user, profile, accessToken, refreshToken }
+   */
   async register(
     email: string,
     password: string,
@@ -22,19 +89,19 @@ export class AuthService {
     lastName: string,
     username: string
   ) {
-    // Check if user already exists
+    // Check if user already exists by email
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
       throw new ConflictError("User with this email already exists");
     }
 
-    // Check if username is taken
+    // Check if username is already taken
     const existingProfile = await Profile.findByUsername(username);
     if (existingProfile) {
       throw new ConflictError("Username is already taken");
     }
 
-    // Create profile first
+    // Create profile first with user information
     const profile = new Profile({
       firstName,
       lastName,
@@ -42,7 +109,7 @@ export class AuthService {
       user: null, // Will be set after user creation
     });
 
-    // Create user
+    // Create user with hashed password (hashing happens in User model pre-save hook)
     const user = new User({
       email: email.toLowerCase(),
       password,
@@ -59,20 +126,20 @@ export class AuthService {
       },
     });
 
-    // Set user reference in profile
+    // Set bidirectional reference between user and profile
     profile.user = user._id as any;
 
-    // Save both documents
+    // Save both documents atomically
     await Promise.all([user.save(), profile.save()]);
 
-    // Generate tokens
+    // Generate JWT access and refresh tokens
     const tokens = JWTUtil.generateTokenPair(user.id, user.email);
 
-    // Add refresh token to user
+    // Store refresh token in user document for validation
     user.addRefreshToken(tokens.refreshToken);
     await user.save();
 
-    // Publish event
+    // Publish domain event for other modules to react
     this.eventPublisher.publishUserRegistered({
       userId: user.id,
       email: user.email,
