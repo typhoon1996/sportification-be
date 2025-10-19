@@ -32,27 +32,56 @@ Complete API reference for the Sportification Backend with comprehensive documen
   - Rate limiting
   - WebSocket events
 
-## 🚀 Quick Start
+## 🚀 Quick Access
 
-### Authentication
+### Quick Reference Guides
+
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick access tables for all endpoints
+  - All endpoints organized by module
+  - Common query parameters
+  - Request examples
+  - Status codes reference
+
+- **[ENDPOINT_INDEX.md](ENDPOINT_INDEX.md)** - Comprehensive endpoint index
+  - Endpoints grouped by functionality
+  - Permission requirements
+  - Filtering and sorting options
+  - Quick navigation
+
+## 📖 Quick Start
+
+### 1. Register a User
 
 ```bash
-# Register a new user
-POST /api/auth/register
+POST /api/v1/auth/register
 Content-Type: application/json
 
 {
   "email": "user@example.com",
   "password": "SecurePass123!",
-  "username": "johndoe"
+  "profile": {
+    "firstName": "John",
+    "lastName": "Doe"
+  }
 }
 ```
 
-### Using the API
+### 2. Login
 
 ```bash
-# Get user profile (authenticated)
-GET /api/users/me
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "SecurePass123!"
+}
+```
+
+### 3. Use Authenticated Endpoints
+
+```bash
+GET /api/v1/auth/profile
 Authorization: Bearer <your-jwt-token>
 ```
 
