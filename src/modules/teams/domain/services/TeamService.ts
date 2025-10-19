@@ -1,44 +1,88 @@
 import { Team } from '../../domain/models/Team';
 import { TeamEventPublisher } from '../../events/publishers/TeamEventPublisher';
-import { NotFoundError, ValidationError, ConflictError } from '../../../../shared/middleware/errorHandler';
+import { NotFoundError } from '../../../../shared/middleware/errorHandler';
+import {
+  ITeamService,
+  ITeamMemberService,
+  ITeamValidationService,
+  ITeamEventPublisher,
+  ITeamCreationData,
+  ITeamUpdateData,
+} from '../interfaces';
+import { TeamMemberService } from './TeamMemberService';
+import { TeamValidationService } from './TeamValidationService';
 
 /**
- * TeamService - Business logic for team management
- * 
- * Handles team lifecycle including creation, membership management, and updates.
- * Enforces business rules such as captain privileges, maximum member limits,
- * and member role validation. Publishes domain events for team activities.
- * 
+ * TeamService - Main orchestration service for team management (Refactored with SOLID)
+ *
+ * Orchestrates team operations by delegating to specialized services.
+ * Follows SOLID principles with dependency injection and single responsibility.
+ *
+ * Architecture:
+ * - Delegates member management to TeamMemberService (SRP)
+ * - Delegates validation to TeamValidationService (SRP)
+ * - Depends on interfaces, not concrete implementations (DIP)
+ * - Extensible through service swapping (OCP)
+ *
+ * SOLID Principles Applied:
+ * - SRP: Orchestration only, delegates to specialized services
+ * - DIP: Depends on ITeamMemberService, ITeamValidationService, ITeamEventPublisher interfaces
+ * - OCP: Can extend with new services without modifying this class
+ * - LSP: Any implementation of interfaces can be substituted
+ * - ISP: Interfaces are focused and single-purpose
+ *
  * Features:
  * - Team creation with captain assignment
  * - Member join/leave operations
  * - Captain-only team updates
  * - Maximum member capacity enforcement
  * - Event publication for integration
+ *
+ * @example
+ * // With dependency injection (testable)
+ * const service = new TeamService(mockMemberService, mockValidationService, mockEventPublisher);
+ *
+ * // With default implementations (production)
+ * const service = new TeamService();
  */
-export class TeamService {
-  private eventPublisher: TeamEventPublisher;
+export class TeamService implements ITeamService {
+  private memberService: ITeamMemberService;
+  private validationService: ITeamValidationService;
+  private eventPublisher: ITeamEventPublisher;
 
-  constructor() {
-    this.eventPublisher = new TeamEventPublisher();
+  /**
+   * Constructor with dependency injection (DIP)
+   *
+   * Accepts service implementations via constructor, enabling:
+   * - Easy mocking for unit tests
+   * - Service swapping for different implementations
+   * - Loose coupling between services
+   *
+   * @param memberService - Member management service (default: TeamMemberService)
+   * @param validationService - Validation service (default: TeamValidationService)
+   * @param eventPublisher - Event publisher (default: TeamEventPublisher)
+   */
+  constructor(
+    memberService?: ITeamMemberService,
+    validationService?: ITeamValidationService,
+    eventPublisher?: ITeamEventPublisher
+  ) {
+    this.memberService = memberService || new TeamMemberService();
+    this.validationService = validationService || new TeamValidationService();
+    this.eventPublisher = eventPublisher || new TeamEventPublisher();
   }
 
   /**
    * Create a new team with the creator as captain
-   * 
+   *
    * Automatically assigns the creator as the team captain and first member.
    * Sets default maximum members to 20 if not specified. Publishes team.created
    * event for other modules to react to.
-   * 
-   * @async
-   * @param {string} creatorId - User ID of the team creator (becomes captain)
-   * @param {Object} teamData - Team creation data
-   * @param {string} teamData.name - Team name
-   * @param {string} teamData.sport - Sport/activity type
-   * @param {string} [teamData.description] - Team description
-   * @param {number} [teamData.maxMembers=20] - Maximum number of members
-   * @returns {Promise<Team>} Created team document with captain assigned
-   * 
+   *
+   * @param creatorId - User ID of the team creator (becomes captain)
+   * @param teamData - Team creation data
+   * @returns Created team document with captain assigned
+   *
    * @example
    * const team = await teamService.createTeam('user123', {
    *   name: 'Thunder Squad',
@@ -47,7 +91,10 @@ export class TeamService {
    *   maxMembers: 15
    * });
    */
-  async createTeam(creatorId: string, teamData: any) {
+  async createTeam(
+    creatorId: string,
+    teamData: ITeamCreationData
+  ): Promise<Team> {
     const team = new Team({
       name: teamData.name,
       sport: teamData.sport,
@@ -78,116 +125,83 @@ export class TeamService {
 
   /**
    * Add a user to an existing team
-   * 
-   * Validates that the user is not already a member and that the team
-   * has not reached maximum capacity. Adds user to members list and
-   * publishes team.memberJoined event.
-   * 
-   * @async
-   * @param {string} userId - User ID of the member joining
-   * @param {string} teamId - Team ID to join
-   * @returns {Promise<Team>} Updated team document with new member
-   * 
+   *
+   * Validates that the user can join (not already member, team has capacity)
+   * and delegates member addition to TeamMemberService.
+   *
+   * @param userId - User ID of the member joining
+   * @param teamId - Team ID to join
+   * @returns Updated team document with new member
+   *
    * @throws {NotFoundError} If team does not exist
-   * @throws {ConflictError} If user is already a member
-   * @throws {ConflictError} If team has reached maximum member capacity
-   * 
+   * @throws {ConflictError} If user is already a member or team is full
+   *
    * @example
    * const updatedTeam = await teamService.joinTeam('user456', 'team123');
    */
-  async joinTeam(userId: string, teamId: string) {
+  async joinTeam(userId: string, teamId: string): Promise<Team> {
     const team = await Team.findById(teamId);
 
     if (!team) {
       throw new NotFoundError('Team');
     }
 
-    if (team.members.includes(userId as any)) {
-      throw new ConflictError('Already a member of this team');
-    }
+    // Delegate validation (SRP, DIP)
+    this.validationService.validateCanJoin(team, userId);
 
-    if (team.maxMembers && team.members.length >= team.maxMembers) {
-      throw new ConflictError('Team is full');
-    }
-
-    team.members.push(userId as any);
-    await team.save();
-
-    // Publish event
-    this.eventPublisher.publishMemberJoined({
-      teamId: team.id,
-      userId,
-      memberCount: team.members.length,
-    });
-
-    return team;
+    // Delegate member management (SRP, DIP)
+    return this.memberService.addMember(team, userId, this.eventPublisher);
   }
 
   /**
    * Remove a user from a team
-   * 
-   * Validates that the user is a member and not the captain (captains cannot leave).
-   * Removes user from members list and publishes team.memberLeft event.
-   * 
+   *
+   * Validates that the user can leave (is member, not captain) and delegates
+   * member removal to TeamMemberService.
+   *
    * Business Rule: Team captain must transfer captaincy before leaving or delete the team.
-   * 
-   * @async
-   * @param {string} userId - User ID of the member leaving
-   * @param {string} teamId - Team ID to leave
-   * @returns {Promise<Object>} Success confirmation { success: true }
-   * 
+   *
+   * @param userId - User ID of the member leaving
+   * @param teamId - Team ID to leave
+   * @returns Success confirmation
+   *
    * @throws {NotFoundError} If team does not exist
-   * @throws {ConflictError} If user is not a member
-   * @throws {ConflictError} If user is the team captain (captains cannot leave)
-   * 
+   * @throws {ConflictError} If user is not a member or is the captain
+   *
    * @example
    * const result = await teamService.leaveTeam('user456', 'team123');
    */
-  async leaveTeam(userId: string, teamId: string) {
+  async leaveTeam(
+    userId: string,
+    teamId: string
+  ): Promise<{ success: boolean }> {
     const team = await Team.findById(teamId);
 
     if (!team) {
       throw new NotFoundError('Team');
     }
 
-    if (!team.members.includes(userId as any)) {
-      throw new ConflictError('Not a member of this team');
-    }
+    // Delegate validation (SRP, DIP)
+    this.validationService.validateCanLeave(team, userId);
 
-    if (team.captain.toString() === userId) {
-      throw new ConflictError('Team captain cannot leave the team');
-    }
-
-    team.members = team.members.filter((m) => m.toString() !== userId);
-    await team.save();
-
-    // Publish event
-    this.eventPublisher.publishMemberLeft({
-      teamId: team.id,
-      userId,
-    });
-
-    return { success: true };
+    // Delegate member management (SRP, DIP)
+    return this.memberService.removeMember(team, userId, this.eventPublisher);
   }
 
   /**
    * Update team details (captain only)
-   * 
-   * Allows team captain to update team information such as name, description,
-   * and settings. Only the captain has permission to update team details.
-   * 
-   * @async
-   * @param {string} teamId - Team ID to update
-   * @param {string} userId - User ID attempting the update
-   * @param {Object} updates - Team update data
-   * @param {string} [updates.name] - New team name
-   * @param {string} [updates.description] - New team description
-   * @param {number} [updates.maxMembers] - New maximum member count
-   * @returns {Promise<Team>} Updated team document
-   * 
+   *
+   * Validates captain permissions and update data, then applies changes.
+   * Only the captain has permission to update team details.
+   *
+   * @param teamId - Team ID to update
+   * @param userId - User ID attempting the update
+   * @param updates - Team update data
+   * @returns Updated team document
+   *
    * @throws {NotFoundError} If team does not exist
-   * @throws {ValidationError} If user is not the team captain
-   * 
+   * @throws {ValidationError} If user is not the team captain or data is invalid
+   *
    * @example
    * const updatedTeam = await teamService.updateTeam('team123', 'captain123', {
    *   name: 'New Team Name',
@@ -195,16 +209,20 @@ export class TeamService {
    *   maxMembers: 25
    * });
    */
-  async updateTeam(teamId: string, userId: string, updates: any) {
+  async updateTeam(
+    teamId: string,
+    userId: string,
+    updates: ITeamUpdateData
+  ): Promise<Team> {
     const team = await Team.findById(teamId);
 
     if (!team) {
       throw new NotFoundError('Team');
     }
 
-    if (team.captain.toString() !== userId) {
-      throw new ValidationError('Only team captain can update the team');
-    }
+    // Delegate validation (SRP, DIP)
+    this.validationService.validateIsCaptain(team, userId);
+    this.validationService.validateTeamUpdate(updates);
 
     Object.assign(team, updates);
     await team.save();
@@ -212,16 +230,30 @@ export class TeamService {
     return team;
   }
 
-  async deleteTeam(teamId: string, userId: string) {
+  /**
+   * Delete a team (captain only)
+   *
+   * Only the captain can delete the team.
+   *
+   * @param teamId - Team ID to delete
+   * @param userId - User ID attempting the deletion
+   * @returns Success confirmation
+   *
+   * @throws {NotFoundError} If team does not exist
+   * @throws {ValidationError} If user is not the team captain
+   */
+  async deleteTeam(
+    teamId: string,
+    userId: string
+  ): Promise<{ success: boolean }> {
     const team = await Team.findById(teamId);
 
     if (!team) {
       throw new NotFoundError('Team');
     }
 
-    if (team.captain.toString() !== userId) {
-      throw new ValidationError('Only team captain can delete the team');
-    }
+    // Delegate validation (SRP, DIP)
+    this.validationService.validateIsCaptain(team, userId);
 
     await team.deleteOne();
 
