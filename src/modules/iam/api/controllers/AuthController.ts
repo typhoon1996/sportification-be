@@ -8,25 +8,41 @@ import {
 import { AuthRequest } from "../../../../shared/middleware/auth";
 import { AuditLogger } from '../../../../shared/services/audit';
 import logger from '../../../../shared/infrastructure/logging';
+import { IAuthService, IUserRegistrationData } from "../../domain/interfaces";
 
 /**
- * AuthController - Handles all authentication-related HTTP requests
+ * AuthController - Handles all authentication-related HTTP requests (Refactored)
  * 
  * This controller manages user authentication, registration, token management,
- * and account operations. It delegates business logic to AuthService and
- * handles request/response formatting and audit logging.
+ * and account operations. Refactored to follow best practices and SOLID principles.
+ * 
+ * Key Improvements:
+ * - Dependency Injection: AuthService injected via constructor
+ * - Interface-based: Depends on IAuthService abstraction
+ * - Cleaner code: Simplified request handling
+ * - Better typing: Uses proper TypeScript interfaces
+ * 
+ * Architecture:
+ * - Controller → Service Interface → Service Implementation
+ * - Thin controller focused on HTTP concerns
+ * - Business logic delegated to AuthService
  * 
  * @class AuthController
  */
 export class AuthController {
-  private authService: AuthService;
+  // DIP: Depend on abstraction (interface) not concrete implementation
+  private readonly authService: IAuthService;
 
   /**
-   * Initializes the AuthController with required services
-   * Creates a new instance of AuthService for handling authentication logic
+   * Constructor with Dependency Injection
+   * 
+   * Allows injection of custom AuthService implementation for testing.
+   * Defaults to standard AuthService for production use.
+   * 
+   * @param authService - Authentication service implementation
    */
-  constructor() {
-    this.authService = new AuthService();
+  constructor(authService?: IAuthService) {
+    this.authService = authService || new AuthService();
   }
 
   /**
@@ -55,17 +71,19 @@ export class AuthController {
    * }
    */
   register = asyncHandler(async (req: Request, res: Response) => {
-    const { email, password, firstName, lastName, username } = req.body;
+    // Extract and structure registration data
+    const registrationData: IUserRegistrationData = {
+      email: req.body.email,
+      password: req.body.password,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      username: req.body.username,
+    };
 
-    const result = await this.authService.register(
-      email,
-      password,
-      firstName,
-      lastName,
-      username
-    );
+    // Delegate to service
+    const result = await this.authService.register(registrationData);
 
-    logger.info(`New user registered: ${email}`, {
+    logger.info(`New user registered: ${registrationData.email}`, {
       userId: result.user.id,
     });
 
@@ -75,7 +93,7 @@ export class AuthController {
       action: "registration",
       userId: result.user.id,
       status: "success",
-      details: { email, hasProfile: true },
+      details: { email: registrationData.email, hasProfile: true },
     });
 
     sendCreated(res, result, "User registered successfully");
