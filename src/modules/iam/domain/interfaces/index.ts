@@ -1,9 +1,9 @@
 /**
  * Service Interfaces for IAM Module
- * 
+ *
  * These interfaces define contracts for various authentication-related services.
  * Following Dependency Inversion Principle - depend on abstractions, not concrete implementations.
- * 
+ *
  * Benefits:
  * - Easier testing through mocking
  * - Loosely coupled code
@@ -155,7 +155,7 @@ export interface IAuthService {
    * @param refreshToken - Valid refresh token
    * @returns New token pair
    */
-  refreshToken(refreshToken: string): Promise<{ tokens: ITokenPair }>;
+  refreshToken(refreshToken: string): Promise<{tokens: ITokenPair}>;
 
   /**
    * Logout user and invalidate tokens
@@ -163,7 +163,7 @@ export interface IAuthService {
    * @param refreshToken - Optional specific token to invalidate
    * @returns Success indicator
    */
-  logout(userId: string, refreshToken?: string): Promise<{ success: boolean }>;
+  logout(userId: string, refreshToken?: string): Promise<{success: boolean}>;
 
   /**
    * Change user password
@@ -176,7 +176,7 @@ export interface IAuthService {
     userId: string,
     currentPassword: string,
     newPassword: string
-  ): Promise<{ success: boolean }>;
+  ): Promise<{success: boolean}>;
 
   /**
    * Deactivate user account
@@ -187,7 +187,7 @@ export interface IAuthService {
   deactivateAccount(
     userId: string,
     password: string
-  ): Promise<{ success: boolean }>;
+  ): Promise<{success: boolean}>;
 
   /**
    * Get user profile

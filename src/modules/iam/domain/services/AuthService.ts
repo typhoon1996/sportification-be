@@ -1,29 +1,29 @@
 /**
  * AuthService - Authentication Business Logic (Refactored)
- * 
+ *
  * This service manages all authentication-related operations.
  * Refactored to follow SOLID principles and best practices.
- * 
+ *
  * Key Improvements:
  * - Dependency Injection: Services injected via constructor
  * - Single Responsibility: Delegates to specialized services (Token, Password)
  * - Interface Segregation: Depends on abstractions, not concrete classes
  * - DRY: Eliminated code duplication
  * - KISS: Simplified complex flows
- * 
+ *
  * Architecture:
  * - Controller → AuthService → TokenService/PasswordService → User Model
  * - Events published for inter-module communication
- * 
+ *
  * @class AuthService
  * @implements {IAuthService}
  */
 
-import { User } from "../../../users/domain/models/User";
-import { Profile } from "../../../users/domain/models/Profile";
-import { TokenService } from "./TokenService";
-import { PasswordService } from "./PasswordService";
-import { IamEventPublisher } from "../../events/publishers/IamEventPublisher";
+import {User} from "../../../users/domain/models/User";
+import {Profile} from "../../../users/domain/models/Profile";
+import {TokenService} from "./TokenService";
+import {PasswordService} from "./PasswordService";
+import {IamEventPublisher} from "../../events/publishers/IamEventPublisher";
 import {
   IAuthService,
   ITokenService,
@@ -48,12 +48,12 @@ export class AuthService implements IAuthService {
 
   /**
    * Constructor with Dependency Injection
-   * 
+   *
    * Services are injected to allow:
    * - Easy testing with mocks
    * - Flexible service swapping
    * - Loose coupling
-   * 
+   *
    * @param tokenService - Token management service
    * @param passwordService - Password management service
    * @param eventPublisher - Event publisher for domain events
@@ -71,25 +71,26 @@ export class AuthService implements IAuthService {
 
   /**
    * Register a new user account
-   * 
+   *
    * Refactored to:
    * - Use PasswordService for validation and hashing
    * - Use TokenService for token generation
    * - Simplified user creation flow
    * - Better error handling
-   * 
+   *
    * @param {IUserRegistrationData} data - Registration data
    * @returns {Promise<IAuthResult>} User data with tokens
    * @throws {ConflictError} If email or username already exists
    * @throws {ValidationError} If password doesn't meet requirements
    */
   async register(data: IUserRegistrationData): Promise<IAuthResult> {
-    const { email, password, firstName, lastName, username } = data;
+    const {email, password, firstName, lastName, username} = data;
 
     // Validate password strength
-    const passwordValidation = this.passwordService.validatePasswordStrength(password);
+    const passwordValidation =
+      this.passwordService.validatePasswordStrength(password);
     if (!passwordValidation.isValid) {
-      throw new ValidationError(passwordValidation.errors.join(', '));
+      throw new ValidationError(passwordValidation.errors.join(", "));
     }
 
     // Check for existing user
@@ -99,7 +100,7 @@ export class AuthService implements IAuthService {
     const hashedPassword = await this.passwordService.hashPassword(password);
 
     // Create profile and user
-    const { user, profile } = await this.createUserAndProfile({
+    const {user, profile} = await this.createUserAndProfile({
       email: email.toLowerCase(),
       password: hashedPassword,
       firstName,
@@ -117,7 +118,10 @@ export class AuthService implements IAuthService {
     // Publish domain event
     this.publishUserRegisteredEvent(user, profile);
 
-    logger.info('User registered successfully', { userId: user.id, email: user.email });
+    logger.info("User registered successfully", {
+      userId: user.id,
+      email: user.email,
+    });
 
     return {
       user: {
@@ -132,19 +136,22 @@ export class AuthService implements IAuthService {
 
   /**
    * Authenticate user and generate tokens
-   * 
+   *
    * Refactored to:
    * - Use PasswordService for comparison
    * - Use TokenService for generation
    * - Simplified MFA check
    * - Better error messages
-   * 
+   *
    * @param {string} email - User email
    * @param {string} password - User password
    * @returns {Promise<IAuthResult | IMfaRequired>} Auth result or MFA challenge
    * @throws {AuthenticationError} If credentials invalid or account locked
    */
-  async login(email: string, password: string): Promise<IAuthResult | IMfaRequired> {
+  async login(
+    email: string,
+    password: string
+  ): Promise<IAuthResult | IMfaRequired> {
     // Find and validate user
     const user = await this.findUserForLogin(email);
     await this.validateUserCanLogin(user);
@@ -173,7 +180,10 @@ export class AuthService implements IAuthService {
     // Publish event
     this.publishUserLoggedInEvent(user);
 
-    logger.info('User logged in successfully', { userId: user.id, email: user.email });
+    logger.info("User logged in successfully", {
+      userId: user.id,
+      email: user.email,
+    });
 
     return {
       user: {
@@ -189,14 +199,14 @@ export class AuthService implements IAuthService {
 
   /**
    * Refresh access token using refresh token
-   * 
+   *
    * Refactored to use TokenService for verification and generation.
-   * 
+   *
    * @param {string} refreshToken - Valid refresh token
    * @returns {Promise<{tokens: any}>} New token pair
    * @throws {AuthenticationError} If token invalid or user not found
    */
-  async refreshToken(refreshToken: string): Promise<{ tokens: any }> {
+  async refreshToken(refreshToken: string): Promise<{tokens: any}> {
     if (!refreshToken) {
       throw new AuthenticationError("Refresh token is required");
     }
@@ -215,19 +225,22 @@ export class AuthService implements IAuthService {
     user.addRefreshToken(tokens.refreshToken);
     await user.save();
 
-    logger.info('Token refreshed', { userId: user.id });
+    logger.info("Token refreshed", {userId: user.id});
 
-    return { tokens };
+    return {tokens};
   }
 
   /**
    * Logout user and invalidate tokens
-   * 
+   *
    * @param {string} userId - User ID
    * @param {string} refreshToken - Optional specific token to invalidate
    * @returns {Promise<{success: boolean}>} Success indicator
    */
-  async logout(userId: string, refreshToken?: string): Promise<{ success: boolean }> {
+  async logout(
+    userId: string,
+    refreshToken?: string
+  ): Promise<{success: boolean}> {
     const user = await User.findById(userId).select("+refreshTokens");
     if (!user) {
       throw new AuthenticationError("User not found");
@@ -245,16 +258,16 @@ export class AuthService implements IAuthService {
     // Publish event
     this.publishUserLoggedOutEvent(user);
 
-    logger.info('User logged out', { userId: user.id });
+    logger.info("User logged out", {userId: user.id});
 
-    return { success: true };
+    return {success: true};
   }
 
   /**
    * Change user password
-   * 
+   *
    * Refactored to use PasswordService for validation and hashing.
-   * 
+   *
    * @param {string} userId - User ID
    * @param {string} currentPassword - Current password
    * @param {string} newPassword - New password
@@ -266,11 +279,12 @@ export class AuthService implements IAuthService {
     userId: string,
     currentPassword: string,
     newPassword: string
-  ): Promise<{ success: boolean }> {
+  ): Promise<{success: boolean}> {
     // Validate new password strength
-    const validation = this.passwordService.validatePasswordStrength(newPassword);
+    const validation =
+      this.passwordService.validatePasswordStrength(newPassword);
     if (!validation.isValid) {
-      throw new ValidationError(validation.errors.join(', '));
+      throw new ValidationError(validation.errors.join(", "));
     }
 
     // Get user with password
@@ -298,26 +312,32 @@ export class AuthService implements IAuthService {
     // Publish event
     this.publishPasswordChangedEvent(user);
 
-    logger.info('Password changed', { userId: user.id });
+    logger.info("Password changed", {userId: user.id});
 
-    return { success: true };
+    return {success: true};
   }
 
   /**
    * Deactivate user account
-   * 
+   *
    * @param {string} userId - User ID
    * @param {string} password - Password confirmation
    * @returns {Promise<{success: boolean}>} Success indicator
    */
-  async deactivateAccount(userId: string, password: string): Promise<{ success: boolean }> {
+  async deactivateAccount(
+    userId: string,
+    password: string
+  ): Promise<{success: boolean}> {
     const user = await User.findById(userId).select("+password +refreshTokens");
     if (!user) {
       throw new AuthenticationError("User not found");
     }
 
     // Verify password
-    const isPasswordValid = await this.passwordService.comparePassword(password, user.password!);
+    const isPasswordValid = await this.passwordService.comparePassword(
+      password,
+      user.password!
+    );
     if (!isPasswordValid) {
       throw new AuthenticationError("Password is incorrect");
     }
@@ -330,14 +350,14 @@ export class AuthService implements IAuthService {
     // Publish event
     this.publishAccountDeactivatedEvent(user);
 
-    logger.info('Account deactivated', { userId: user.id });
+    logger.info("Account deactivated", {userId: user.id});
 
-    return { success: true };
+    return {success: true};
   }
 
   /**
    * Get user profile
-   * 
+   *
    * @param {string} userId - User ID
    * @returns {Promise<any>} User profile data
    */
@@ -369,7 +389,10 @@ export class AuthService implements IAuthService {
    * Validate that email and username are not already taken
    * @private
    */
-  private async validateUserDoesNotExist(email: string, username: string): Promise<void> {
+  private async validateUserDoesNotExist(
+    email: string,
+    username: string
+  ): Promise<void> {
     const [existingUser, existingProfile] = await Promise.all([
       User.findByEmail(email),
       Profile.findByUsername(username),
@@ -394,7 +417,7 @@ export class AuthService implements IAuthService {
     firstName: string;
     lastName: string;
     username: string;
-  }): Promise<{ user: any; profile: any }> {
+  }): Promise<{user: any; profile: any}> {
     // Create profile
     const profile = new Profile({
       firstName: data.firstName,
@@ -426,7 +449,7 @@ export class AuthService implements IAuthService {
     // Save both
     await Promise.all([user.save(), profile.save()]);
 
-    return { user, profile };
+    return {user, profile};
   }
 
   /**
@@ -471,7 +494,10 @@ export class AuthService implements IAuthService {
    * Verify user password
    * @private
    */
-  private async verifyUserPassword(user: any, password: string): Promise<boolean> {
+  private async verifyUserPassword(
+    user: any,
+    password: string
+  ): Promise<boolean> {
     if (!user.password) {
       throw new AuthenticationError("Please use social login for this account");
     }
@@ -513,7 +539,10 @@ export class AuthService implements IAuthService {
    * Update user session info
    * @private
    */
-  private async updateUserSession(user: any, refreshToken: string): Promise<void> {
+  private async updateUserSession(
+    user: any,
+    refreshToken: string
+  ): Promise<void> {
     user.addRefreshToken(refreshToken);
     user.lastLoginAt = new Date();
     await user.save();
@@ -523,7 +552,10 @@ export class AuthService implements IAuthService {
    * Validate refresh token and return user
    * @private
    */
-  private async validateRefreshToken(userId: string, refreshToken: string): Promise<any> {
+  private async validateRefreshToken(
+    userId: string,
+    refreshToken: string
+  ): Promise<any> {
     const user = await User.findById(userId)
       .select("+refreshTokens")
       .populate("profile");
@@ -605,4 +637,3 @@ export class AuthService implements IAuthService {
     });
   }
 }
-
