@@ -10,8 +10,80 @@ import {
 import { AuthRequest } from '../../../../shared/middleware/auth';
 import logger from '../../../../shared/infrastructure/logging';
 
+/**
+ * API Key Controller - API Key Management
+ * 
+ * Handles programmatic API access through key-based authentication.
+ * Provides endpoints for generating, managing, and revoking API keys with
+ * granular permissions, IP whitelisting, and rate limiting capabilities.
+ * 
+ * Key Features:
+ * - Secure key generation with cryptographic hashing
+ * - Permission-based access control (read/write per resource)
+ * - IP whitelisting for enhanced security
+ * - Per-key rate limiting configuration
+ * - Key lifecycle management (create, update, regenerate, delete)
+ * - Usage tracking and statistics
+ * - Expiration date management
+ * 
+ * Security:
+ * - Keys are only shown once during creation/regeneration
+ * - Stored as bcrypt hashes in database
+ * - All endpoints require user authentication
+ * - Keys are scoped to the creating user
+ * 
+ * @class ApiKeyController
+ */
 export class ApiKeyController {
-  // Create new API key
+  /**
+   * Create a new API key
+   * 
+   * Generates a cryptographically secure API key with specified permissions and restrictions.
+   * The key is hashed using bcrypt before storage and is only returned once during creation.
+   * Users can configure permissions, IP whitelist, rate limits, and expiration.
+   * 
+   * Available Permissions:
+   * - read:users, write:users
+   * - read:matches, write:matches
+   * - read:tournaments, write:tournaments
+   * - read:venues, write:venues
+   * - admin:all (full access)
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 201 Created with API key details and raw key
+   * 
+   * @throws {ValidationError} If name is missing or permissions/IPs are invalid
+   * 
+   * Request Body:
+   * @property {string} name - Human-readable name for the API key
+   * @property {string[]} permissions - Array of permission strings
+   * @property {string[]} allowedIPs - Array of IP addresses (optional)
+   * @property {number} expiresInDays - Days until key expires (optional)
+   * @property {number} maxRequests - Max requests per window (default: 1000, max: 10000)
+   * @property {number} windowMs - Rate limit window in ms (default: 1 hour, max: 24 hours)
+   * 
+   * @example
+   * POST /api/v1/iam/api-keys
+   * Body: {
+   *   name: "Mobile App API Key",
+   *   permissions: ["read:matches", "write:matches", "read:users"],
+   *   allowedIPs: ["192.168.1.100"],
+   *   expiresInDays: 365,
+   *   maxRequests: 5000,
+   *   windowMs: 3600000
+   * }
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {
+   *     apiKey: { id, name, permissions, rateLimit, expiresAt, ... },
+   *     key: "sk_live_abc123..." // Only shown once!
+   *   },
+   *   message: "API key created successfully..."
+   * }
+   */
   static createApiKey = asyncHandler(async (req: AuthRequest, res: Response) => {
     const {
       name,
@@ -105,7 +177,33 @@ export class ApiKeyController {
     );
   });
 
-  // List user's API keys
+  /**
+   * List user's API keys
+   * 
+   * Retrieves a paginated list of all API keys belonging to the authenticated user.
+   * Keys are returned with all metadata except the actual key value (key hash is excluded).
+   * Sorted by creation date (newest first).
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with paginated list of API keys
+   * 
+   * Query Parameters:
+   * @property {number} page - Page number (default: 1)
+   * @property {number} limit - Items per page (default: 10)
+   * 
+   * @example
+   * GET /api/v1/iam/api-keys?page=1&limit=10
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {
+   *     apiKeys: [...],
+   *     pagination: { page: 1, limit: 10, total: 3, pages: 1 }
+   *   }
+   * }
+   */
   static listApiKeys = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { page = 1, limit = 10 } = req.query;
 
@@ -135,7 +233,22 @@ export class ApiKeyController {
     );
   });
 
-  // Get specific API key details
+  /**
+   * Get specific API key details
+   * 
+   * Retrieves detailed information about a single API key by ID.
+   * Only returns keys belonging to the authenticated user.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with API key details
+   * 
+   * @throws {NotFoundError} If API key doesn't exist or doesn't belong to user
+   * 
+   * @example
+   * GET /api/v1/iam/api-keys/:keyId
+   */
   static getApiKey = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { keyId } = req.params;
 
@@ -151,7 +264,36 @@ export class ApiKeyController {
     sendSuccess(res, { apiKey }, 'API key retrieved successfully');
   });
 
-  // Update API key
+  /**
+   * Update API key settings
+   * 
+   * Modifies an existing API key's configuration including name, permissions,
+   * IP whitelist, active status, and rate limit settings. Cannot change the
+   * actual key value - use regenerateApiKey for that.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with updated API key details
+   * 
+   * @throws {NotFoundError} If API key doesn't exist or doesn't belong to user
+   * @throws {ValidationError} If permissions or IP addresses are invalid
+   * 
+   * Request Body (all fields optional):
+   * @property {string} name - New name for the API key
+   * @property {string[]} permissions - Updated permissions array
+   * @property {string[]} allowedIPs - Updated IP whitelist
+   * @property {boolean} isActive - Enable/disable the key
+   * @property {number} maxRequests - New rate limit max (1-10000)
+   * @property {number} windowMs - New rate limit window (1 min - 24 hours)
+   * 
+   * @example
+   * PATCH /api/v1/iam/api-keys/:keyId
+   * Body: {
+   *   isActive: false,
+   *   maxRequests: 2000
+   * }
+   */
   static updateApiKey = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { keyId } = req.params;
     const { name, permissions, allowedIPs, isActive, maxRequests, windowMs } = req.body;
@@ -244,7 +386,22 @@ export class ApiKeyController {
     );
   });
 
-  // Delete API key
+  /**
+   * Delete (revoke) an API key
+   * 
+   * Permanently deletes an API key, immediately revoking all access.
+   * This action cannot be undone. All subsequent requests using this key will fail.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with success message
+   * 
+   * @throws {NotFoundError} If API key doesn't exist or doesn't belong to user
+   * 
+   * @example
+   * DELETE /api/v1/iam/api-keys/:keyId
+   */
   static deleteApiKey = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { keyId } = req.params;
 
@@ -265,7 +422,33 @@ export class ApiKeyController {
     sendSuccess(res, {}, 'API key deleted successfully');
   });
 
-  // Regenerate API key
+  /**
+   * Regenerate (rotate) an API key
+   * 
+   * Generates a new key value while maintaining all other settings (permissions,
+   * IP whitelist, rate limits, etc.). This is useful for key rotation security practices.
+   * The old key is immediately invalidated and the new key is returned once.
+   * Resets usage tracking statistics.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with new key value and metadata
+   * 
+   * @throws {NotFoundError} If API key doesn't exist or doesn't belong to user
+   * 
+   * @example
+   * POST /api/v1/iam/api-keys/:keyId/regenerate
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {
+   *     apiKey: { id, name, permissions, ... },
+   *     key: "sk_live_xyz789..." // New key, only shown once!
+   *   },
+   *   message: "API key regenerated successfully..."
+   * }
+   */
   static regenerateApiKey = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { keyId } = req.params;
 
@@ -308,7 +491,38 @@ export class ApiKeyController {
     );
   });
 
-  // Get API key usage statistics
+  /**
+   * Get API key usage statistics
+   * 
+   * Retrieves aggregated statistics about all API keys belonging to the user.
+   * Includes counts of total, active, expired, and recently used keys.
+   * 
+   * @async
+   * @param {AuthRequest} req - Express request with user authentication
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} 200 OK with usage statistics
+   * 
+   * Statistics Included:
+   * @property {number} total - Total number of API keys
+   * @property {number} active - Number of active (non-disabled) keys
+   * @property {number} expired - Number of keys past expiration date
+   * @property {number} recentlyUsed - Number of keys used in last 7 days
+   * 
+   * @example
+   * GET /api/v1/iam/api-keys/stats
+   * 
+   * Response: {
+   *   success: true,
+   *   data: {
+   *     stats: {
+   *       total: 5,
+   *       active: 4,
+   *       expired: 1,
+   *       recentlyUsed: 3
+   *     }
+   *   }
+   * }
+   */
   static getApiKeyStats = asyncHandler(async (req: AuthRequest, res: Response) => {
     const stats = await ApiKey.aggregate([
       { $match: { userId: req.user._id } },
