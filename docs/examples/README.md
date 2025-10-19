@@ -218,12 +218,14 @@ curl http://localhost:3000/api/users/me \
 
 ### Using Postman
 
-1. Import the OpenAPI spec: `openapi.yaml`
+1. Import the OpenAPI spec from the running server: `http://localhost:3000/api/v1/openapi.json`
 2. Set up environment variables:
    - `baseUrl`: `http://localhost:3000`
    - `token`: Your JWT token
 3. Use pre-request scripts for authentication
 4. Test complete workflows
+
+**Alternative**: Use the Swagger UI at `http://localhost:3000/api/v1/docs` for interactive API testing
 
 ---
 
