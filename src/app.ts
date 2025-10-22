@@ -203,6 +203,19 @@ class App {
      *                   items:
      *                     type: string
      *                   example: ["iam", "users", "matches", "tournaments"]
+     *       500:
+     *         description: Internal server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 status:
+     *                   type: string
+     *                   example: "ERROR"
+     *                 message:
+     *                   type: string
+     *                   example: "Health check failed"
      */
     this.app.get("/health", (req, res) => {
       res.status(200).json({
@@ -254,6 +267,8 @@ class App {
      *                   items:
      *                     type: string
      *                   example: ["User Management", "Match Organization", "Tournament Brackets"]
+     *       500:
+     *         description: Internal server error
      */
     this.app.get("/api/v1", (req, res) => {
       res.status(200).json({
@@ -302,6 +317,8 @@ class App {
      *             schema:
      *               type: object
      *               description: OpenAPI 3.0 specification document
+     *       500:
+     *         description: Internal server error
      */
     this.app.get("/api/v1/openapi.json", (req, res) => {
       res.setHeader("Content-Type", "application/json");
@@ -317,8 +334,12 @@ class App {
      *     tags:
      *       - System
      *     responses:
+     *       200:
+     *         description: Success - redirects to /api/v1/docs
      *       302:
      *         description: Redirect to /api/v1/docs
+     *       500:
+     *         description: Internal server error
      */
     this.app.get("/docs", (req, res) => {
       res.redirect("/api/v1/docs");

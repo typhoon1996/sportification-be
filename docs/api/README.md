@@ -92,10 +92,13 @@ Authorization: Bearer <your-jwt-token>
 - **[WebSocket API](../features/websockets.md)** - Real-time communication
 - **[Integration Examples](../examples/)** - Complete integration workflows
 
-## 🔗 External Links
+## 🔗 Live Documentation
 
-- [OpenAPI Specification](../../openapi.yaml) - OpenAPI/Swagger spec
-- [Postman Collection](#) - API testing collection
+When the server is running, you can access:
+- **Swagger UI**: [http://localhost:3000/api/v1/docs](http://localhost:3000/api/v1/docs) - Interactive API documentation
+- **OpenAPI Spec**: [http://localhost:3000/api/v1/openapi.json](http://localhost:3000/api/v1/openapi.json) - Machine-readable OpenAPI specification
+
+The API documentation is automatically generated from JSDoc `@swagger` annotations in the route files (`src/modules/*/api/routes/*.ts`).
 
 ---
 

@@ -30,8 +30,7 @@ config/
 │   └── prometheus.yml
 │
 ├── jest.config.js             # Jest testing configuration
-├── tsconfig.json              # TypeScript compiler configuration
-└── openapi.yaml               # OpenAPI/Swagger specification
+└── tsconfig.json              # TypeScript compiler configuration
 ```
 
 ## 🔧 Configuration Files
@@ -75,7 +74,13 @@ Environment variables for different deployment environments.
 
 - **`jest.config.js`**: Jest test runner configuration
 - **`tsconfig.json`**: TypeScript compiler options
-- **`openapi.yaml`**: API specification (Swagger/OpenAPI 3.0)
+
+### API Documentation
+
+The API specification is automatically generated from JSDoc annotations in the code.
+- **Swagger UI**: Available at `/api/v1/docs` when the server is running
+- **OpenAPI Spec**: Download from `/api/v1/openapi.json`
+- **Documentation Source**: `@swagger` comments in route files (`src/modules/*/api/routes/*.ts`)
 
 ## 🚀 Quick Start
 
