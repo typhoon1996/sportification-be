@@ -21,7 +21,7 @@ This guide helps you quickly find files in the new structure.
 | `.env.production` | `config/environments/.env.production` | Prod environment |
 | `jest.config.js` | `config/jest.config.js` | Test configuration |
 | `tsconfig.json` | `config/tsconfig.json` | TypeScript configuration |
-| `openapi.yaml` | `config/openapi.yaml` | API specification |
+
 | `nginx/` | `config/nginx/` | Nginx configuration |
 | `redis/` | `config/redis/` | Redis configuration |
 | `monitoring/` | `config/monitoring/` | Monitoring configuration |

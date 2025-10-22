@@ -99,12 +99,16 @@ const swaggerDefinition: SwaggerDefinition = {
   },
   servers: [
     {
+      url: "/",
+      description: "Current server (relative URL - works with any environment)",
+    },
+    {
       url: "http://localhost:3000",
-      description: "Local development",
+      description: "Local development (HTTP)",
     },
     {
       url: "https://api.sportification.app",
-      description: "Production",
+      description: "Production (HTTPS)",
     },
   ],
   tags: [

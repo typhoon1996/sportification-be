@@ -30,6 +30,15 @@ A comprehensive, production-ready backend API for the Sports Companion Applicati
 - **Docker**: Full containerization support
 - **CI/CD**: GitHub Actions workflow configuration
 
+## 📖 API Documentation
+
+Interactive API documentation is available when the server is running:
+
+- **Swagger UI**: [http://localhost:3000/api/v1/docs](http://localhost:3000/api/v1/docs) - Interactive API documentation
+- **OpenAPI Spec**: [http://localhost:3000/api/v1/openapi.json](http://localhost:3000/api/v1/openapi.json) - Machine-readable specification
+
+The documentation is automatically generated from JSDoc `@swagger` annotations in the code. For more details, see [API Documentation](./docs/api/).
+
 ## 📋 Prerequisites
 
 - **Node.js**: v18.0.0 or higher
@@ -444,8 +453,7 @@ sportification-be/
 │   ├── redis/              # Redis configuration
 │   ├── monitoring/         # Monitoring configuration
 │   ├── jest.config.js      # Jest configuration
-│   ├── tsconfig.json       # TypeScript configuration
-│   └── openapi.yaml        # OpenAPI specification
+│   └── tsconfig.json       # TypeScript configuration
 ├── docs/                    # Technical documentation
 │   ├── architecture/       # Architecture documentation
 │   ├── api/                # API documentation
