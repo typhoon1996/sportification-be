@@ -51,8 +51,7 @@ sportification-be/
 │   └── deployment/
 │       ├── deploy.sh                           # EXISTING: Unix shell script
 │       ├── deploy.bat                          # NEW: Windows batch script
-│       ├── aws-setup.sh                        # EXISTING: Unix shell script
-│       └── [future: aws-setup.bat]
+│       └── aws-setup.sh                        # EXISTING: Unix shell script
 └── .github/
     └── workflows/
         └── ci.yml                              # MODIFIED: Multi-OS testing
@@ -96,16 +95,23 @@ sportification-be/
 
 ### Dependencies Added
 
+**package.json devDependencies:**
 ```json
 {
   "devDependencies": {
-    "cross-env": "^7.0.3",      // Cross-platform environment variables
-    "rimraf": "^5.0.0",         // Cross-platform file deletion
-    "npm-run-all": "^4.1.5",    // Run multiple npm scripts
-    "open-cli": "^8.0.0"        // Cross-platform URL opener
+    "cross-env": "^7.0.3",
+    "rimraf": "^5.0.0",
+    "npm-run-all": "^4.1.5",
+    "open-cli": "^8.0.0"
   }
 }
 ```
+
+These packages provide:
+- `cross-env` - Cross-platform environment variables
+- `rimraf` - Cross-platform file deletion  
+- `npm-run-all` - Run multiple npm scripts
+- `open-cli` - Cross-platform URL opener
 
 ### New Node.js Scripts (ADDED)
 
