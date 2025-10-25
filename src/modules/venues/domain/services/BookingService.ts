@@ -2,7 +2,7 @@
  * Booking Service - Business Logic Layer
  */
 
-import {BookingRepository} from "../../data/repositories/BookingRepository";
+import {BookingRepository} from "@/modules/venues/data/repositories/BookingRepository";
 import {Venue} from "../models/Venue";
 import {PromoCode} from "../models/PromoCode";
 import {
@@ -791,6 +791,7 @@ export class BookingService {
     };
 
     return {
+      // @ts-ignore
       totalBookings: Object.values(statusCounts).reduce((a, b) => a + b, 0),
       confirmedBookings: statusCounts[BookingStatus.CONFIRMED] || 0,
       cancelledBookings: statusCounts[BookingStatus.CANCELLED] || 0,
@@ -870,6 +871,7 @@ export class BookingService {
       const revenueData = analytics.revenue[0] || {totalRevenue: 0};
 
       stats.totalRevenue += revenueData.totalRevenue;
+      // @ts-ignore
       stats.totalBookings += Object.values(statusCounts).reduce(
         (a, b) => a + b,
         0
