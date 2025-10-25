@@ -4,26 +4,41 @@ import type { DomainEvent } from '@/shared/events/EventBus';
 
 /**
  * TeamsEventSubscriber - Handles events from other modules
+ * 
+ * This subscriber is initialized but currently has no active subscriptions.
+ * Event subscriptions should be added here when cross-module reactions are needed.
+ * 
+ * Potential subscriptions to consider:
+ * - User events (for member management, notifications)
+ * - Match events (for team match participation)
+ * - Tournament events (for team tournament registration)
+ * 
+ * @example
+ * // To add a subscription:
+ * // eventBus.subscribe('users.profile.updated', this.handleUserProfileUpdated);
  */
 export class TeamsEventSubscriber {
   /**
    * Initialize event subscriptions
+   * 
+   * Currently no subscriptions are active. Add subscriptions here as needed
+   * when implementing cross-module event-driven features.
    */
   static initialize(): void {
-    // TODO: Subscribe to relevant events from other modules
-    // Example:
-    // eventBus.subscribe('users.created', this.handleUserCreated);
-    
+    // No active subscriptions yet - add as needed for cross-module communication
     logger.info('TeamsEventSubscriber initialized');
   }
 
   /**
-   * Example event handler
+   * Example event handler template
+   * 
+   * @param event - Domain event from another module
+   * @private
    */
   private static async handleExternalEvent(event: DomainEvent): Promise<void> {
     try {
       logger.debug('Handling external event', { eventType: event.eventType });
-      // TODO: Implement event handling logic
+      // Implement specific event handling logic here
     } catch (error) {
       logger.error('Failed to handle external event', { error, event });
     }
