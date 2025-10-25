@@ -2,9 +2,9 @@
  * Booking Service - Business Logic Layer
  */
 
-import { BookingRepository } from '../../data/repositories/BookingRepository';
-import { Venue } from '../models/Venue';
-import { PromoCode } from '../models/PromoCode';
+import {BookingRepository} from "../../data/repositories/BookingRepository";
+import {Venue} from "../models/Venue";
+import {PromoCode} from "../models/PromoCode";
 import {
   IBooking,
   BookingStatus,
@@ -17,15 +17,15 @@ import {
   AvailabilityCheckResult,
   VenueAnalytics,
   DashboardStats,
-} from '../../types';
+} from "../../types";
 import {
   NotFoundError,
   ValidationError,
   ConflictError,
-} from '../../../../shared/middleware/errorHandler';
-import logger from '../../../../shared/infrastructure/logging';
-import { BookingEventPublisher } from '../../events/publishers/BookingEventPublisher';
-import emailService from '../../../../shared/services/email';
+} from "../../../../shared/middleware/errorHandler";
+import logger from "../../../../shared/infrastructure/logging";
+import {BookingEventPublisher} from "../../events/publishers/BookingEventPublisher";
+import emailService from "../../../../shared/services/email";
 
 export class BookingService {
   private readonly bookingRepository: BookingRepository;
@@ -39,15 +39,18 @@ export class BookingService {
   /**
    * Create a new booking with dynamic pricing
    */
-  async createBooking(userId: string, dto: CreateBookingDTO): Promise<IBooking> {
+  async createBooking(
+    userId: string,
+    dto: CreateBookingDTO
+  ): Promise<IBooking> {
     // Validate venue exists
     const venue = await Venue.findById(dto.venueId);
     if (!venue) {
-      throw new NotFoundError('Venue');
+      throw new NotFoundError("Venue");
     }
 
     if (!venue.isActive) {
-      throw new ValidationError('Venue is not active');
+      throw new ValidationError("Venue is not active");
     }
 
     // Validate booking times
@@ -61,19 +64,20 @@ export class BookingService {
     );
 
     if (conflicts.length > 0) {
-      throw new ConflictError('Time slot is already booked');
+      throw new ConflictError("Time slot is already booked");
     }
 
     // Calculate pricing
     const pricingConfig = this.getPricingConfig(venue);
-    const { basePrice, totalPrice, discountAmount, pricingType } = await this.calculateBookingPrice(
-      venue,
-      dto.startTime,
-      dto.endTime,
-      dto.participants,
-      dto.promoCodes || [],
-      pricingConfig
-    );
+    const {basePrice, totalPrice, discountAmount, pricingType} =
+      await this.calculateBookingPrice(
+        venue,
+        dto.startTime,
+        dto.endTime,
+        dto.participants,
+        dto.promoCodes || [],
+        pricingConfig
+      );
 
     // Create booking
     const booking = await this.bookingRepository.create({
@@ -89,7 +93,7 @@ export class BookingService {
       pricingType,
       appliedPromoCodes: dto.promoCodes || [],
       status: BookingStatus.PENDING,
-      paymentStatus: 'pending',
+      paymentStatus: "pending",
       notes: dto.notes,
     });
 
@@ -111,7 +115,7 @@ export class BookingService {
     // Send confirmation email
     await this.sendBookingConfirmationEmail(booking);
 
-    logger.info('Booking created', {
+    logger.info("Booking created", {
       bookingId: booking.id,
       userId,
       venueId: dto.venueId,
@@ -135,11 +139,12 @@ export class BookingService {
     totalPrice: number;
     discountAmount: number;
     pricingType: PricingType;
-    appliedDiscounts: Array<{ type: string; amount: number }>;
+    appliedDiscounts: Array<{type: string; amount: number}>;
   }> {
-    const durationHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+    const durationHours =
+      (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     let baseHourlyRate = config.baseHourlyRate;
-    const appliedDiscounts: Array<{ type: string; amount: number }> = [];
+    const appliedDiscounts: Array<{type: string; amount: number}> = [];
 
     // Apply peak pricing (after 5 PM or weekends)
     const hour = startTime.getHours();
@@ -159,26 +164,31 @@ export class BookingService {
     let discountAmount = 0;
 
     // Early bird discount (7+ days in advance)
-    const daysInAdvance = (startTime.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+    const daysInAdvance =
+      (startTime.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
     if (daysInAdvance >= config.earlyBirdDays) {
       const earlyBirdDiscount = (basePrice * config.earlyBirdDiscount) / 100;
       discountAmount += earlyBirdDiscount;
-      appliedDiscounts.push({ type: 'Early Bird', amount: earlyBirdDiscount });
+      appliedDiscounts.push({type: "Early Bird", amount: earlyBirdDiscount});
     }
 
     // Group booking discount (5+ participants)
     if (participants >= config.groupDiscountThreshold) {
       const groupDiscount = (basePrice * config.groupDiscountPercentage) / 100;
       discountAmount += groupDiscount;
-      appliedDiscounts.push({ type: 'Group Discount', amount: groupDiscount });
+      appliedDiscounts.push({type: "Group Discount", amount: groupDiscount});
     }
 
     // Apply promo codes
     if (promoCodes.length > 0) {
-      const promoDiscount = await this.applyPromoCodes(promoCodes, basePrice, venue._id.toString());
+      const promoDiscount = await this.applyPromoCodes(
+        promoCodes,
+        basePrice,
+        venue._id.toString()
+      );
       discountAmount += promoDiscount;
       if (promoDiscount > 0) {
-        appliedDiscounts.push({ type: 'Promo Code', amount: promoDiscount });
+        appliedDiscounts.push({type: "Promo Code", amount: promoDiscount});
       }
     }
 
@@ -207,27 +217,30 @@ export class BookingService {
       const promoCode = await PromoCode.findOne({
         code: code.toUpperCase(),
         isActive: true,
-        validFrom: { $lte: new Date() },
-        validUntil: { $gte: new Date() },
+        validFrom: {$lte: new Date()},
+        validUntil: {$gte: new Date()},
       });
 
       if (!promoCode) {
-        logger.warn('Invalid or expired promo code', { code });
+        logger.warn("Invalid or expired promo code", {code});
         continue;
       }
 
       // Check if promo code is applicable to this venue
       if (
         promoCode.applicableVenues.length > 0 &&
-        !promoCode.applicableVenues.some((v) => v.toString() === venueId)
+        !promoCode.applicableVenues.some(v => v.toString() === venueId)
       ) {
-        logger.warn('Promo code not applicable to this venue', { code, venueId });
+        logger.warn("Promo code not applicable to this venue", {code, venueId});
         continue;
       }
 
       // Check minimum booking amount
-      if (promoCode.minBookingAmount && bookingAmount < promoCode.minBookingAmount) {
-        logger.warn('Booking amount below minimum for promo code', {
+      if (
+        promoCode.minBookingAmount &&
+        bookingAmount < promoCode.minBookingAmount
+      ) {
+        logger.warn("Booking amount below minimum for promo code", {
           code,
           bookingAmount,
           minRequired: promoCode.minBookingAmount,
@@ -237,7 +250,7 @@ export class BookingService {
 
       // Calculate discount
       let discount = 0;
-      if (promoCode.discountType === 'percentage') {
+      if (promoCode.discountType === "percentage") {
         discount = (bookingAmount * promoCode.discountValue) / 100;
       } else {
         discount = promoCode.discountValue;
@@ -259,7 +272,10 @@ export class BookingService {
    */
   private async incrementPromoCodeUsage(codes: string[]): Promise<void> {
     for (const code of codes) {
-      await PromoCode.findOneAndUpdate({ code: code.toUpperCase() }, { $inc: { usedCount: 1 } });
+      await PromoCode.findOneAndUpdate(
+        {code: code.toUpperCase()},
+        {$inc: {usedCount: 1}}
+      );
     }
   }
 
@@ -275,7 +291,7 @@ export class BookingService {
       earlyBirdDays: 7,
       groupDiscountThreshold: 5,
       groupDiscountPercentage: 15,
-      currency: venue.pricing?.currency || 'USD',
+      currency: venue.pricing?.currency || "USD",
     };
   }
 
@@ -286,21 +302,22 @@ export class BookingService {
     const now = new Date();
 
     if (startTime < now) {
-      throw new ValidationError('Booking start time must be in the future');
+      throw new ValidationError("Booking start time must be in the future");
     }
 
     if (endTime <= startTime) {
-      throw new ValidationError('Booking end time must be after start time');
+      throw new ValidationError("Booking end time must be after start time");
     }
 
-    const durationHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+    const durationHours =
+      (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
 
     if (durationHours < 1) {
-      throw new ValidationError('Minimum booking duration is 1 hour');
+      throw new ValidationError("Minimum booking duration is 1 hour");
     }
 
     if (durationHours > 24) {
-      throw new ValidationError('Maximum booking duration is 24 hours');
+      throw new ValidationError("Maximum booking duration is 24 hours");
     }
   }
 
@@ -314,7 +331,7 @@ export class BookingService {
   ): Promise<AvailabilityCheckResult> {
     const venue = await Venue.findById(venueId);
     if (!venue) {
-      throw new NotFoundError('Venue');
+      throw new NotFoundError("Venue");
     }
 
     const conflicts = await this.bookingRepository.findConflictingBookings(
@@ -329,7 +346,7 @@ export class BookingService {
 
       return {
         isAvailable: false,
-        conflictingBookings: conflicts.map((b) => ({
+        conflictingBookings: conflicts.map((b: any) => ({
           id: b.id,
           startTime: b.startTime,
           endTime: b.endTime,
@@ -350,8 +367,8 @@ export class BookingService {
     venueId: string,
     preferredDate: Date,
     count: number = 3
-  ): Promise<Array<{ startTime: Date; endTime: Date }>> {
-    const suggestedSlots: Array<{ startTime: Date; endTime: Date }> = [];
+  ): Promise<Array<{startTime: Date; endTime: Date}>> {
+    const suggestedSlots: Array<{startTime: Date; endTime: Date}> = [];
     const date = new Date(preferredDate);
     date.setHours(9, 0, 0, 0); // Start checking from 9 AM
 
@@ -368,7 +385,7 @@ export class BookingService {
       );
 
       if (conflicts.length === 0) {
-        suggestedSlots.push({ startTime, endTime });
+        suggestedSlots.push({startTime, endTime});
       }
     }
 
@@ -378,23 +395,27 @@ export class BookingService {
   /**
    * Update an existing booking
    */
-  async updateBooking(bookingId: string, userId: string, dto: UpdateBookingDTO): Promise<IBooking> {
+  async updateBooking(
+    bookingId: string,
+    userId: string,
+    dto: UpdateBookingDTO
+  ): Promise<IBooking> {
     const booking = await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
-      throw new NotFoundError('Booking');
+      throw new NotFoundError("Booking");
     }
 
     if (booking.user.toString() !== userId) {
-      throw new ValidationError('Only booking owner can update it');
+      throw new ValidationError("Only booking owner can update it");
     }
 
     if (booking.status === BookingStatus.CANCELLED) {
-      throw new ValidationError('Cannot update cancelled booking');
+      throw new ValidationError("Cannot update cancelled booking");
     }
 
     if (booking.status === BookingStatus.COMPLETED) {
-      throw new ValidationError('Cannot update completed booking');
+      throw new ValidationError("Cannot update completed booking");
     }
 
     // If updating times, check for conflicts
@@ -412,7 +433,7 @@ export class BookingService {
       );
 
       if (conflicts.length > 0) {
-        throw new ConflictError('New time slot is already booked');
+        throw new ConflictError("New time slot is already booked");
       }
     }
 
@@ -420,7 +441,7 @@ export class BookingService {
     const updated = await this.bookingRepository.update(bookingId, dto);
 
     if (!updated) {
-      throw new Error('Failed to update booking');
+      throw new Error("Failed to update booking");
     }
 
     // Publish event
@@ -430,7 +451,7 @@ export class BookingService {
       updates: dto,
     });
 
-    logger.info('Booking updated', { bookingId, userId });
+    logger.info("Booking updated", {bookingId, userId});
 
     return updated;
   }
@@ -438,19 +459,23 @@ export class BookingService {
   /**
    * Cancel a booking with refund calculation
    */
-  async cancelBooking(bookingId: string, userId: string, dto: CancelBookingDTO): Promise<IBooking> {
+  async cancelBooking(
+    bookingId: string,
+    userId: string,
+    dto: CancelBookingDTO
+  ): Promise<IBooking> {
     const booking = await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
-      throw new NotFoundError('Booking');
+      throw new NotFoundError("Booking");
     }
 
     if (booking.user.toString() !== userId) {
-      throw new ValidationError('Only booking owner can cancel it');
+      throw new ValidationError("Only booking owner can cancel it");
     }
 
     if (!booking.canCancel()) {
-      throw new ValidationError('Booking cannot be cancelled');
+      throw new ValidationError("Booking cannot be cancelled");
     }
 
     const refundAmount = booking.getRefundAmount();
@@ -460,12 +485,12 @@ export class BookingService {
       cancellationReason: dto.reason,
       cancelledAt: new Date(),
       refundAmount,
-      paymentStatus: refundAmount > 0 ? 'refunded' : booking.paymentStatus,
+      paymentStatus: refundAmount > 0 ? "refunded" : booking.paymentStatus,
       refundedAt: refundAmount > 0 ? new Date() : undefined,
     } as Partial<IBooking>);
 
     if (!updated) {
-      throw new Error('Failed to cancel booking');
+      throw new Error("Failed to cancel booking");
     }
 
     // Publish event
@@ -479,7 +504,7 @@ export class BookingService {
     // Send cancellation email
     await this.sendCancellationEmail(updated, refundAmount);
 
-    logger.info('Booking cancelled', { bookingId, userId, refundAmount });
+    logger.info("Booking cancelled", {bookingId, userId, refundAmount});
 
     return updated;
   }
@@ -495,18 +520,18 @@ export class BookingService {
     const booking = await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
-      throw new NotFoundError('Booking');
+      throw new NotFoundError("Booking");
     }
 
     const updated = await this.bookingRepository.update(bookingId, {
       status: BookingStatus.CONFIRMED,
-      paymentStatus: 'paid',
+      paymentStatus: "paid",
       transactionId,
       paymentMethod,
     } as Partial<IBooking>);
 
     if (!updated) {
-      throw new Error('Failed to confirm payment');
+      throw new Error("Failed to confirm payment");
     }
 
     // Publish event
@@ -516,7 +541,7 @@ export class BookingService {
       amount: booking.totalPrice,
     });
 
-    logger.info('Booking payment confirmed', { bookingId, transactionId });
+    logger.info("Booking payment confirmed", {bookingId, transactionId});
 
     return updated;
   }
@@ -528,15 +553,15 @@ export class BookingService {
     const booking = await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
-      throw new NotFoundError('Booking');
+      throw new NotFoundError("Booking");
     }
 
     if (booking.user.toString() !== userId) {
-      throw new ValidationError('Only booking owner can check in');
+      throw new ValidationError("Only booking owner can check in");
     }
 
     if (booking.status !== BookingStatus.CONFIRMED) {
-      throw new ValidationError('Only confirmed bookings can be checked in');
+      throw new ValidationError("Only confirmed bookings can be checked in");
     }
 
     const now = new Date();
@@ -544,12 +569,12 @@ export class BookingService {
 
     if (now < new Date(booking.startTime.getTime() - gracePeriod)) {
       throw new ValidationError(
-        'Check-in too early. Please wait until 30 minutes before booking time'
+        "Check-in too early. Please wait until 30 minutes before booking time"
       );
     }
 
     if (now > booking.endTime) {
-      throw new ValidationError('Cannot check in after booking end time');
+      throw new ValidationError("Cannot check in after booking end time");
     }
 
     const updated = await this.bookingRepository.update(bookingId, {
@@ -558,7 +583,7 @@ export class BookingService {
     } as Partial<IBooking>);
 
     if (!updated) {
-      throw new Error('Failed to check in');
+      throw new Error("Failed to check in");
     }
 
     // Publish event
@@ -568,7 +593,7 @@ export class BookingService {
       checkInTime: now,
     });
 
-    logger.info('Booking checked in', { bookingId, userId });
+    logger.info("Booking checked in", {bookingId, userId});
 
     return updated;
   }
@@ -580,15 +605,15 @@ export class BookingService {
     const booking = await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
-      throw new NotFoundError('Booking');
+      throw new NotFoundError("Booking");
     }
 
     if (booking.user.toString() !== userId) {
-      throw new ValidationError('Only booking owner can check out');
+      throw new ValidationError("Only booking owner can check out");
     }
 
     if (booking.status !== BookingStatus.CHECKED_IN) {
-      throw new ValidationError('Only checked-in bookings can be checked out');
+      throw new ValidationError("Only checked-in bookings can be checked out");
     }
 
     const updated = await this.bookingRepository.update(bookingId, {
@@ -597,7 +622,7 @@ export class BookingService {
     } as Partial<IBooking>);
 
     if (!updated) {
-      throw new Error('Failed to check out');
+      throw new Error("Failed to check out");
     }
 
     // Publish event
@@ -607,7 +632,7 @@ export class BookingService {
       checkOutTime: new Date(),
     });
 
-    logger.info('Booking checked out', { bookingId, userId });
+    logger.info("Booking checked out", {bookingId, userId});
 
     return updated;
   }
@@ -619,21 +644,25 @@ export class BookingService {
     const booking = await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
-      throw new NotFoundError('Booking');
+      throw new NotFoundError("Booking");
     }
 
     const venue = await Venue.findById(booking.venue);
     if (!venue || venue.createdBy.toString() !== venueOwnerId) {
-      throw new ValidationError('Only venue owner can mark no-show');
+      throw new ValidationError("Only venue owner can mark no-show");
     }
 
     if (booking.status !== BookingStatus.CONFIRMED) {
-      throw new ValidationError('Only confirmed bookings can be marked as no-show');
+      throw new ValidationError(
+        "Only confirmed bookings can be marked as no-show"
+      );
     }
 
     const now = new Date();
     if (now < booking.endTime) {
-      throw new ValidationError('Cannot mark as no-show before booking end time');
+      throw new ValidationError(
+        "Cannot mark as no-show before booking end time"
+      );
     }
 
     const updated = await this.bookingRepository.update(bookingId, {
@@ -641,7 +670,7 @@ export class BookingService {
     } as Partial<IBooking>);
 
     if (!updated) {
-      throw new Error('Failed to mark as no-show');
+      throw new Error("Failed to mark as no-show");
     }
 
     // Publish event
@@ -650,7 +679,7 @@ export class BookingService {
       userId: booking.user.toString(),
     });
 
-    logger.info('Booking marked as no-show', { bookingId });
+    logger.info("Booking marked as no-show", {bookingId});
 
     return updated;
   }
@@ -662,8 +691,12 @@ export class BookingService {
     filters: BookingFilterOptions,
     page: number = 1,
     limit: number = 10
-  ): Promise<{ bookings: IBooking[]; total: number; pages: number }> {
-    const { bookings, total } = await this.bookingRepository.findWithFilters(filters, page, limit);
+  ): Promise<{bookings: IBooking[]; total: number; pages: number}> {
+    const {bookings, total} = await this.bookingRepository.findWithFilters(
+      filters,
+      page,
+      limit
+    );
 
     return {
       bookings,
@@ -679,7 +712,7 @@ export class BookingService {
     const booking = await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
-      throw new NotFoundError('Booking');
+      throw new NotFoundError("Booking");
     }
 
     return booking;
@@ -688,8 +721,11 @@ export class BookingService {
   /**
    * Get user's bookings
    */
-  async getUserBookings(userId: string, status?: BookingStatus): Promise<IBooking[]> {
-    return this.bookingRepository.findByUser(userId, { status });
+  async getUserBookings(
+    userId: string,
+    status?: BookingStatus
+  ): Promise<IBooking[]> {
+    return this.bookingRepository.findByUser(userId, {status});
   }
 
   /**
@@ -703,14 +739,14 @@ export class BookingService {
     const venue = await Venue.findById(venueId);
 
     if (!venue) {
-      throw new NotFoundError('Venue');
+      throw new NotFoundError("Venue");
     }
 
     if (venue.createdBy.toString() !== userId) {
-      throw new ValidationError('Only venue owner can view bookings');
+      throw new ValidationError("Only venue owner can view bookings");
     }
 
-    return this.bookingRepository.findByVenue(venueId, { status });
+    return this.bookingRepository.findByVenue(venueId, {status});
   }
 
   /**
@@ -725,11 +761,11 @@ export class BookingService {
     const venue = await Venue.findById(venueId);
 
     if (!venue) {
-      throw new NotFoundError('Venue');
+      throw new NotFoundError("Venue");
     }
 
     if (venue.createdBy.toString() !== userId) {
-      throw new ValidationError('Only venue owner can view analytics');
+      throw new ValidationError("Only venue owner can view analytics");
     }
 
     // Default date range if not provided
@@ -743,13 +779,11 @@ export class BookingService {
       endDate || defaultEndDate
     );
 
-    const statusCounts: Record<string, number> = analyticsData.statusCounts.reduce(
-      (acc: any, item: any) => {
+    const statusCounts: Record<string, number> =
+      analyticsData.statusCounts.reduce((acc: any, item: any) => {
         acc[item._id] = item.count;
         return acc;
-      },
-      {}
-    );
+      }, {});
 
     const revenueData = analyticsData.revenue[0] || {
       totalRevenue: 0,
@@ -784,14 +818,18 @@ export class BookingService {
     const venue = await Venue.findById(venueId);
 
     if (!venue) {
-      throw new NotFoundError('Venue');
+      throw new NotFoundError("Venue");
     }
 
     if (venue.createdBy.toString() !== userId) {
-      throw new ValidationError('Only venue owner can view calendar');
+      throw new ValidationError("Only venue owner can view calendar");
     }
 
-    return this.bookingRepository.getCalendarBookings(venueId, startDate, endDate);
+    return this.bookingRepository.getCalendarBookings(
+      venueId,
+      startDate,
+      endDate
+    );
   }
 
   /**
@@ -799,8 +837,8 @@ export class BookingService {
    */
   async getDashboardStats(userId: string): Promise<DashboardStats> {
     // Get all venues owned by user
-    const venues = await Venue.find({ createdBy: userId, isActive: true });
-    const venueIds = venues.map((v) => (v._id as any).toString());
+    const venues = await Venue.find({createdBy: userId, isActive: true});
+    const venueIds = venues.map(v => (v._id as any).toString());
 
     const stats = {
       totalRevenue: 0,
@@ -810,7 +848,7 @@ export class BookingService {
       cancelledBookings: 0,
       noShowBookings: 0,
       occupancyRate: 0,
-      revenueByMonth: [] as Array<{ month: string; revenue: number }>,
+      revenueByMonth: [] as Array<{month: string; revenue: number}>,
     };
 
     const now = new Date();
@@ -823,18 +861,19 @@ export class BookingService {
         defaultStartDate,
         defaultEndDate
       );
-      const statusCounts: Record<string, number> = analytics.statusCounts?.reduce(
-        (acc: any, item: any) => {
+      const statusCounts: Record<string, number> =
+        analytics.statusCounts?.reduce((acc: any, item: any) => {
           acc[item._id] = item.count;
           return acc;
-        },
-        {}
-      ) || {};
+        }, {}) || {};
 
-      const revenueData = analytics.revenue[0] || { totalRevenue: 0 };
+      const revenueData = analytics.revenue[0] || {totalRevenue: 0};
 
       stats.totalRevenue += revenueData.totalRevenue;
-      stats.totalBookings += Object.values(statusCounts).reduce((a, b) => a + b, 0);
+      stats.totalBookings += Object.values(statusCounts).reduce(
+        (a, b) => a + b,
+        0
+      );
       stats.completedBookings += statusCounts[BookingStatus.COMPLETED] || 0;
       stats.cancelledBookings += statusCounts[BookingStatus.CANCELLED] || 0;
       stats.noShowBookings += statusCounts[BookingStatus.NO_SHOW] || 0;
@@ -842,7 +881,8 @@ export class BookingService {
 
     // Count upcoming bookings
     for (const venueId of venueIds) {
-      const upcoming = await this.bookingRepository.findUpcomingByVenue(venueId);
+      const upcoming =
+        await this.bookingRepository.findUpcomingByVenue(venueId);
       stats.upcomingBookings += upcoming.length;
     }
 
@@ -855,8 +895,8 @@ export class BookingService {
   private async sendBookingConfirmationEmail(booking: IBooking): Promise<void> {
     try {
       const populated = await booking.populate([
-        { path: 'venue', select: 'name location contactInfo' },
-        { path: 'user', select: 'email profile' },
+        {path: "venue", select: "name location contactInfo"},
+        {path: "user", select: "email profile"},
       ]);
 
       await emailService.sendBookingConfirmationEmail({
@@ -870,18 +910,24 @@ export class BookingService {
         },
       });
     } catch (error) {
-      logger.error('Failed to send booking confirmation email', { error, bookingId: booking.id });
+      logger.error("Failed to send booking confirmation email", {
+        error,
+        bookingId: booking.id,
+      });
     }
   }
 
   /**
    * Send cancellation email
    */
-  private async sendCancellationEmail(booking: IBooking, refundAmount: number): Promise<void> {
+  private async sendCancellationEmail(
+    booking: IBooking,
+    refundAmount: number
+  ): Promise<void> {
     try {
       const populated = await booking.populate([
-        { path: 'venue', select: 'name location' },
-        { path: 'user', select: 'email profile' },
+        {path: "venue", select: "name location"},
+        {path: "user", select: "email profile"},
       ]);
 
       await emailService.sendBookingCancellationEmail({
@@ -891,7 +937,10 @@ export class BookingService {
         refundAmount,
       });
     } catch (error) {
-      logger.error('Failed to send cancellation email', { error, bookingId: booking.id });
+      logger.error("Failed to send cancellation email", {
+        error,
+        bookingId: booking.id,
+      });
     }
   }
 }
