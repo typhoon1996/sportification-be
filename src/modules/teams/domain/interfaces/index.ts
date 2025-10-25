@@ -11,7 +11,7 @@
  * - ITeamEventPublisher: Domain event publishing
  */
 
-import { Team } from '../models/Team';
+import { ITeam } from '../../../../shared/types';
 
 /**
  * Team member data for adding to a team
@@ -81,16 +81,16 @@ export interface ITeamMemberService {
    * Add a user to a team
    */
   addMember(
-    team: Team,
+    team: ITeam,
     userId: string,
     eventPublisher: ITeamEventPublisher
-  ): Promise<Team>;
+  ): Promise<ITeam>;
 
   /**
    * Remove a user from a team
    */
   removeMember(
-    team: Team,
+    team: ITeam,
     userId: string,
     eventPublisher: ITeamEventPublisher
   ): Promise<{ success: boolean }>;
@@ -98,17 +98,17 @@ export interface ITeamMemberService {
   /**
    * Check if user is a member
    */
-  isMember(team: Team, userId: string): boolean;
+  isMember(team: ITeam, userId: string): boolean;
 
   /**
    * Check if team has capacity for new members
    */
-  hasCapacity(team: Team): boolean;
+  hasCapacity(team: ITeam): boolean;
 
   /**
    * Get member count
    */
-  getMemberCount(team: Team): number;
+  getMemberCount(team: ITeam): number;
 }
 
 /**
@@ -127,17 +127,17 @@ export interface ITeamValidationService {
   /**
    * Validate user can join team
    */
-  validateCanJoin(team: Team, userId: string): void;
+  validateCanJoin(team: ITeam, userId: string): void;
 
   /**
    * Validate user can leave team
    */
-  validateCanLeave(team: Team, userId: string): void;
+  validateCanLeave(team: ITeam, userId: string): void;
 
   /**
    * Validate user is team captain
    */
-  validateIsCaptain(team: Team, userId: string): void;
+  validateIsCaptain(team: ITeam, userId: string): void;
 
   /**
    * Validate team update data
@@ -161,12 +161,12 @@ export interface ITeamService {
   /**
    * Create a new team with creator as captain
    */
-  createTeam(creatorId: string, teamData: ITeamCreationData): Promise<Team>;
+  createTeam(creatorId: string, teamData: ITeamCreationData): Promise<ITeam>;
 
   /**
    * Add a user to an existing team
    */
-  joinTeam(userId: string, teamId: string): Promise<Team>;
+  joinTeam(userId: string, teamId: string): Promise<ITeam>;
 
   /**
    * Remove a user from a team
@@ -180,7 +180,7 @@ export interface ITeamService {
     teamId: string,
     userId: string,
     updates: ITeamUpdateData
-  ): Promise<Team>;
+  ): Promise<ITeam>;
 
   /**
    * Delete a team (captain only)

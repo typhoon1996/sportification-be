@@ -9,6 +9,7 @@
  */
 
 import {Match} from "../models/Match";
+import {IMatch} from "../../../../shared/types";
 import {IMatchParticipantService, IMatchEventPublisher} from "../interfaces";
 import {MatchEventPublisher} from "../../events/publishers/MatchEventPublisher";
 
@@ -37,7 +38,7 @@ export class MatchParticipantService implements IMatchParticipantService {
    * @example
    * const updatedMatch = await participantService.addParticipant(match, userId);
    */
-  async addParticipant(match: Match, userId: string): Promise<Match> {
+  async addParticipant(match: IMatch, userId: string): Promise<IMatch> {
     // Add participant
     match.participants.push(userId as any);
     await match.save();
@@ -73,7 +74,7 @@ export class MatchParticipantService implements IMatchParticipantService {
    * @example
    * const updatedMatch = await participantService.removeParticipant(match, userId);
    */
-  async removeParticipant(match: Match, userId: string): Promise<Match> {
+  async removeParticipant(match: IMatch, userId: string): Promise<IMatch> {
     // Remove participant
     match.participants = match.participants.filter(
       (p: any) => p.toString() !== userId && p._id?.toString() !== userId

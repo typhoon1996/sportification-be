@@ -184,11 +184,24 @@ export class NotificationController {
    * @example
    * DELETE /api/v1/notifications/507f1f77bcf86cd799439011
    * Headers: { Authorization: "Bearer <access-token>" }
-   * 
-   * @todo Implement actual deletion logic in the service layer
    */
   deleteNotification = asyncHandler(async (req: AuthRequest, res: Response) => {
-    // TODO: Implement deletion in the service
+    const { id } = req.params;
+    
+    if (!id) {
+      const { ValidationError } = await import('../../../../shared/middleware/errorHandler');
+      throw new ValidationError('Notification ID is required');
+    }
+    
+    const userId = this.getUserId(req);
+
+    const notification = await this.notificationService.deleteNotification(id, userId);
+
+    if (!notification) {
+      const { NotFoundError } = await import('../../../../shared/middleware/errorHandler');
+      throw new NotFoundError('Notification');
+    }
+
     sendSuccess(res, null, 'Notification deleted successfully');
   });
 }

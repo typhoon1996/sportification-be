@@ -127,6 +127,7 @@ export interface BookingFilterOptions {
   startDate?: Date;
   endDate?: Date;
   paymentStatus?: string;
+  limit?: number;
 }
 
 // Venue Analytics

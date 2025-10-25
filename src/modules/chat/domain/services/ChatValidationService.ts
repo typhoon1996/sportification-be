@@ -1,4 +1,4 @@
-import { Chat } from '../models/Chat';
+import { IChat } from '../../../../shared/types';
 import { ValidationError } from '../../../../shared/middleware/errorHandler';
 import { IChatValidationService, IChatCreationData } from '../interfaces';
 
@@ -32,8 +32,8 @@ export class ChatValidationService implements IChatValidationService {
    * @param userId - User ID to check for participation
    * @throws {ValidationError} If user is not a participant
    */
-  validateParticipant(chat: Chat, userId: string): void {
-    if (!chat.participants.some((p) => p.toString() === userId)) {
+  validateParticipant(chat: IChat, userId: string): void {
+    if (!chat.participants.some((p: any) => p.toString() === userId)) {
       throw new ValidationError('User not authorized to access this chat');
     }
   }
