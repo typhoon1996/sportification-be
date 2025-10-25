@@ -8,15 +8,34 @@
 
 const fs = require('fs');
 const path = require('path');
-const { glob } = require('glob');
+
+function findShellScripts(dir, files = []) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    
+    if (entry.isDirectory() && entry.name !== 'node_modules' && entry.name !== '.git') {
+      findShellScripts(fullPath, files);
+    } else if (entry.isFile() && entry.name.endsWith('.sh')) {
+      files.push(fullPath);
+    }
+  }
+  
+  return files;
+}
 
 async function makeExecutable() {
   try {
+    const scriptsDir = path.join(process.cwd(), 'scripts');
+    
+    if (!fs.existsSync(scriptsDir)) {
+      console.log('ℹ️  No scripts directory found');
+      return;
+    }
+
     // Find all .sh files in scripts directory
-    const scriptFiles = await glob('scripts/**/*.sh', {
-      cwd: process.cwd(),
-      absolute: true
-    });
+    const scriptFiles = findShellScripts(scriptsDir);
 
     if (scriptFiles.length === 0) {
       console.log('ℹ️  No shell scripts found');
@@ -26,6 +45,7 @@ async function makeExecutable() {
     // On Windows, this is a no-op since execute permissions don't apply
     if (process.platform === 'win32') {
       console.log('ℹ️  Running on Windows - execute permissions not needed');
+      console.log(`   Found ${scriptFiles.length} shell script(s)`);
       return;
     }
 
