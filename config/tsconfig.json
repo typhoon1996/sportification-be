@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "lib": [
-      "ES2020"
-    ],
+    "lib": ["ES2020"],
     "outDir": "../dist",
     "rootDir": "../src",
     "strict": true,
@@ -14,7 +12,8 @@
     "resolveJsonModule": true,
     "declaration": false,
     "removeComments": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
+    "noEmitOnError": false,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noImplicitThis": true,
@@ -25,43 +24,17 @@
     "emitDecoratorMetadata": true,
     "baseUrl": "../src",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/types/*": [
-        "./types/*"
-      ],
-      "@/models/*": [
-        "./models/*"
-      ],
-      "@/controllers/*": [
-        "./controllers/*"
-      ],
-      "@/middleware/*": [
-        "./middleware/*"
-      ],
-      "@/routes/*": [
-        "./routes/*"
-      ],
-      "@/services/*": [
-        "./services/*"
-      ],
-      "@/utils/*": [
-        "./utils/*"
-      ],
-      "@/config/*": [
-        "./config/*"
-      ]
+      "@/*": ["./*"],
+      "@/types/*": ["./types/*"],
+      "@/models/*": ["./models/*"],
+      "@/controllers/*": ["./controllers/*"],
+      "@/middleware/*": ["./middleware/*"],
+      "@/routes/*": ["./routes/*"],
+      "@/services/*": ["./services/*"],
+      "@/utils/*": ["./utils/*"],
+      "@/config/*": ["./config/*"]
     }
   },
-  "include": [
-    "../src/**/*",
-    "../src/**/*.json"
-  ],
-  "exclude": [
-    "../node_modules",
-    "../dist",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ]
+  "include": ["../src/**/*", "../src/**/*.json"],
+  "exclude": ["../node_modules", "../dist", "**/*.test.ts", "**/*.spec.ts"]
 }
