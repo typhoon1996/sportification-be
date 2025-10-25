@@ -689,7 +689,7 @@ export class BookingService {
    * Get user's bookings
    */
   async getUserBookings(userId: string, status?: BookingStatus): Promise<IBooking[]> {
-    return this.bookingRepository.findByUser(userId, status);
+    return this.bookingRepository.findByUser(userId, { status });
   }
 
   /**
@@ -710,7 +710,7 @@ export class BookingService {
       throw new ValidationError('Only venue owner can view bookings');
     }
 
-    return this.bookingRepository.findByVenue(venueId, status);
+    return this.bookingRepository.findByVenue(venueId, { status });
   }
 
   /**
@@ -732,10 +732,15 @@ export class BookingService {
       throw new ValidationError('Only venue owner can view analytics');
     }
 
+    // Default date range if not provided
+    const now = new Date();
+    const defaultStartDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const defaultEndDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
     const analyticsData = await this.bookingRepository.getVenueAnalytics(
       venueId,
-      startDate,
-      endDate
+      startDate || defaultStartDate,
+      endDate || defaultEndDate
     );
 
     const statusCounts: Record<string, number> = analyticsData.statusCounts.reduce(
@@ -808,15 +813,23 @@ export class BookingService {
       revenueByMonth: [] as Array<{ month: string; revenue: number }>,
     };
 
+    const now = new Date();
+    const defaultStartDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const defaultEndDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
     for (const venueId of venueIds) {
-      const analytics = await this.bookingRepository.getVenueAnalytics(venueId);
-      const statusCounts: Record<string, number> = analytics.statusCounts.reduce(
+      const analytics = await this.bookingRepository.getVenueAnalytics(
+        venueId,
+        defaultStartDate,
+        defaultEndDate
+      );
+      const statusCounts: Record<string, number> = analytics.statusCounts?.reduce(
         (acc: any, item: any) => {
           acc[item._id] = item.count;
           return acc;
         },
         {}
-      );
+      ) || {};
 
       const revenueData = analytics.revenue[0] || { totalRevenue: 0 };
 

@@ -1,3 +1,4 @@
+import {ITeam} from "../../../../shared/types";
 import { Team } from '../models/Team';
 import { ConflictError } from '../../../../shared/middleware/errorHandler';
 import { ITeamMemberService, ITeamEventPublisher } from '../interfaces';
@@ -36,10 +37,10 @@ export class TeamMemberService implements ITeamMemberService {
    * @returns Updated team document
    */
   async addMember(
-    team: Team,
+    team: ITeam,
     userId: string,
     eventPublisher: ITeamEventPublisher
-  ): Promise<Team> {
+  ): Promise<ITeam> {
     // Add user to members
     team.members.push(userId as any);
     await team.save();
@@ -66,12 +67,12 @@ export class TeamMemberService implements ITeamMemberService {
    * @returns Success confirmation
    */
   async removeMember(
-    team: Team,
+    team: ITeam,
     userId: string,
     eventPublisher: ITeamEventPublisher
   ): Promise<{ success: boolean }> {
     // Remove user from members
-    team.members = team.members.filter((m) => m.toString() !== userId);
+    team.members = team.members.filter((m: any) => m.toString() !== userId);
     await team.save();
 
     // Publish domain event
@@ -90,8 +91,8 @@ export class TeamMemberService implements ITeamMemberService {
    * @param userId - User ID to check for membership
    * @returns True if user is a member, false otherwise
    */
-  isMember(team: Team, userId: string): boolean {
-    return team.members.some((m) => m.toString() === userId);
+  isMember(team: ITeam, userId: string): boolean {
+    return team.members.some((m: any) => m.toString() === userId);
   }
 
   /**
@@ -100,7 +101,7 @@ export class TeamMemberService implements ITeamMemberService {
    * @param team - Team document to check
    * @returns True if team can accept new members, false if at capacity
    */
-  hasCapacity(team: Team): boolean {
+  hasCapacity(team: ITeam): boolean {
     if (!team.maxMembers) return true;
     return team.members.length < team.maxMembers;
   }
@@ -111,7 +112,7 @@ export class TeamMemberService implements ITeamMemberService {
    * @param team - Team document
    * @returns Number of current members
    */
-  getMemberCount(team: Team): number {
+  getMemberCount(team: ITeam): number {
     return team.members.length;
   }
 }

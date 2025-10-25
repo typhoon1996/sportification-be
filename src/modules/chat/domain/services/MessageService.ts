@@ -1,5 +1,6 @@
 import { Chat } from '../models/Chat';
 import { Message } from '../models/Message';
+import { IChat, IMessage } from '../../../../shared/types';
 import { IChatEventPublisher, IMessageService } from '../interfaces';
 
 /**
@@ -37,11 +38,11 @@ export class MessageService implements IMessageService {
    * @returns Created message document
    */
   async sendMessage(
-    chat: Chat,
+    chat: IChat,
     senderId: string,
     content: string,
     eventPublisher: IChatEventPublisher
-  ): Promise<Message> {
+  ): Promise<IMessage> {
     // Create message
     const message = new Message({
       chat: chat.id,
@@ -61,8 +62,8 @@ export class MessageService implements IMessageService {
       senderId,
       content,
       recipientIds: chat.participants
-        .filter((p) => p.toString() !== senderId)
-        .map((p) => p.toString()),
+        .filter((p: any) => p.toString() !== senderId)
+        .map((p: any) => p.toString()),
     });
 
     return message;
@@ -78,7 +79,7 @@ export class MessageService implements IMessageService {
    * @param limit - Maximum number of messages to retrieve (default: 50)
    * @returns Array of message documents with populated sender
    */
-  async getMessages(chatId: string, limit: number = 50): Promise<Message[]> {
+  async getMessages(chatId: string, limit: number = 50): Promise<IMessage[]> {
     const messages = await Message.find({ chat: chatId })
       .populate('sender', 'profile')
       .sort({ createdAt: -1 })
@@ -96,7 +97,7 @@ export class MessageService implements IMessageService {
    * @param chat - Chat document to update
    * @param messageId - ID of the last message
    */
-  async updateLastMessage(chat: Chat, messageId: string): Promise<void> {
+  async updateLastMessage(chat: IChat, messageId: string): Promise<void> {
     chat.lastMessage = messageId as any;
     await chat.save();
   }

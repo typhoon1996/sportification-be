@@ -1,3 +1,4 @@
+import {ITeam} from "../../../../shared/types";
 import { Team } from '../../domain/models/Team';
 import { TeamEventPublisher } from '../../events/publishers/TeamEventPublisher';
 import { NotFoundError } from '../../../../shared/middleware/errorHandler';
@@ -58,9 +59,9 @@ export class TeamService implements ITeamService {
    * - Service swapping for different implementations
    * - Loose coupling between services
    *
-   * @param memberService - Member management service (default: TeamMemberService)
-   * @param validationService - Validation service (default: TeamValidationService)
-   * @param eventPublisher - Event publisher (default: TeamEventPublisher)
+   * @param memberService - Member management service (default: ITeamMemberService)
+   * @param validationService - Validation service (default: ITeamValidationService)
+   * @param eventPublisher - Event publisher (default: ITeamEventPublisher)
    */
   constructor(
     memberService?: ITeamMemberService,
@@ -94,7 +95,7 @@ export class TeamService implements ITeamService {
   async createTeam(
     creatorId: string,
     teamData: ITeamCreationData
-  ): Promise<Team> {
+  ): Promise<ITeam> {
     const team = new Team({
       name: teamData.name,
       sport: teamData.sport,
@@ -139,7 +140,7 @@ export class TeamService implements ITeamService {
    * @example
    * const updatedTeam = await teamService.joinTeam('user456', 'team123');
    */
-  async joinTeam(userId: string, teamId: string): Promise<Team> {
+  async joinTeam(userId: string, teamId: string): Promise<ITeam> {
     const team = await Team.findById(teamId);
 
     if (!team) {
@@ -159,7 +160,7 @@ export class TeamService implements ITeamService {
    * Validates that the user can leave (is member, not captain) and delegates
    * member removal to TeamMemberService.
    *
-   * Business Rule: Team captain must transfer captaincy before leaving or delete the team.
+   * Business Rule: ITeam captain must transfer captaincy before leaving or delete the team.
    *
    * @param userId - User ID of the member leaving
    * @param teamId - Team ID to leave
@@ -213,7 +214,7 @@ export class TeamService implements ITeamService {
     teamId: string,
     userId: string,
     updates: ITeamUpdateData
-  ): Promise<Team> {
+  ): Promise<ITeam> {
     const team = await Team.findById(teamId);
 
     if (!team) {

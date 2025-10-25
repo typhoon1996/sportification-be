@@ -1,5 +1,6 @@
 import { Chat } from '../../domain/models/Chat';
 import { Message } from '../../domain/models/Message';
+import { IChat, IMessage } from '../../../../shared/types';
 import { ChatEventPublisher } from '../../events/publishers/ChatEventPublisher';
 import { NotFoundError } from '../../../../shared/middleware/errorHandler';
 import {
@@ -94,12 +95,12 @@ export class ChatService implements IChatService {
     creatorId: string,
     participantIds: string[],
     type: string = 'group'
-  ): Promise<Chat> {
+  ): Promise<IChat> {
     // Delegate validation (SRP, DIP)
     this.validationService.validateChatCreation({
       creatorId,
       participantIds,
-      type,
+      type: type as 'direct' | 'group',
     });
 
     const chat = new Chat({
@@ -141,7 +142,7 @@ export class ChatService implements IChatService {
     chatId: string,
     senderId: string,
     content: string
-  ): Promise<Message> {
+  ): Promise<IMessage> {
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
@@ -182,7 +183,7 @@ export class ChatService implements IChatService {
     chatId: string,
     userId: string,
     limit: number = 50
-  ): Promise<Message[]> {
+  ): Promise<IMessage[]> {
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
@@ -208,7 +209,7 @@ export class ChatService implements IChatService {
    * @example
    * const userChats = await chatService.getUserChats('user123');
    */
-  async getUserChats(userId: string): Promise<Chat[]> {
+  async getUserChats(userId: string): Promise<IChat[]> {
     const chats = await Chat.find({ participants: userId })
       .populate('participants', 'profile')
       .populate('lastMessage')

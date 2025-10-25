@@ -11,8 +11,7 @@
  * - IChatEventPublisher: Domain event publishing
  */
 
-import { Chat } from '../models/Chat';
-import { Message } from '../models/Message';
+import { IChat, IMessage } from '../../../../shared/types';
 
 /**
  * Chat creation data
@@ -71,21 +70,21 @@ export interface IMessageService {
    * Send a message in a chat
    */
   sendMessage(
-    chat: Chat,
+    chat: IChat,
     senderId: string,
     content: string,
     eventPublisher: IChatEventPublisher
-  ): Promise<Message>;
+  ): Promise<IMessage>;
 
   /**
    * Get messages for a chat with pagination
    */
-  getMessages(chatId: string, limit?: number): Promise<Message[]>;
+  getMessages(chatId: string, limit?: number): Promise<IMessage[]>;
 
   /**
    * Update chat's last message reference
    */
-  updateLastMessage(chat: Chat, messageId: string): Promise<void>;
+  updateLastMessage(chat: IChat, messageId: string): Promise<void>;
 }
 
 /**
@@ -103,7 +102,7 @@ export interface IChatValidationService {
   /**
    * Validate user is participant in chat
    */
-  validateParticipant(chat: Chat, userId: string): void;
+  validateParticipant(chat: IChat, userId: string): void;
 
   /**
    * Validate chat creation data
@@ -136,20 +135,20 @@ export interface IChatService {
     creatorId: string,
     participantIds: string[],
     type?: string
-  ): Promise<Chat>;
+  ): Promise<IChat>;
 
   /**
    * Send a message in a chat
    */
-  sendMessage(chatId: string, senderId: string, content: string): Promise<Message>;
+  sendMessage(chatId: string, senderId: string, content: string): Promise<IMessage>;
 
   /**
    * Get message history for a chat
    */
-  getMessages(chatId: string, userId: string, limit?: number): Promise<Message[]>;
+  getMessages(chatId: string, userId: string, limit?: number): Promise<IMessage[]>;
 
   /**
    * Get all chats for a user
    */
-  getUserChats(userId: string): Promise<Chat[]>;
+  getUserChats(userId: string): Promise<IChat[]>;
 }
