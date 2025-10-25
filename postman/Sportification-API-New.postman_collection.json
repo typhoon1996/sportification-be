@@ -1,0 +1,3005 @@
+{
+  "info": {
+    "name": "Sportification API",
+    "description": "Complete API collection for Sportification Backend with Authentication, Users, Matches, Tournaments, Teams, Venues, Bookings, Chat, Notifications, Analytics, System, API Keys, Security, and Admin Analytics modules",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "name": "14. Admin Analytics",
+      "description": "Advanced analytics endpoints for admin dashboard",
+      "item": [
+        {
+          "name": "Get Platform Usage Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/analytics/platform-usage?from=2025-10-01&to=2025-10-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "analytics", "platform-usage"],
+              "query": [
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-25"}
+              ]
+            },
+            "description": "Get overall platform usage statistics for admins"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Revenue Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/analytics/revenue?from=2025-10-01&to=2025-10-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "analytics", "revenue"],
+              "query": [
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-25"}
+              ]
+            },
+            "description": "Get revenue analytics for the platform"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Growth Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/analytics/user-growth?from=2025-10-01&to=2025-10-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "analytics", "user-growth"],
+              "query": [
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-25"}
+              ]
+            },
+            "description": "Get user growth analytics for the platform"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Booking Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/analytics/bookings?from=2025-10-01&to=2025-10-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "analytics", "bookings"],
+              "query": [
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-25"}
+              ]
+            },
+            "description": "Get booking analytics for all venues"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "13. Security",
+      "description": "Security and access control endpoints",
+      "item": [
+        {
+          "name": "Get Security Policies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/security/policies",
+              "host": ["{{baseUrl}}"],
+              "path": ["security", "policies"]
+            },
+            "description": "Get all security policies for the system"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Security Policy",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policyId\": \"{{policyId}}\",\n  \"rules\": {\n    \"allow\": [\"admin\"],\n    \"deny\": [\"guest\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/security/policies/:policyId",
+              "host": ["{{baseUrl}}"],
+              "path": ["security", "policies", ":policyId"],
+              "variable": [{"key": "policyId", "value": "{{policyId}}"}]
+            },
+            "description": "Update a specific security policy"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Access Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/security/access-logs?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["security", "access-logs"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "20"}
+              ]
+            },
+            "description": "Get access logs for auditing and monitoring"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/security/permissions",
+              "host": ["{{baseUrl}}"],
+              "path": ["security", "permissions"]
+            },
+            "description": "Get permissions for the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Permissions",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"permissions\": [\"admin\", \"manage:teams\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/security/permissions/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["security", "permissions", ":userId"],
+              "variable": [{"key": "userId", "value": "{{userId}}"}]
+            },
+            "description": "Update permissions for a specific user (admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "matchId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tournamentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "teamId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "venueId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "chatId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "apiKeyId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. IAM - Authentication",
+      "description": "Authentication endpoints - Login, Register, Logout, Token Refresh, Password Reset",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.tokens) {",
+                  "        pm.environment.set('accessToken', response.data.tokens.accessToken);",
+                  "        pm.environment.set('refreshToken', response.data.tokens.refreshToken);",
+                  "    }",
+                  "    if (response.data && response.data.user) {",
+                  "        pm.environment.set('userId', response.data.user._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"username\": \"johndoe\",\n  \"profile\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"dateOfBirth\": \"1990-01-15\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account with email, password, and profile information"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.tokens) {",
+                  "        pm.environment.set('accessToken', response.data.tokens.accessToken);",
+                  "        pm.environment.set('refreshToken', response.data.tokens.refreshToken);",
+                  "    }",
+                  "    if (response.data && response.data.user) {",
+                  "        pm.environment.set('userId', response.data.user._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password to receive JWT tokens"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout and invalidate the current session"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.accessToken) {",
+                  "        pm.environment.set('accessToken', response.data.accessToken);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{refreshToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Refresh access token using refresh token"
+          },
+          "response": []
+        },
+        {
+          "name": "Request Password Reset",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            },
+            "description": "Request a password reset email with reset token"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset-token-from-email\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            },
+            "description": "Reset password using token from email"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"verification-token-from-email\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-email"]
+            },
+            "description": "Verify email address using token from email"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02. Users",
+      "description": "User management endpoints - Profile, Friends, Search",
+      "item": [
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            },
+            "description": "Get the authenticated user's profile information"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Current User Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe_updated\",\n  \"profile\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe Updated\",\n    \"bio\": \"Passionate sports enthusiast\",\n    \"location\": \"New York, NY\"\n  },\n  \"sports\": [\"football\", \"basketball\", \"tennis\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            },
+            "description": "Update the authenticated user's profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            },
+            "description": "Get a specific user's public profile by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?search=john&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "john",
+                  "description": "Search term for username, firstName, or lastName"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Search for users by name or username"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Friend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"friendId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/friends",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "friends"]
+            },
+            "description": "Send a friend request to another user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Friends List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/friends?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "friends"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get the authenticated user's friends list"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Friend",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/friends/:friendId",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "friends", ":friendId"],
+              "variable": [
+                {
+                  "key": "friendId",
+                  "value": "{{userId}}"
+                }
+              ]
+            },
+            "description": "Remove a user from friends list"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Matches",
+      "description": "Match management endpoints - Create, Join, Update, Complete matches",
+      "item": [
+        {
+          "name": "Create Match",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.match) {",
+                  "        pm.environment.set('matchId', response.data.match._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sport\": \"football\",\n  \"schedule\": {\n    \"date\": \"2025-10-20\",\n    \"time\": \"18:00\"\n  },\n  \"venue\": \"{{venueId}}\",\n  \"maxParticipants\": 10,\n  \"description\": \"Friendly football match\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/matches",
+              "host": ["{{baseUrl}}"],
+              "path": ["matches"]
+            },
+            "description": "Create a new match with sport, schedule, and venue"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Matches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches?page=1&limit=10&status=upcoming&sport=football",
+              "host": ["{{baseUrl}}"],
+              "path": ["matches"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "upcoming",
+                  "description": "Filter by status: upcoming, ongoing, completed, cancelled"
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "Filter by sport type"
+                }
+              ]
+            },
+            "description": "Get all matches with optional filters for status and sport"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Match By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/:matchId",
+              "host": ["{{baseUrl}}"],
+              "path": ["matches", ":matchId"],
+              "variable": [
+                {
+                  "key": "matchId",
+                  "value": "{{matchId}}"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific match"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Match",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedule\": {\n    \"date\": \"2025-10-25\",\n    \"time\": \"19:00\"\n  },\n  \"maxParticipants\": 12,\n  \"status\": \"upcoming\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/matches/:matchId",
+              "host": ["{{baseUrl}}"],
+              "path": ["matches", ":matchId"],
+              "variable": [
+                {
+                  "key": "matchId",
+                  "value": "{{matchId}}"
+                }
+              ]
+            },
+            "description": "Update match details (only match creator can update)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Match",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/:matchId",
+              "host": ["{{baseUrl}}"],
+              "path": ["matches", ":matchId"],
+              "variable": [
+                {
+                  "key": "matchId",
+                  "value": "{{matchId}}"
+                }
+              ]
+            },
+            "description": "Delete a match (only match creator or admin can delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Join Match",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/:matchId/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["matches", ":matchId", "join"],
+              "variable": [
+                {
+                  "key": "matchId",
+                  "value": "{{matchId}}"
+                }
+              ]
+            },
+            "description": "Join an upcoming match as a participant"
+          },
+          "response": []
+        },
+        {
+          "name": "Leave Match",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/:matchId/leave",
+              "host": ["{{baseUrl}}"],
+              "path": ["matches", ":matchId", "leave"],
+              "variable": [
+                {
+                  "key": "matchId",
+                  "value": "{{matchId}}"
+                }
+              ]
+            },
+            "description": "Leave a match you have joined"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Match Score",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": {\n    \"team1\": 3,\n    \"team2\": 2\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/matches/:matchId/score",
+              "host": ["{{baseUrl}}"],
+              "path": ["matches", ":matchId", "score"],
+              "variable": [
+                {
+                  "key": "matchId",
+                  "value": "{{matchId}}"
+                }
+              ]
+            },
+            "description": "Update the score for an ongoing or completed match"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04. Tournaments",
+      "description": "Tournament management endpoints - Create, Join, Bracket management",
+      "item": [
+        {
+          "name": "Create Tournament",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.tournament) {",
+                  "        pm.environment.set('tournamentId', response.data.tournament._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Summer Championship 2025\",\n  \"description\": \"Annual summer football championship\",\n  \"sport\": \"football\",\n  \"maxParticipants\": 16,\n  \"startDate\": \"2025-06-15T10:00:00Z\",\n  \"venue\": \"{{venueId}}\",\n  \"prizePool\": 5000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tournaments",
+              "host": ["{{baseUrl}}"],
+              "path": ["tournaments"]
+            },
+            "description": "Create a new tournament with bracket structure"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Tournaments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments?page=1&limit=10&status=upcoming&sport=football",
+              "host": ["{{baseUrl}}"],
+              "path": ["tournaments"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "upcoming",
+                  "description": "Filter by status: upcoming, ongoing, completed, cancelled"
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "Filter by sport type"
+                }
+              ]
+            },
+            "description": "Get all tournaments with optional filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tournament By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/:tournamentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["tournaments", ":tournamentId"],
+              "variable": [
+                {
+                  "key": "tournamentId",
+                  "value": "{{tournamentId}}"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific tournament including bracket"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Tournament",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Summer Championship 2025 - Updated\",\n  \"description\": \"Updated tournament description\",\n  \"status\": \"ongoing\",\n  \"prizePool\": 7500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/:tournamentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["tournaments", ":tournamentId"],
+              "variable": [
+                {
+                  "key": "tournamentId",
+                  "value": "{{tournamentId}}"
+                }
+              ]
+            },
+            "description": "Update tournament details (only organizer can update)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Tournament",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/:tournamentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["tournaments", ":tournamentId"],
+              "variable": [
+                {
+                  "key": "tournamentId",
+                  "value": "{{tournamentId}}"
+                }
+              ]
+            },
+            "description": "Delete a tournament (only organizer or admin can delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Join Tournament",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/:tournamentId/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["tournaments", ":tournamentId", "join"],
+              "variable": [
+                {
+                  "key": "tournamentId",
+                  "value": "{{tournamentId}}"
+                }
+              ]
+            },
+            "description": "Register to participate in a tournament"
+          },
+          "response": []
+        },
+        {
+          "name": "Leave Tournament",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/:tournamentId/leave",
+              "host": ["{{baseUrl}}"],
+              "path": ["tournaments", ":tournamentId", "leave"],
+              "variable": [
+                {
+                  "key": "tournamentId",
+                  "value": "{{tournamentId}}"
+                }
+              ]
+            },
+            "description": "Withdraw from a tournament before it starts"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tournament Bracket",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/:tournamentId/bracket",
+              "host": ["{{baseUrl}}"],
+              "path": ["tournaments", ":tournamentId", "bracket"],
+              "variable": [
+                {
+                  "key": "tournamentId",
+                  "value": "{{tournamentId}}"
+                }
+              ]
+            },
+            "description": "Get the tournament bracket with all matches and progression"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05. Teams",
+      "description": "Team management endpoints - Create, Join, Manage members",
+      "item": [
+        {
+          "name": "Create Team",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.team) {",
+                  "        pm.environment.set('teamId', response.data.team._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Thunder Strikers\",\n  \"description\": \"Competitive football team\",\n  \"sport\": \"football\",\n  \"maxMembers\": 20,\n  \"isPrivate\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": ["{{baseUrl}}"],
+              "path": ["teams"]
+            },
+            "description": "Create a new team (creator becomes captain)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Teams",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams?page=1&limit=10&sport=football",
+              "host": ["{{baseUrl}}"],
+              "path": ["teams"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "Filter by sport type"
+                }
+              ]
+            },
+            "description": "Get all teams with optional sport filter"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Team By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/:teamId",
+              "host": ["{{baseUrl}}"],
+              "path": ["teams", ":teamId"],
+              "variable": [
+                {
+                  "key": "teamId",
+                  "value": "{{teamId}}"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific team"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Team",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Thunder Strikers - Updated\",\n  \"description\": \"Updated team description\",\n  \"maxMembers\": 25,\n  \"isPrivate\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams/:teamId",
+              "host": ["{{baseUrl}}"],
+              "path": ["teams", ":teamId"],
+              "variable": [
+                {
+                  "key": "teamId",
+                  "value": "{{teamId}}"
+                }
+              ]
+            },
+            "description": "Update team details (only captain can update)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Team",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/:teamId",
+              "host": ["{{baseUrl}}"],
+              "path": ["teams", ":teamId"],
+              "variable": [
+                {
+                  "key": "teamId",
+                  "value": "{{teamId}}"
+                }
+              ]
+            },
+            "description": "Delete a team (only captain or admin can delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Join Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/:teamId/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["teams", ":teamId", "join"],
+              "variable": [
+                {
+                  "key": "teamId",
+                  "value": "{{teamId}}"
+                }
+              ]
+            },
+            "description": "Request to join a team"
+          },
+          "response": []
+        },
+        {
+          "name": "Leave Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/:teamId/leave",
+              "host": ["{{baseUrl}}"],
+              "path": ["teams", ":teamId", "leave"],
+              "variable": [
+                {
+                  "key": "teamId",
+                  "value": "{{teamId}}"
+                }
+              ]
+            },
+            "description": "Leave a team you are a member of"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06. Venues",
+      "description": "Venue management endpoints - Create, Search, Manage venues",
+      "item": [
+        {
+          "name": "Create Venue",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.venue) {",
+                  "        pm.environment.set('venueId', response.data.venue._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"City Sports Complex\",\n  \"description\": \"Modern indoor/outdoor sports facility\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [-73.935242, 40.730610],\n    \"address\": \"123 Main St, New York, NY 10001\"\n  },\n  \"sports\": [\"football\", \"basketball\", \"tennis\"],\n  \"facilities\": [\"parking\", \"lockers\", \"showers\"],\n  \"pricing\": {\n    \"hourly\": 50,\n    \"daily\": 300\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/venues",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues"]
+            },
+            "description": "Create a new venue with location and facilities"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Venues",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues?page=1&limit=10&sport=football",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "Filter by sport"
+                }
+              ]
+            },
+            "description": "Get all venues with optional filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Venue By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific venue"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Venue",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"City Sports Complex - Updated\",\n  \"description\": \"Updated venue description\",\n  \"pricing\": {\n    \"hourly\": 60,\n    \"daily\": 350\n  },\n  \"facilities\": [\"parking\", \"lockers\", \"showers\", \"wifi\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                }
+              ]
+            },
+            "description": "Update venue details (only venue owner or admin can update)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Venue",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                }
+              ]
+            },
+            "description": "Delete a venue (only venue owner or admin can delete)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07. Venue Bookings",
+      "description": "Venue booking management - Create, Manage, Check-in, Payment",
+      "item": [
+        {
+          "name": "Create Booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.booking) {",
+                  "        pm.environment.set('bookingId', response.data.booking._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"venueId\": \"{{venueId}}\",\n  \"startTime\": \"2025-10-20T14:00:00Z\",\n  \"endTime\": \"2025-10-20T16:00:00Z\",\n  \"purpose\": \"Team practice\",\n  \"notes\": \"Need extra equipment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId", "bookings"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                }
+              ]
+            },
+            "description": "Create a new venue booking for a specific time slot"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings?page=1&limit=10&status=confirmed",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId", "bookings"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                }
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "confirmed",
+                  "description": "Filter by status: pending, confirmed, checked-in, completed, cancelled, no-show"
+                }
+              ]
+            },
+            "description": "Get all bookings for a venue"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/my-bookings?page=1&limit=10&status=confirmed",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "my-bookings"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "confirmed",
+                  "description": "Filter by status"
+                }
+              ]
+            },
+            "description": "Get all bookings for the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Booking By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId", "bookings", ":bookingId"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\",\n  \"notes\": \"Updated booking notes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId", "bookings", ":bookingId"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Update booking details"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "venues",
+                ":venueId",
+                "bookings",
+                ":bookingId",
+                "cancel"
+              ],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Cancel a booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Check-In Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/checkin",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "venues",
+                ":venueId",
+                "bookings",
+                ":bookingId",
+                "checkin"
+              ],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Check-in to a confirmed booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/complete",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "venues",
+                ":venueId",
+                "bookings",
+                ":bookingId",
+                "complete"
+              ],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Mark a booking as completed"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Availability",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/availability?date=2025-10-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId", "bookings", "availability"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                }
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-10-20",
+                  "description": "Date to check availability (YYYY-MM-DD)"
+                }
+              ]
+            },
+            "description": "Check venue availability for a specific date"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Booking Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId", "bookings", "stats"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                }
+              ]
+            },
+            "description": "Get booking statistics for a venue"
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Promo Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"promoCode\": \"SUMMER2025\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/promo",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId", "bookings", ":bookingId", "promo"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Apply a promo code to a booking for discount"
+          },
+          "response": []
+        },
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"card\",\n  \"amount\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/payment",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "venues",
+                ":venueId",
+                "bookings",
+                ":bookingId",
+                "payment"
+              ],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Process payment for a booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment Receipt",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/receipt",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "venues",
+                ":venueId",
+                "bookings",
+                ":bookingId",
+                "receipt"
+              ],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Get payment receipt for a booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Request Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Venue not available\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId/refund",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "venues",
+                ":venueId",
+                "bookings",
+                ":bookingId",
+                "refund"
+              ],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Request a refund for a cancelled booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Booking",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/venues/:venueId/bookings/:bookingId",
+              "host": ["{{baseUrl}}"],
+              "path": ["venues", ":venueId", "bookings", ":bookingId"],
+              "variable": [
+                {
+                  "key": "venueId",
+                  "value": "{{venueId}}"
+                },
+                {
+                  "key": "bookingId",
+                  "value": "{{bookingId}}"
+                }
+              ]
+            },
+            "description": "Delete a booking (admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08. Chat",
+      "description": "Real-time chat and messaging functionality",
+      "item": [
+        {
+          "name": "Create Chat Room",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.room) {",
+                  "        pm.environment.set('chatRoomId', response.data.room._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Team Discussion\",\n  \"type\": \"group\",\n  \"participants\": [\"{{userId1}}\", \"{{userId2}}\"],\n  \"description\": \"Team chat for match coordination\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms"]
+            },
+            "description": "Create a new chat room (1-1 or group)"
+          },
+          "response": []
+        },
+        {
+          "name": "List Chat Rooms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms?page=1&limit=20&type=all",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "type",
+                  "value": "all",
+                  "description": "Filter by type: all, direct, group"
+                }
+              ]
+            },
+            "description": "Get list of chat rooms for the user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Room Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms/:roomId",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms", ":roomId"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "{{chatRoomId}}"
+                }
+              ]
+            },
+            "description": "Get detailed information about a chat room"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello team!\",\n  \"type\": \"text\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms/:roomId/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms", ":roomId", "messages"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "{{chatRoomId}}"
+                }
+              ]
+            },
+            "description": "Send a new message to a chat room"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms/:roomId/messages?page=1&limit=50&before=2025-10-25T00:00:00Z",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms", ":roomId", "messages"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "{{chatRoomId}}"
+                }
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "before",
+                  "value": "2025-10-25T00:00:00Z",
+                  "description": "Get messages before this timestamp"
+                }
+              ]
+            },
+            "description": "Get messages from a chat room with pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Room",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Team Chat\",\n  \"description\": \"Updated chat description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms/:roomId",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms", ":roomId"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "{{chatRoomId}}"
+                }
+              ]
+            },
+            "description": "Update chat room details"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Participants",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participants\": [\"{{userId3}}\", \"{{userId4}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms/:roomId/participants",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms", ":roomId", "participants"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "{{chatRoomId}}"
+                }
+              ]
+            },
+            "description": "Add new participants to a group chat"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Participant",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms/:roomId/participants/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms", ":roomId", "participants", ":userId"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "{{chatRoomId}}"
+                },
+                {
+                  "key": "userId",
+                  "value": "{{userId3}}"
+                }
+              ]
+            },
+            "description": "Remove a participant from a group chat"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Message",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms/:roomId/messages/:messageId",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms", ":roomId", "messages", ":messageId"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "{{chatRoomId}}"
+                },
+                {
+                  "key": "messageId",
+                  "value": "{{messageId}}"
+                }
+              ]
+            },
+            "description": "Delete a message from the chat room"
+          },
+          "response": []
+        },
+        {
+          "name": "Leave Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chat/rooms/:roomId/leave",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat", "rooms", ":roomId", "leave"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "{{chatRoomId}}"
+                }
+              ]
+            },
+            "description": "Leave a chat room"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09. Notifications",
+      "description": "Push notifications and in-app messaging system",
+      "item": [
+        {
+          "name": "Get All Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?page=1&limit=20&type=all",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "type",
+                  "value": "all",
+                  "description": "Filter by type: all, match, team, venue, system"
+                }
+              ]
+            },
+            "description": "Get all notifications for the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/unread-count",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "unread-count"]
+            },
+            "description": "Get count of unread notifications"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Notification By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:notificationId",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", ":notificationId"],
+              "variable": [
+                {
+                  "key": "notificationId",
+                  "value": "{{notificationId}}"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific notification"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark As Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:notificationId/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", ":notificationId", "read"],
+              "variable": [
+                {
+                  "key": "notificationId",
+                  "value": "{{notificationId}}"
+                }
+              ]
+            },
+            "description": "Mark a notification as read"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All As Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/mark-all-read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "mark-all-read"]
+            },
+            "description": "Mark all notifications as read"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Notification Settings",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": true,\n  \"push\": true,\n  \"sms\": false,\n  \"types\": {\n    \"match\": true,\n    \"team\": true,\n    \"venue\": true,\n    \"system\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "settings"]
+            },
+            "description": "Update notification preferences"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Notification Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "settings"]
+            },
+            "description": "Get current notification settings"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:notificationId",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", ":notificationId"],
+              "variable": [
+                {
+                  "key": "notificationId",
+                  "value": "{{notificationId}}"
+                }
+              ]
+            },
+            "description": "Delete a specific notification"
+          },
+          "response": []
+        },
+        {
+          "name": "Clear All Notifications",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/clear-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "clear-all"]
+            },
+            "description": "Delete all notifications for the user"
+          },
+          "response": []
+        },
+        {
+          "name": "Register Device Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"device-token-here\",\n  \"platform\": \"ios\",\n  \"deviceId\": \"unique-device-id\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/device",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "device"]
+            },
+            "description": "Register a device for push notifications"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Analytics",
+      "description": "User, match, venue, and system analytics endpoints",
+      "item": [
+        {
+          "name": "Get User Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/users?from=2025-10-01&to=2025-10-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "users"],
+              "query": [
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-25"}
+              ]
+            },
+            "description": "Get analytics for user activity in a date range"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Match Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/matches?from=2025-10-01&to=2025-10-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "matches"],
+              "query": [
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-25"}
+              ]
+            },
+            "description": "Get analytics for matches in a date range"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Venue Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/venues?from=2025-10-01&to=2025-10-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "venues"],
+              "query": [
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-25"}
+              ]
+            },
+            "description": "Get analytics for venues in a date range"
+          },
+          "response": []
+        },
+        {
+          "name": "Get System Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/system?from=2025-10-01&to=2025-10-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "system"],
+              "query": [
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-25"}
+              ]
+            },
+            "description": "Get system-wide analytics in a date range"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "11. System",
+      "description": "System health, status, and configuration endpoints",
+      "item": [
+        {
+          "name": "Get System Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/system/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["system", "health"]
+            },
+            "description": "Get overall system health status"
+          },
+          "response": []
+        },
+        {
+          "name": "Get System Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/system/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["system", "status"]
+            },
+            "description": "Get current system status and uptime"
+          },
+          "response": []
+        },
+        {
+          "name": "Get System Config",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/system/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["system", "config"]
+            },
+            "description": "Get system configuration details (admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "12. API Keys",
+      "description": "API key management endpoints for user and admin",
+      "item": [
+        {
+          "name": "Create API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Integration Key\",\n  \"scopes\": [\"read\", \"write\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/apikeys",
+              "host": ["{{baseUrl}}"],
+              "path": ["apikeys"]
+            },
+            "description": "Create a new API key for integrations"
+          },
+          "response": []
+        },
+        {
+          "name": "List API Keys",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/apikeys?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["apikeys"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"}
+              ]
+            },
+            "description": "Get list of API keys for the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get API Key By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/apikeys/:apiKeyId",
+              "host": ["{{baseUrl}}"],
+              "path": ["apikeys", ":apiKeyId"],
+              "variable": [{"key": "apiKeyId", "value": "{{apiKeyId}}"}]
+            },
+            "description": "Get details of a specific API key"
+          },
+          "response": []
+        },
+        {
+          "name": "Update API Key",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Key Name\",\n  \"scopes\": [\"read\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/apikeys/:apiKeyId",
+              "host": ["{{baseUrl}}"],
+              "path": ["apikeys", ":apiKeyId"],
+              "variable": [{"key": "apiKeyId", "value": "{{apiKeyId}}"}]
+            },
+            "description": "Update API key details"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete API Key",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/apikeys/:apiKeyId",
+              "host": ["{{baseUrl}}"],
+              "path": ["apikeys", ":apiKeyId"],
+              "variable": [{"key": "apiKeyId", "value": "{{apiKeyId}}"}]
+            },
+            "description": "Delete an API key"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
