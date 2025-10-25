@@ -1,3 +1,4 @@
+import {ITeam} from "../../../../shared/types";
 import { Team } from '../models/Team';
 import { ValidationError, ConflictError } from '../../../../shared/middleware/errorHandler';
 import { ITeamValidationService, ITeamUpdateData } from '../interfaces';
@@ -36,9 +37,9 @@ export class TeamValidationService implements ITeamValidationService {
    * @throws {ConflictError} If user is already a member
    * @throws {ConflictError} If team is at maximum capacity
    */
-  validateCanJoin(team: Team, userId: string): void {
+  validateCanJoin(team: ITeam, userId: string): void {
     // Check if already a member
-    if (team.members.some((m) => m.toString() === userId)) {
+    if (team.members.some((m: any) => m.toString() === userId)) {
       throw new ConflictError('Already a member of this team');
     }
 
@@ -60,9 +61,9 @@ export class TeamValidationService implements ITeamValidationService {
    * @throws {ConflictError} If user is not a member
    * @throws {ConflictError} If user is the captain
    */
-  validateCanLeave(team: Team, userId: string): void {
+  validateCanLeave(team: ITeam, userId: string): void {
     // Check if member
-    if (!team.members.some((m) => m.toString() === userId)) {
+    if (!team.members.some((m: any) => m.toString() === userId)) {
       throw new ConflictError('Not a member of this team');
     }
 
@@ -81,7 +82,7 @@ export class TeamValidationService implements ITeamValidationService {
    * @param userId - User ID to verify as captain
    * @throws {ValidationError} If user is not the team captain
    */
-  validateIsCaptain(team: Team, userId: string): void {
+  validateIsCaptain(team: ITeam, userId: string): void {
     if (team.captain.toString() !== userId) {
       throw new ValidationError('Only team captain can perform this action');
     }

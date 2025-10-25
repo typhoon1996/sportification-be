@@ -161,4 +161,34 @@ export class NotificationService {
 
     return count;
   }
+
+  /**
+   * Delete a specific notification
+   * 
+   * Permanently removes a notification from the database.
+   * Validates that the notification belongs to the user before deletion.
+   * Returns null if notification not found or doesn't belong to user.
+   * 
+   * @async
+   * @param {string} notificationId - Notification ID to delete
+   * @param {string} userId - User ID (for authorization check)
+   * @returns {Promise<Notification | null>} Deleted notification or null if not found
+   * 
+   * @example
+   * const deleted = await notificationService.deleteNotification(notificationId, userId);
+   */
+  async deleteNotification(notificationId: string, userId: string) {
+    const notification = await Notification.findOneAndDelete({
+      _id: notificationId,
+      user: userId,
+    });
+
+    if (notification) {
+      logger.info(`Notification deleted for user: ${userId}`, {
+        notificationId: notification.id,
+      });
+    }
+
+    return notification;
+  }
 }

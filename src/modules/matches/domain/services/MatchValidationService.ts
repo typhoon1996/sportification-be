@@ -9,6 +9,7 @@
  */
 
 import {Match} from "../models/Match";
+import {IMatch} from "../../../../shared/types";
 import {IMatchValidationService} from "../interfaces";
 import {
   ValidationError,
@@ -44,7 +45,7 @@ export class MatchValidationService implements IMatchValidationService {
    * @param userId - User attempting to join
    * @throws {ConflictError} If validation fails
    */
-  validateCanJoin(match: Match, userId: string): void {
+  validateCanJoin(match: IMatch, userId: string): void {
     // Check match status
     if (match.status !== MatchStatus.UPCOMING) {
       throw new ConflictError("Can only join upcoming matches");
@@ -59,7 +60,7 @@ export class MatchValidationService implements IMatchValidationService {
     }
 
     // Check capacity
-    if (match.participants.length >= match.maxParticipants) {
+    if ((match as any).maxParticipants && match.participants.length >= (match as any).maxParticipants) {
       throw new ConflictError("Match is already full");
     }
   }
@@ -76,7 +77,7 @@ export class MatchValidationService implements IMatchValidationService {
    * @param userId - User attempting to leave
    * @throws {ConflictError} If validation fails
    */
-  validateCanLeave(match: Match, userId: string): void {
+  validateCanLeave(match: IMatch, userId: string): void {
     // Check if participating
     const isParticipating = match.participants.some(
       (p: any) => p.toString() === userId || p._id?.toString() === userId
