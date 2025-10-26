@@ -82,7 +82,6 @@ interface Config {
     url: string;
     maxRetriesPerRequest: number;
     enableReadyCheck: boolean;
-    tls?: Record<string, unknown>;
   };
   session: {
     secret: string;
@@ -214,7 +213,6 @@ const config: Config = {
     url: process.env.REDIS_URL || "redis://localhost:6379",
     maxRetriesPerRequest: parseInt(process.env.REDIS_MAX_RETRIES || "3", 10),
     enableReadyCheck: process.env.REDIS_ENABLE_READY_CHECK !== "false",
-    tls: {}, // required for some managed Redis services like AWS ElastiCache
   },
   session: {
     secret:
