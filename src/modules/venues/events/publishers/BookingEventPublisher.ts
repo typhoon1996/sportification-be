@@ -2,8 +2,8 @@
  * Booking Event Publisher - Publishes booking-related domain events
  */
 
-import { eventBus } from '../../../../shared/events/EventBus';
-import logger from '../../../../shared/infrastructure/logging';
+import {eventBus} from "../../../../shared/events/EventBus";
+import logger from "../../../../shared/infrastructure/logging";
 
 export interface BookingCreatedEvent {
   bookingId: string;
@@ -57,9 +57,9 @@ export class BookingEventPublisher {
   publishBookingCreated(payload: BookingCreatedEvent): void {
     try {
       eventBus.publish({
-        eventType: 'venues.booking.created',
+        eventType: "venues.booking.created",
         aggregateId: payload.bookingId,
-        aggregateType: 'Booking',
+        aggregateType: "Booking",
         timestamp: new Date(),
         payload,
         metadata: {
@@ -67,11 +67,11 @@ export class BookingEventPublisher {
         },
       });
 
-      logger.info('Published booking created event', {
+      logger.info("Published booking created event", {
         bookingId: payload.bookingId,
       });
     } catch (error) {
-      logger.error('Failed to publish booking created event', { error, payload });
+      logger.error("Failed to publish booking created event", {error, payload});
     }
   }
 
@@ -81,9 +81,9 @@ export class BookingEventPublisher {
   publishBookingUpdated(payload: BookingUpdatedEvent): void {
     try {
       eventBus.publish({
-        eventType: 'venues.booking.updated',
+        eventType: "venues.booking.updated",
         aggregateId: payload.bookingId,
-        aggregateType: 'Booking',
+        aggregateType: "Booking",
         timestamp: new Date(),
         payload,
         metadata: {
@@ -91,11 +91,11 @@ export class BookingEventPublisher {
         },
       });
 
-      logger.info('Published booking updated event', {
+      logger.info("Published booking updated event", {
         bookingId: payload.bookingId,
       });
     } catch (error) {
-      logger.error('Failed to publish booking updated event', { error, payload });
+      logger.error("Failed to publish booking updated event", {error, payload});
     }
   }
 
@@ -105,9 +105,9 @@ export class BookingEventPublisher {
   publishBookingCancelled(payload: BookingCancelledEvent): void {
     try {
       eventBus.publish({
-        eventType: 'venues.booking.cancelled',
+        eventType: "venues.booking.cancelled",
         aggregateId: payload.bookingId,
-        aggregateType: 'Booking',
+        aggregateType: "Booking",
         timestamp: new Date(),
         payload,
         metadata: {
@@ -115,12 +115,15 @@ export class BookingEventPublisher {
         },
       });
 
-      logger.info('Published booking cancelled event', {
+      logger.info("Published booking cancelled event", {
         bookingId: payload.bookingId,
         refundAmount: payload.refundAmount,
       });
     } catch (error) {
-      logger.error('Failed to publish booking cancelled event', { error, payload });
+      logger.error("Failed to publish booking cancelled event", {
+        error,
+        payload,
+      });
     }
   }
 
@@ -130,20 +133,23 @@ export class BookingEventPublisher {
   publishPaymentConfirmed(payload: PaymentConfirmedEvent): void {
     try {
       eventBus.publish({
-        eventType: 'venues.booking.payment.confirmed',
+        eventType: "venues.booking.payment.confirmed",
         aggregateId: payload.bookingId,
-        aggregateType: 'Booking',
+        aggregateType: "Booking",
         timestamp: new Date(),
         payload,
         metadata: {},
       });
 
-      logger.info('Published payment confirmed event', {
+      logger.info("Published payment confirmed event", {
         bookingId: payload.bookingId,
         transactionId: payload.transactionId,
       });
     } catch (error) {
-      logger.error('Failed to publish payment confirmed event', { error, payload });
+      logger.error("Failed to publish payment confirmed event", {
+        error,
+        payload,
+      });
     }
   }
 
@@ -153,9 +159,9 @@ export class BookingEventPublisher {
   publishBookingCheckedIn(payload: BookingCheckedInEvent): void {
     try {
       eventBus.publish({
-        eventType: 'venues.booking.checkedIn',
+        eventType: "venues.booking.checkedIn",
         aggregateId: payload.bookingId,
-        aggregateType: 'Booking',
+        aggregateType: "Booking",
         timestamp: new Date(),
         payload,
         metadata: {
@@ -163,11 +169,14 @@ export class BookingEventPublisher {
         },
       });
 
-      logger.info('Published booking checked in event', {
+      logger.info("Published booking checked in event", {
         bookingId: payload.bookingId,
       });
     } catch (error) {
-      logger.error('Failed to publish booking checked in event', { error, payload });
+      logger.error("Failed to publish booking checked in event", {
+        error,
+        payload,
+      });
     }
   }
 
@@ -177,9 +186,9 @@ export class BookingEventPublisher {
   publishBookingCompleted(payload: BookingCompletedEvent): void {
     try {
       eventBus.publish({
-        eventType: 'venues.booking.completed',
+        eventType: "venues.booking.completed",
         aggregateId: payload.bookingId,
-        aggregateType: 'Booking',
+        aggregateType: "Booking",
         timestamp: new Date(),
         payload,
         metadata: {
@@ -187,11 +196,14 @@ export class BookingEventPublisher {
         },
       });
 
-      logger.info('Published booking completed event', {
+      logger.info("Published booking completed event", {
         bookingId: payload.bookingId,
       });
     } catch (error) {
-      logger.error('Failed to publish booking completed event', { error, payload });
+      logger.error("Failed to publish booking completed event", {
+        error,
+        payload,
+      });
     }
   }
 
@@ -201,9 +213,9 @@ export class BookingEventPublisher {
   publishBookingNoShow(payload: BookingNoShowEvent): void {
     try {
       eventBus.publish({
-        eventType: 'venues.booking.noShow',
+        eventType: "venues.booking.noShow",
         aggregateId: payload.bookingId,
-        aggregateType: 'Booking',
+        aggregateType: "Booking",
         timestamp: new Date(),
         payload,
         metadata: {
@@ -211,11 +223,11 @@ export class BookingEventPublisher {
         },
       });
 
-      logger.info('Published booking no-show event', {
+      logger.info("Published booking no-show event", {
         bookingId: payload.bookingId,
       });
     } catch (error) {
-      logger.error('Failed to publish booking no-show event', { error, payload });
+      logger.error("Failed to publish booking no-show event", {error, payload});
     }
   }
 }

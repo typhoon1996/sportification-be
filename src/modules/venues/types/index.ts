@@ -2,37 +2,37 @@
  * Venue Module Type Definitions
  */
 
-import { Types, Document } from 'mongoose';
+import {Types, Document} from "mongoose";
 
 // Booking Status
 export enum BookingStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  CHECKED_IN = 'checked_in',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
-  NO_SHOW = 'no_show',
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  CHECKED_IN = "checked_in",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
+  NO_SHOW = "no_show",
 }
 
 // Booking Type
 export enum BookingType {
-  HOURLY = 'hourly',
-  DAILY = 'daily',
-  RECURRING = 'recurring',
+  HOURLY = "hourly",
+  DAILY = "daily",
+  RECURRING = "recurring",
 }
 
 // Pricing Type
 export enum PricingType {
-  STANDARD = 'standard',
-  PEAK = 'peak',
-  OFF_PEAK = 'off_peak',
+  STANDARD = "standard",
+  PEAK = "peak",
+  OFF_PEAK = "off_peak",
 }
 
 // Refund Policy
 export enum RefundPolicy {
-  FULL = 'full',
-  PARTIAL = 'partial',
-  NO_REFUND = 'no_refund',
+  FULL = "full",
+  PARTIAL = "partial",
+  NO_REFUND = "no_refund",
 }
 
 // Booking Interface
@@ -49,7 +49,7 @@ export interface IBooking extends Document {
   totalPrice: number;
   pricingType: PricingType;
   appliedPromoCodes: string[];
-  paymentStatus: 'pending' | 'paid' | 'refunded' | 'partially_refunded';
+  paymentStatus: "pending" | "paid" | "refunded" | "partially_refunded";
   paymentMethod?: string;
   transactionId?: string;
   checkInTime?: Date;
@@ -73,7 +73,7 @@ export interface IBooking extends Document {
 export interface IPromoCode extends Document {
   code: string;
   description: string;
-  discountType: 'percentage' | 'fixed';
+  discountType: "percentage" | "fixed";
   discountValue: number;
   minBookingAmount?: number;
   maxDiscountAmount?: number;

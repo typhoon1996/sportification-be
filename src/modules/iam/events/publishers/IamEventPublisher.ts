@@ -1,4 +1,4 @@
-import { eventBus } from "../../../../shared/events/EventBus";
+import {eventBus} from "../../../../shared/events/EventBus";
 
 // Event type constants
 export const UserRegisteredEvent = "iam.user.registered";

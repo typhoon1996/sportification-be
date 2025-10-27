@@ -1,6 +1,5 @@
+import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
 import {User} from "../../../users/domain/models/User";
-import {ProfileService} from "./ProfileService";
-import {FriendService} from "./FriendService";
 import {UserEventPublisher} from "../../events/publishers/UserEventPublisher";
 import {
   IUserService,
@@ -11,7 +10,8 @@ import {
   IProfileUpdate,
   ISearchResult,
 } from "../interfaces";
-import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
+import {FriendService} from "./FriendService";
+import {ProfileService} from "./ProfileService";
 
 /**
  * User Service - Business Logic for User Management (Refactored)
@@ -56,7 +56,7 @@ export class UserService implements IUserService {
    *
    * @async
    * @param {string} userId - ID of the user to retrieve
-   * @returns {Promise<IUserData>} User object with populated profile
+   * @return {Promise<IUserData>} User object with populated profile
    * @throws {AuthenticationError} If user not found
    */
   async getUserById(userId: string): Promise<IUserData> {
@@ -71,7 +71,7 @@ export class UserService implements IUserService {
    * @async
    * @param {string} userId - ID of the user to update
    * @param {IProfileUpdate} updates - Object containing fields to update
-   * @returns {Promise<IUserData>} Updated user with populated profile
+   * @return {Promise<IUserData>} Updated user with populated profile
    * @throws {AuthenticationError} If user not found
    */
   async updateProfile(
@@ -88,7 +88,7 @@ export class UserService implements IUserService {
    *
    * @param {string} userId - User ID
    * @param {string} friendId - Friend ID to add
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    */
   async addFriend(
     userId: string,
@@ -104,7 +104,7 @@ export class UserService implements IUserService {
    *
    * @param {string} userId - User ID
    * @param {string} friendId - Friend ID to remove
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    */
   async removeFriend(
     userId: string,
@@ -119,7 +119,7 @@ export class UserService implements IUserService {
    * Delegates to FriendService for friend retrieval.
    *
    * @param {string} userId - User ID
-   * @returns {Promise<any[]>} List of friends
+   * @return {Promise<any[]>} List of friends
    */
   async getFriends(userId: string): Promise<any[]> {
     return this.friendService.getFriends(userId);
@@ -147,7 +147,7 @@ export class UserService implements IUserService {
    * @param {string} query - Search query
    * @param {number} limit - Max results (default: 20)
    * @param {number} offset - Pagination offset (default: 0)
-   * @returns {Promise<ISearchResult>} Search results
+   * @return {Promise<ISearchResult>} Search results
    */
   async searchUsers(
     query: string,
@@ -179,7 +179,7 @@ export class UserService implements IUserService {
    * Get user statistics
    *
    * @param {string} userId - User ID
-   * @returns {Promise<any>} User stats
+   * @return {Promise<any>} User stats
    * @throws {AuthenticationError} If user not found
    */
   async getUserStats(userId: string): Promise<any> {
@@ -200,7 +200,7 @@ export class UserService implements IUserService {
    *
    * @param {string} userId - User ID
    * @param {any} statsUpdate - Stats to update
-   * @returns {Promise<any>} Updated stats
+   * @return {Promise<any>} Updated stats
    * @throws {AuthenticationError} If user not found
    */
   async updateUserStats(userId: string, statsUpdate: any): Promise<any> {
@@ -230,7 +230,7 @@ export class UserService implements IUserService {
    * Deactivate user account
    *
    * @param {string} userId - User ID
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    * @throws {AuthenticationError} If user not found
    */
   async deactivateUser(userId: string): Promise<{success: boolean}> {
@@ -250,7 +250,7 @@ export class UserService implements IUserService {
    * Reactivate user account
    *
    * @param {string} userId - User ID
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    * @throws {AuthenticationError} If user not found
    */
   async reactivateUser(userId: string): Promise<{success: boolean}> {

@@ -1,60 +1,54 @@
 import {Server} from "http";
-
 import RedisStore from "connect-redis";
 import cors from "cors";
 import express from "express";
 import session from "express-session";
 import {Server as SocketIOServer} from "socket.io";
 import swaggerUi from "swagger-ui-express";
-
+import swaggerSpecs from "./docs/swagger";
+import {analyticsModule} from "./modules/analytics";
+import adminRoutes from "./modules/analytics/api/routes/admin";
+import {chatModule} from "./modules/chat";
+import {iamModule} from "./modules/iam";
+import apiKeyRoutes from "./modules/iam/api/routes/apiKeys";
+import securityRoutes from "./modules/iam/api/routes/security";
+import {matchesModule} from "./modules/matches";
+import {notificationsModule} from "./modules/notifications";
+import {teamsModule} from "./modules/teams";
+import {tournamentsModule} from "./modules/tournaments";
+import {usersModule} from "./modules/users";
+import {User} from "./modules/users/domain/models/User";
+import {venuesModule} from "./modules/venues";
 import config from "./shared/config";
 import Database from "./shared/config/database";
 import passport from "./shared/config/passport";
 import {closeRateLimitStore} from "./shared/config/rateLimitStore";
 import {createRedisClient, RedisClient} from "./shared/config/redis";
-import swaggerSpecs from "./docs/swagger";
-
+import logger from "./shared/infrastructure/logging";
+import {JWTUtil} from "./shared/lib/auth";
 import {errorHandler, notFoundHandler} from "./shared/middleware/errorHandler";
 import {
   advancedRequestLogger,
-  securityLogger,
   analyticsLogger,
   errorTracker,
+  securityLogger,
 } from "./shared/middleware/logging";
-
-import {iamModule} from "./modules/iam";
-import {usersModule} from "./modules/users";
-import {matchesModule} from "./modules/matches";
-import {tournamentsModule} from "./modules/tournaments";
-import {teamsModule} from "./modules/teams";
-import {chatModule} from "./modules/chat";
-import {notificationsModule} from "./modules/notifications";
-import {venuesModule} from "./modules/venues";
-import {analyticsModule} from "./modules/analytics";
-// import { aiModule } from './modules/ai'; // AI module not yet implemented
-
-import apiKeyRoutes from "./modules/iam/api/routes/apiKeys";
-import securityRoutes from "./modules/iam/api/routes/security";
-import adminRoutes from "./modules/analytics/api/routes/admin";
-
 import {
   performanceMonitoring,
   requestCorrelation,
   setupAPM,
 } from "./shared/middleware/performance";
 import {
-  corsOptions,
-  helmetConfig,
   compressionMiddleware,
-  sanitizeRequest,
-  preventParameterPollution,
-  securityHeaders,
-  requestLogger,
+  corsOptions,
   generalLimiter,
+  helmetConfig,
+  preventParameterPollution,
+  requestLogger,
+  sanitizeRequest,
+  securityHeaders,
 } from "./shared/middleware/security";
-import {User} from "./modules/users/domain/models/User";
-import {JWTUtil} from "./shared/lib/auth";
-import logger from "./shared/infrastructure/logging";
+// import { aiModule } from './modules/ai'; // AI module not yet implemented
 
 const MODULES = [
   iamModule,
@@ -391,7 +385,7 @@ class App {
 
           (socket as any).user = user;
           (socket as any).authenticated = true;
-          socket.join(`user:${user.id}`);
+          void socket.join(`user:${user.id}`);
           socket.emit("authenticated", {
             user: {
               id: user.id,
@@ -414,7 +408,7 @@ class App {
           socket.emit("error", {message: "Authentication required"});
           return;
         }
-        socket.join(roomId);
+        void socket.join(roomId);
         logger.info(`Socket ${socket.id} joined room: ${roomId}`);
         socket.emit("joined-room", {roomId});
       });
@@ -424,7 +418,7 @@ class App {
           socket.emit("error", {message: "Authentication required"});
           return;
         }
-        socket.leave(roomId);
+        void socket.leave(roomId);
         logger.info(`Socket ${socket.id} left room: ${roomId}`);
         socket.emit("left-room", {roomId});
       });

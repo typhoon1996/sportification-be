@@ -11,7 +11,7 @@
  * - IChatEventPublisher: Domain event publishing
  */
 
-import { IChat, IMessage } from '../../../../shared/types';
+import {IChat, IMessage} from "../../../../shared/types";
 
 /**
  * Chat creation data
@@ -19,7 +19,7 @@ import { IChat, IMessage } from '../../../../shared/types';
 export interface IChatCreationData {
   creatorId: string;
   participantIds: string[];
-  type?: 'direct' | 'group';
+  type?: "direct" | "group";
 }
 
 /**
@@ -140,12 +140,20 @@ export interface IChatService {
   /**
    * Send a message in a chat
    */
-  sendMessage(chatId: string, senderId: string, content: string): Promise<IMessage>;
+  sendMessage(
+    chatId: string,
+    senderId: string,
+    content: string
+  ): Promise<IMessage>;
 
   /**
    * Get message history for a chat
    */
-  getMessages(chatId: string, userId: string, limit?: number): Promise<IMessage[]>;
+  getMessages(
+    chatId: string,
+    userId: string,
+    limit?: number
+  ): Promise<IMessage[]>;
 
   /**
    * Get all chats for a user

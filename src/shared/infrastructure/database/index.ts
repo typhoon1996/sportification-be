@@ -1,1 +1,1 @@
-export * from './queryBuilder';
+export * from "./queryBuilder";

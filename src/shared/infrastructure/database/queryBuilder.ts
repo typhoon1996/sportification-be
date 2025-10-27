@@ -15,7 +15,7 @@ export interface QueryFilters {
   };
   status?: string[];
   sort?: string;
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
 }
 
 export class QueryBuilder {
@@ -32,8 +32,8 @@ export class QueryBuilder {
    */
   search(searchTerm: string, searchFields: string[]): this {
     if (searchTerm && searchFields.length > 0) {
-      const searchConditions = searchFields.map((field) => ({
-        [field]: { $regex: searchTerm, $options: 'i' },
+      const searchConditions = searchFields.map(field => ({
+        [field]: {$regex: searchTerm, $options: "i"},
       }));
 
       this.query = this.query.or(searchConditions);
@@ -48,7 +48,7 @@ export class QueryBuilder {
   filter(filters: Record<string, any>): this {
     if (filters && Object.keys(filters).length > 0) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
+        if (value !== undefined && value !== null && value !== "") {
           this.query = this.query.where(key).equals(value);
         }
       });
@@ -83,7 +83,7 @@ export class QueryBuilder {
    */
   status(statuses: string[]): this {
     if (statuses && statuses.length > 0) {
-      this.query = this.query.where('status').in(statuses);
+      this.query = this.query.where("status").in(statuses);
     }
 
     return this;
@@ -92,8 +92,8 @@ export class QueryBuilder {
   /**
    * Apply sorting
    */
-  sort(sortField: string = 'createdAt', order: 'asc' | 'desc' = 'desc'): this {
-    const sortObj = { [sortField]: order === 'asc' ? 1 : -1 };
+  sort(sortField: string = "createdAt", order: "asc" | "desc" = "desc"): this {
+    const sortObj = {[sortField]: order === "asc" ? 1 : -1};
     this.query = this.query.sort(sortObj);
     return this;
   }
@@ -103,7 +103,7 @@ export class QueryBuilder {
    */
   populate(fields: string | string[]): this {
     if (Array.isArray(fields)) {
-      fields.forEach((field) => {
+      fields.forEach(field => {
         this.query = this.query.populate(field);
       });
     } else {
@@ -173,7 +173,11 @@ export class QueryBuilder {
     }
 
     if (filters.dateRange) {
-      builder.dateRange(filters.dateRange.field, filters.dateRange.start, filters.dateRange.end);
+      builder.dateRange(
+        filters.dateRange.field,
+        filters.dateRange.start,
+        filters.dateRange.end
+      );
     }
 
     if (filters.status) {
@@ -181,7 +185,7 @@ export class QueryBuilder {
     }
 
     if (filters.sort) {
-      builder.sort(filters.sort, filters.order || 'desc');
+      builder.sort(filters.sort, filters.order || "desc");
     }
 
     return builder;
@@ -198,44 +202,46 @@ export const extractQueryFilters = (query: any): QueryFilters => {
   if (query.search) {
     filters.search = query.search;
     filters.searchFields = query.searchFields
-      ? query.searchFields.split(',')
-      : ['name', 'description'];
+      ? query.searchFields.split(",")
+      : ["name", "description"];
   }
 
   // General filters
   if (query.status) {
-    filters.status = Array.isArray(query.status) ? query.status : [query.status];
+    filters.status = Array.isArray(query.status)
+      ? query.status
+      : [query.status];
   }
 
   // Date range
   if (query.startDate || query.endDate) {
     filters.dateRange = {
-      field: query.dateField || 'createdAt',
+      field: query.dateField || "createdAt",
       start: query.startDate ? new Date(query.startDate) : undefined,
       end: query.endDate ? new Date(query.endDate) : undefined,
     };
   }
 
   // Sorting
-  filters.sort = query.sort || 'createdAt';
-  filters.order = query.order === 'asc' ? 'asc' : 'desc';
+  filters.sort = query.sort || "createdAt";
+  filters.order = query.order === "asc" ? "asc" : "desc";
 
   // Additional filters
   const additionalFilters: Record<string, any> = {};
   const knownParams = [
-    'search',
-    'searchFields',
-    'status',
-    'startDate',
-    'endDate',
-    'dateField',
-    'sort',
-    'order',
-    'page',
-    'limit',
+    "search",
+    "searchFields",
+    "status",
+    "startDate",
+    "endDate",
+    "dateField",
+    "sort",
+    "order",
+    "page",
+    "limit",
   ];
 
-  Object.keys(query).forEach((key) => {
+  Object.keys(query).forEach(key => {
     if (!knownParams.includes(key) && query[key]) {
       additionalFilters[key] = query[key];
     }

@@ -1,26 +1,26 @@
-import { eventBus, DomainEvent } from "../../../../shared/events/EventBus";
-import { NotificationService } from "../../domain/services/NotificationService";
-import { UserRegisteredEvent } from "../../../iam/events/publishers/IamEventPublisher";
-import {
-  FriendAddedEvent,
-  FriendRemovedEvent,
-} from "../../../users/events/publishers/UserEventPublisher";
+import {eventBus, DomainEvent} from "../../../../shared/events/EventBus";
+import {MessageSentEvent} from "../../../chat/events/publishers/ChatEventPublisher";
+import {UserRegisteredEvent} from "../../../iam/events/publishers/IamEventPublisher";
 import {
   MatchCreatedEvent,
   PlayerJoinedEvent,
   MatchCompletedEvent,
 } from "../../../matches/events/publishers/MatchEventPublisher";
 import {
+  TeamCreatedEvent,
+  MemberJoinedEvent,
+  MemberLeftEvent,
+} from "../../../teams/events/publishers/TeamEventPublisher";
+import {
   TournamentCreatedEvent,
   ParticipantJoinedEvent,
   TournamentStartedEvent,
 } from "../../../tournaments/events/publishers/TournamentEventPublisher";
 import {
-  TeamCreatedEvent,
-  MemberJoinedEvent,
-  MemberLeftEvent,
-} from "../../../teams/events/publishers/TeamEventPublisher";
-import { MessageSentEvent } from "../../../chat/events/publishers/ChatEventPublisher";
+  FriendAddedEvent,
+  FriendRemovedEvent,
+} from "../../../users/events/publishers/UserEventPublisher";
+import {NotificationService} from "../../domain/services/NotificationService";
 
 export class NotificationEventSubscriber {
   private notificationService: NotificationService;
@@ -55,7 +55,7 @@ export class NotificationEventSubscriber {
   }
 
   private handleUserRegistered = async (event: DomainEvent): Promise<void> => {
-    const { userId } = event.payload;
+    const {userId} = event.payload;
 
     await this.notificationService.createNotification(
       userId,
@@ -68,57 +68,57 @@ export class NotificationEventSubscriber {
   private handleFriendRequestSent = async (
     event: DomainEvent
   ): Promise<void> => {
-    const { userId, friendId } = event.payload;
+    const {userId, friendId} = event.payload;
 
     await this.notificationService.createNotification(
       friendId,
       "friend_request",
       "New Friend Request",
       "You have received a new friend request",
-      { fromUserId: userId }
+      {fromUserId: userId}
     );
   };
 
   private handleFriendRequestAccepted = async (
     event: DomainEvent
   ): Promise<void> => {
-    const { userId, friendId } = event.payload;
+    const {userId, friendId} = event.payload;
 
     await this.notificationService.createNotification(
       userId,
       "friend_request_accepted",
       "Friend Request Accepted",
       "Your friend request has been accepted",
-      { friendId }
+      {friendId}
     );
   };
 
   private handleMatchCreated = async (event: DomainEvent): Promise<void> => {
-    const { matchId, sport, creatorId } = event.payload;
+    const {matchId, sport, creatorId} = event.payload;
 
     await this.notificationService.createNotification(
       creatorId,
       "match_created",
       "Match Created",
       `Your ${sport} match has been created successfully`,
-      { matchId }
+      {matchId}
     );
   };
 
   private handleMatchJoined = async (event: DomainEvent): Promise<void> => {
-    const { matchId, userId, creatorId } = event.payload;
+    const {matchId, userId, creatorId} = event.payload;
 
     await this.notificationService.createNotification(
       creatorId,
       "match_joined",
       "Player Joined Match",
       "A player has joined your match",
-      { matchId, userId }
+      {matchId, userId}
     );
   };
 
   private handleMatchCompleted = async (event: DomainEvent): Promise<void> => {
-    const { matchId, participants, winnerId } = event.payload;
+    const {matchId, participants, winnerId} = event.payload;
 
     // Notify all participants
     for (const participantId of participants) {
@@ -128,7 +128,7 @@ export class NotificationEventSubscriber {
         "match_completed",
         "Match Completed",
         isWinner ? "Congratulations! You won the match!" : "Match completed",
-        { matchId, isWinner }
+        {matchId, isWinner}
       );
     }
   };
@@ -136,35 +136,35 @@ export class NotificationEventSubscriber {
   private handleTournamentCreated = async (
     event: DomainEvent
   ): Promise<void> => {
-    const { tournamentId, name, creatorId } = event.payload;
+    const {tournamentId, name, creatorId} = event.payload;
 
     await this.notificationService.createNotification(
       creatorId,
       "tournament_created",
       "Tournament Created",
       `Your tournament "${name}" has been created successfully`,
-      { tournamentId }
+      {tournamentId}
     );
   };
 
   private handleTournamentJoined = async (
     event: DomainEvent
   ): Promise<void> => {
-    const { tournamentId, userId, organizerId } = event.payload;
+    const {tournamentId, userId, organizerId} = event.payload;
 
     await this.notificationService.createNotification(
       organizerId,
       "tournament_joined",
       "Player Joined Tournament",
       "A player has joined your tournament",
-      { tournamentId, userId }
+      {tournamentId, userId}
     );
   };
 
   private handleTournamentStarted = async (
     event: DomainEvent
   ): Promise<void> => {
-    const { tournamentId, participants } = event.payload;
+    const {tournamentId, participants} = event.payload;
 
     // Notify all participants
     for (const participantId of participants) {
@@ -173,49 +173,49 @@ export class NotificationEventSubscriber {
         "tournament_started",
         "Tournament Started",
         "The tournament has started! Check your matches.",
-        { tournamentId }
+        {tournamentId}
       );
     }
   };
 
   private handleTeamCreated = async (event: DomainEvent): Promise<void> => {
-    const { teamId, name, creatorId } = event.payload;
+    const {teamId, name, creatorId} = event.payload;
 
     await this.notificationService.createNotification(
       creatorId,
       "team_created",
       "Team Created",
       `Your team "${name}" has been created successfully`,
-      { teamId }
+      {teamId}
     );
   };
 
   private handleMemberJoined = async (event: DomainEvent): Promise<void> => {
-    const { teamId, userId, captainId } = event.payload;
+    const {teamId, userId, captainId} = event.payload;
 
     await this.notificationService.createNotification(
       captainId,
       "team_member_joined",
       "New Team Member",
       "A new member has joined your team",
-      { teamId, userId }
+      {teamId, userId}
     );
   };
 
   private handleMemberLeft = async (event: DomainEvent): Promise<void> => {
-    const { teamId, userId, captainId } = event.payload;
+    const {teamId, userId, captainId} = event.payload;
 
     await this.notificationService.createNotification(
       captainId,
       "team_member_left",
       "Team Member Left",
       "A member has left your team",
-      { teamId, userId }
+      {teamId, userId}
     );
   };
 
   private handleMessageSent = async (event: DomainEvent): Promise<void> => {
-    const { chatId, senderId, recipientIds } = event.payload;
+    const {chatId, senderId, recipientIds} = event.payload;
 
     // Notify all recipients
     for (const recipientId of recipientIds) {
@@ -224,7 +224,7 @@ export class NotificationEventSubscriber {
         "new_message",
         "New Message",
         "You have received a new message",
-        { chatId, senderId }
+        {chatId, senderId}
       );
     }
   };

@@ -4,10 +4,10 @@
  * Allows external systems to subscribe to events via webhooks
  */
 
-import axios from 'axios';
-import crypto from 'crypto';
-import logger from '../../infrastructure/logging';
-import cacheService from '../../infrastructure/cache';
+import crypto from "crypto";
+import axios from "axios";
+import cacheService from "../../infrastructure/cache";
+import logger from "../../infrastructure/logging";
 
 export interface WebhookSubscription {
   id: string;
@@ -27,9 +27,9 @@ export interface WebhookPayload {
 }
 
 export class WebhookService {
-  private static readonly WEBHOOK_KEY = 'webhooks:subscriptions';
-  private static readonly DELIVERY_LOG_KEY = 'webhooks:delivery:log';
-  private static readonly FAILED_QUEUE_KEY = 'webhooks:failed';
+  private static readonly WEBHOOK_KEY = "webhooks:subscriptions";
+  private static readonly DELIVERY_LOG_KEY = "webhooks:delivery:log";
+  private static readonly FAILED_QUEUE_KEY = "webhooks:failed";
 
   /**
    * Register a webhook subscription
@@ -40,10 +40,10 @@ export class WebhookService {
     secret?: string
   ): Promise<WebhookSubscription> {
     const subscription: WebhookSubscription = {
-      id: crypto.randomBytes(16).toString('hex'),
+      id: crypto.randomBytes(16).toString("hex"),
       url,
       events,
-      secret: secret || crypto.randomBytes(32).toString('hex'),
+      secret: secret || crypto.randomBytes(32).toString("hex"),
       active: true,
       retryAttempts: 0,
     };
@@ -64,7 +64,7 @@ export class WebhookService {
    */
   static async unsubscribe(subscriptionId: string): Promise<boolean> {
     const subscriptions = await this.getAllSubscriptions();
-    const filtered = subscriptions.filter((s) => s.id !== subscriptionId);
+    const filtered = subscriptions.filter(s => s.id !== subscriptionId);
 
     if (filtered.length === subscriptions.length) {
       return false; // Subscription not found
@@ -80,11 +80,13 @@ export class WebhookService {
   /**
    * Get all active subscriptions for an event
    */
-  static async getSubscriptionsForEvent(event: string): Promise<WebhookSubscription[]> {
+  static async getSubscriptionsForEvent(
+    event: string
+  ): Promise<WebhookSubscription[]> {
     const subscriptions = await this.getAllSubscriptions();
 
     return subscriptions.filter(
-      (s) => s.active && (s.events.includes(event) || s.events.includes('*'))
+      s => s.active && (s.events.includes(event) || s.events.includes("*"))
     );
   }
 
@@ -103,9 +105,9 @@ export class WebhookService {
       // Send webhook
       const response = await axios.post(subscription.url, payload, {
         headers: {
-          'Content-Type': 'application/json',
-          'X-Webhook-Signature': signature,
-          'X-Webhook-Event': payload.event,
+          "Content-Type": "application/json",
+          "X-Webhook-Signature": signature,
+          "X-Webhook-Event": payload.event,
         },
         timeout: 10000, // 10 seconds
       });
@@ -113,7 +115,9 @@ export class WebhookService {
       // Log successful delivery
       await this.logDelivery(subscription.id, payload, true, response.status);
 
-      logger.info(`Webhook delivered to ${subscription.url} for event ${payload.event}`);
+      logger.info(
+        `Webhook delivered to ${subscription.url} for event ${payload.event}`
+      );
 
       return true;
     } catch (error: any) {
@@ -158,11 +162,11 @@ export class WebhookService {
 
     // Deliver to all subscribers in parallel
     const results = await Promise.allSettled(
-      subscriptions.map((sub) => this.deliver(sub, payload))
+      subscriptions.map(sub => this.deliver(sub, payload))
     );
 
-    results.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value) {
+    results.forEach(result => {
+      if (result.status === "fulfilled" && result.value) {
         successCount++;
       }
     });
@@ -179,7 +183,11 @@ export class WebhookService {
    */
   static async retryFailed(maxRetries: number = 3): Promise<number> {
     try {
-      const failedItems = await cacheService.redis.lrange(this.FAILED_QUEUE_KEY, 0, -1);
+      const failedItems = await cacheService.redis.lrange(
+        this.FAILED_QUEUE_KEY,
+        0,
+        -1
+      );
 
       let retried = 0;
 
@@ -212,7 +220,7 @@ export class WebhookService {
 
       return retried;
     } catch (error) {
-      logger.error('Failed to retry webhooks:', error);
+      logger.error("Failed to retry webhooks:", error);
       return 0;
     }
   }
@@ -221,25 +229,37 @@ export class WebhookService {
    * Get all subscriptions
    */
   private static async getAllSubscriptions(): Promise<WebhookSubscription[]> {
-    const subscriptions = await cacheService.get<WebhookSubscription[]>(this.WEBHOOK_KEY);
+    const subscriptions = await cacheService.get<WebhookSubscription[]>(
+      this.WEBHOOK_KEY
+    );
     return subscriptions || [];
   }
 
   /**
    * Generate HMAC signature for payload
    */
-  private static generateSignature(payload: WebhookPayload, secret: string): string {
-    const hmac = crypto.createHmac('sha256', secret);
+  private static generateSignature(
+    payload: WebhookPayload,
+    secret: string
+  ): string {
+    const hmac = crypto.createHmac("sha256", secret);
     hmac.update(JSON.stringify(payload));
-    return hmac.digest('hex');
+    return hmac.digest("hex");
   }
 
   /**
    * Verify webhook signature
    */
-  static verifySignature(payload: any, signature: string, secret: string): boolean {
+  static verifySignature(
+    payload: any,
+    signature: string,
+    secret: string
+  ): boolean {
     const expected = this.generateSignature(payload, secret);
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+    return crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expected)
+    );
   }
 
   /**
@@ -288,10 +308,13 @@ export class WebhookService {
   /**
    * Get delivery logs for a subscription
    */
-  static async getDeliveryLogs(subscriptionId: string, limit: number = 50): Promise<any[]> {
+  static async getDeliveryLogs(
+    subscriptionId: string,
+    limit: number = 50
+  ): Promise<any[]> {
     const logKey = `${this.DELIVERY_LOG_KEY}:${subscriptionId}`;
     const logs = await cacheService.redis.lrange(logKey, 0, limit - 1);
 
-    return logs.map((log) => JSON.parse(log));
+    return logs.map(log => JSON.parse(log));
   }
 }

@@ -1,27 +1,27 @@
 import {Router} from "express";
-import {matchController} from "../controllers/MatchController";
+import {body} from "express-validator";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {
   createMatchValidation,
   idParamValidation,
 } from "../../../../shared/validators";
-import {body} from "express-validator";
+import {matchController} from "../controllers/MatchController";
 
 /**
  * Match Routes
- * 
+ *
  * This module defines all match-related API endpoints for creating, managing,
  * and participating in sports matches. Handles the complete match lifecycle from
  * creation through completion, including participant management and scoring.
- * 
+ *
  * Security:
  * - All routes require authentication (JWT token)
  * - Some routes require additional authorization (admin/moderator)
  * - Ownership validation applied where appropriate
- * 
+ *
  * Base Path: /api/v1/matches
- * 
+ *
  * Authenticated Routes:
  * - POST / - Create new match
  * - GET / - List matches with filters
@@ -30,10 +30,10 @@ import {body} from "express-validator";
  * - POST /:id/leave - Leave match
  * - PUT /:id/score - Update match score
  * - PUT /:id/status - Update match status
- * 
+ *
  * Admin/Moderator Routes:
  * - DELETE /:id - Delete match
- * 
+ *
  * Features:
  * - Request validation using express-validator
  * - Pagination support for list endpoints
@@ -134,9 +134,9 @@ router.use(authenticate);
  */
 /**
  * POST /matches
- * 
+ *
  * Create a new match
- * 
+ *
  * Middleware Chain:
  * 1. authenticate - Verifies JWT token (applied to all routes)
  * 2. createMatchValidation - Validates match data (sport, schedule, etc.)

@@ -1,8 +1,9 @@
-import {Request, Response, NextFunction} from "express";
-import {AnalyticsService} from "../services/analytics";
-import logger from "../infrastructure/logging";
 import crypto from "crypto";
+import {Request, Response, NextFunction} from "express";
+import logger from "../infrastructure/logging";
+import {AnalyticsService} from "../services/analytics";
 
+/* eslint-disable @typescript-eslint/no-namespace */
 declare global {
   namespace Express {
     interface Request {
@@ -19,6 +20,7 @@ declare global {
     }
   }
 }
+/* eslint-enable @typescript-eslint/no-namespace */
 
 const SLOW_REQUEST_THRESHOLD_MS = 1000;
 const VERY_SLOW_REQUEST_THRESHOLD_MS = 2000;

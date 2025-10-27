@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { eventBus } from "../events/EventBus";
+import {Router} from "express";
+import {eventBus} from "../events/EventBus";
 
 export interface ModuleConfig {
   name: string;

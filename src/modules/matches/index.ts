@@ -2,8 +2,8 @@
  * Matches Module Public API
  */
 
-export { matchesModule } from "./module";
-export { MatchService } from "./domain/services/MatchService";
+export {matchesModule} from "./module";
+export {MatchService} from "./domain/services/MatchService";
 export {
   MatchCreatedEvent,
   MatchCompletedEvent,

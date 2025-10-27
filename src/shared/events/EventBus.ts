@@ -1,5 +1,5 @@
-import { EventEmitter } from 'events';
-import logger from '../infrastructure/logging';
+import {EventEmitter} from "events";
+import logger from "../infrastructure/logging";
 
 export interface DomainEvent {
   eventType: string;
@@ -36,10 +36,13 @@ class EventBus extends EventEmitter {
     });
 
     this.emit(event.eventType, event);
-    this.emit('*', event); // Global event listener
+    this.emit("*", event); // Global event listener
   }
 
-  subscribe(eventType: string, handler: (event: DomainEvent) => void | Promise<void>): void {
+  subscribe(
+    eventType: string,
+    handler: (event: DomainEvent) => void | Promise<void>
+  ): void {
     this.on(eventType, async (event: DomainEvent) => {
       try {
         await handler(event);
@@ -50,7 +53,7 @@ class EventBus extends EventEmitter {
   }
 
   subscribeAll(handler: (event: DomainEvent) => void | Promise<void>): void {
-    this.subscribe('*', handler);
+    this.subscribe("*", handler);
   }
 }
 

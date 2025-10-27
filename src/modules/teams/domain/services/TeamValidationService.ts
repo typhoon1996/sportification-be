@@ -1,7 +1,9 @@
+import {
+  ValidationError,
+  ConflictError,
+} from "../../../../shared/middleware/errorHandler";
 import {ITeam} from "../../../../shared/types";
-import { Team } from '../models/Team';
-import { ValidationError, ConflictError } from '../../../../shared/middleware/errorHandler';
-import { ITeamValidationService, ITeamUpdateData } from '../interfaces';
+import {ITeamValidationService, ITeamUpdateData} from "../interfaces";
 
 /**
  * TeamValidationService - Handles team business rule validation (SRP)
@@ -40,12 +42,12 @@ export class TeamValidationService implements ITeamValidationService {
   validateCanJoin(team: ITeam, userId: string): void {
     // Check if already a member
     if (team.members.some((m: any) => m.toString() === userId)) {
-      throw new ConflictError('Already a member of this team');
+      throw new ConflictError("Already a member of this team");
     }
 
     // Check capacity
     if (team.maxMembers && team.members.length >= team.maxMembers) {
-      throw new ConflictError('Team is full');
+      throw new ConflictError("Team is full");
     }
   }
 
@@ -64,12 +66,12 @@ export class TeamValidationService implements ITeamValidationService {
   validateCanLeave(team: ITeam, userId: string): void {
     // Check if member
     if (!team.members.some((m: any) => m.toString() === userId)) {
-      throw new ConflictError('Not a member of this team');
+      throw new ConflictError("Not a member of this team");
     }
 
     // Check if captain (captains cannot leave)
     if (team.captain.toString() === userId) {
-      throw new ConflictError('Team captain cannot leave the team');
+      throw new ConflictError("Team captain cannot leave the team");
     }
   }
 
@@ -84,7 +86,7 @@ export class TeamValidationService implements ITeamValidationService {
    */
   validateIsCaptain(team: ITeam, userId: string): void {
     if (team.captain.toString() !== userId) {
-      throw new ValidationError('Only team captain can perform this action');
+      throw new ValidationError("Only team captain can perform this action");
     }
   }
 
@@ -99,19 +101,19 @@ export class TeamValidationService implements ITeamValidationService {
   validateTeamUpdate(updates: ITeamUpdateData): void {
     if (updates.maxMembers !== undefined) {
       if (updates.maxMembers < 2) {
-        throw new ValidationError('Team must allow at least 2 members');
+        throw new ValidationError("Team must allow at least 2 members");
       }
       if (updates.maxMembers > 100) {
-        throw new ValidationError('Team cannot have more than 100 members');
+        throw new ValidationError("Team cannot have more than 100 members");
       }
     }
 
     if (updates.name !== undefined) {
       if (!updates.name || updates.name.trim().length === 0) {
-        throw new ValidationError('Team name cannot be empty');
+        throw new ValidationError("Team name cannot be empty");
       }
       if (updates.name.length > 100) {
-        throw new ValidationError('Team name cannot exceed 100 characters');
+        throw new ValidationError("Team name cannot exceed 100 characters");
       }
     }
   }

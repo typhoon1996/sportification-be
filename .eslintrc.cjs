@@ -15,7 +15,7 @@ module.exports = {
     sourceType: 'module',
     warnOnUnsupportedTypeScriptVersion: false,
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'import'],
   extends: [
     'eslint:recommended',
     'google',
@@ -34,8 +34,42 @@ module.exports = {
     ],
     '@typescript-eslint/no-unused-vars': [
       'error',
-      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      {argsIgnorePattern: '^_', varsIgnorePattern: '^_'},
     ],
     'prettier/prettier': 'warn',
+    // Disable overly strict Google style guide rules
+    'require-jsdoc': 'off',
+    'valid-jsdoc': 'off',
+    'new-cap': 'off',
+    'no-invalid-this': 'off',
+    // Relax TypeScript rules for callbacks and third-party types
+    '@typescript-eslint/no-unsafe-member-access': 'warn',
+    '@typescript-eslint/no-unsafe-assignment': 'warn',
+    '@typescript-eslint/no-unsafe-call': 'warn',
+    '@typescript-eslint/no-unsafe-argument': 'warn',
+    '@typescript-eslint/no-unsafe-return': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/require-await': 'warn',
+    '@typescript-eslint/restrict-template-expressions': 'warn',
+    '@typescript-eslint/no-redundant-type-constituents': 'warn',
+    // Import organization
+    'import/order': [
+      'error',
+      {
+        'groups': [
+          'builtin',
+          'external',
+          'internal',
+          'parent',
+          'sibling',
+          'index',
+        ],
+        'newlines-between': 'never',
+        'alphabetize': {
+          'order': 'asc',
+          'caseInsensitive': true,
+        },
+      },
+    ],
   },
 };

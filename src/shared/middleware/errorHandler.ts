@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import { Error as MongooseError } from 'mongoose';
-import { IApiError, IApiResponse } from '../types';
-import config from '../config';
-import logger from '../infrastructure/logging';
+import {Request, Response, NextFunction} from "express";
+import {Error as MongooseError} from "mongoose";
+import config from "../config";
+import logger from "../infrastructure/logging";
+import {IApiError, IApiResponse} from "../types";
 
 // Custom error class
 export class ApiError extends Error implements IApiError {
@@ -10,9 +10,14 @@ export class ApiError extends Error implements IApiError {
   code?: string;
   details?: unknown;
 
-  constructor(message: string, statusCode = 500, code?: string, details?: unknown) {
+  constructor(
+    message: string,
+    statusCode = 500,
+    code?: string,
+    details?: unknown
+  ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.statusCode = statusCode;
     this.code = code;
     this.details = details;
@@ -24,86 +29,88 @@ export class ApiError extends Error implements IApiError {
 
 // Not Found Error
 export class NotFoundError extends ApiError {
-  constructor(resource = 'Resource') {
-    super(`${resource} not found`, 404, 'RESOURCE_NOT_FOUND');
+  constructor(resource = "Resource") {
+    super(`${resource} not found`, 404, "RESOURCE_NOT_FOUND");
   }
 }
 
 // Validation Error
 export class ValidationError extends ApiError {
-  constructor(message = 'Validation failed', details?: unknown) {
-    super(message, 400, 'VALIDATION_ERROR', details);
+  constructor(message = "Validation failed", details?: unknown) {
+    super(message, 400, "VALIDATION_ERROR", details);
   }
 }
 
 // Authorization Error
 export class AuthorizationError extends ApiError {
-  constructor(message = 'Access denied') {
-    super(message, 403, 'ACCESS_DENIED');
+  constructor(message = "Access denied") {
+    super(message, 403, "ACCESS_DENIED");
   }
 }
 
 // Forbidden Error (alias for AuthorizationError)
 export class ForbiddenError extends ApiError {
-  constructor(message = 'Forbidden') {
-    super(message, 403, 'FORBIDDEN');
+  constructor(message = "Forbidden") {
+    super(message, 403, "FORBIDDEN");
   }
 }
 
 // Authentication Error
 export class AuthenticationError extends ApiError {
-  constructor(message = 'Authentication failed') {
-    super(message, 401, 'AUTH_FAILED');
+  constructor(message = "Authentication failed") {
+    super(message, 401, "AUTH_FAILED");
   }
 }
 
 // Conflict Error
 export class ConflictError extends ApiError {
-  constructor(message = 'Resource already exists') {
-    super(message, 409, 'RESOURCE_CONFLICT');
+  constructor(message = "Resource already exists") {
+    super(message, 409, "RESOURCE_CONFLICT");
   }
 }
 
 // Bad Request Error
 export class BadRequestError extends ApiError {
-  constructor(message = 'Bad request') {
-    super(message, 400, 'BAD_REQUEST');
+  constructor(message = "Bad request") {
+    super(message, 400, "BAD_REQUEST");
   }
 }
 
 // Rate Limit Error
 export class RateLimitError extends ApiError {
-  constructor(message = 'Too many requests') {
-    super(message, 429, 'RATE_LIMIT_EXCEEDED');
+  constructor(message = "Too many requests") {
+    super(message, 429, "RATE_LIMIT_EXCEEDED");
   }
 }
 
 // Convert Mongoose errors to API errors
 const handleMongooseError = (error: MongooseError): ApiError => {
-  if (error.name === 'ValidationError') {
+  if (error.name === "ValidationError") {
     const validationError = error as MongooseError.ValidationError;
-    const messages = Object.values(validationError.errors).map((err) => err.message);
-    return new ValidationError('Validation failed', {
+    const messages = Object.values(validationError.errors).map(
+      err => err.message
+    );
+    return new ValidationError("Validation failed", {
       fields: Object.keys(validationError.errors),
       messages,
     });
   }
 
-  if (error.name === 'CastError') {
+  if (error.name === "CastError") {
     const castError = error as MongooseError.CastError;
     return new ValidationError(`Invalid ${castError.path}: ${castError.value}`);
   }
 
-  if (error.name === 'MongoServerError') {
+  if (error.name === "MongoServerError") {
     const mongoError = error as any;
     if (mongoError.code === 11000) {
       // Duplicate key error
-      const field = Object.keys(mongoError.keyPattern || {})[0] || 'field';
+      const field = Object.keys(mongoError.keyPattern || {})[0] || "field";
       return new ConflictError(`${field} already exists`);
     }
   }
 
-  return new ApiError(error.message, 500, 'DATABASE_ERROR');
+  return new ApiError(error.message, 500, "DATABASE_ERROR");
 };
 
 // Global error handler middleware
@@ -120,30 +127,30 @@ export const errorHandler = (
     apiError = error;
   } else if (error instanceof MongooseError) {
     apiError = handleMongooseError(error);
-  } else if (error.name === 'JsonWebTokenError') {
-    apiError = new AuthenticationError('Invalid token');
-  } else if (error.name === 'TokenExpiredError') {
-    apiError = new AuthenticationError('Token expired');
-  } else if (error.name === 'MulterError') {
+  } else if (error.name === "JsonWebTokenError") {
+    apiError = new AuthenticationError("Invalid token");
+  } else if (error.name === "TokenExpiredError") {
+    apiError = new AuthenticationError("Token expired");
+  } else if (error.name === "MulterError") {
     const multerError = error as any;
-    if (multerError.code === 'LIMIT_FILE_SIZE') {
-      apiError = new ValidationError('File size too large');
-    } else if (multerError.code === 'LIMIT_FILE_COUNT') {
-      apiError = new ValidationError('Too many files');
+    if (multerError.code === "LIMIT_FILE_SIZE") {
+      apiError = new ValidationError("File size too large");
+    } else if (multerError.code === "LIMIT_FILE_COUNT") {
+      apiError = new ValidationError("Too many files");
     } else {
-      apiError = new ValidationError('File upload error');
+      apiError = new ValidationError("File upload error");
     }
   } else {
     // Generic server error
     apiError = new ApiError(
-      config.app.env === 'production' ? 'Internal server error' : error.message,
+      config.app.env === "production" ? "Internal server error" : error.message,
       500,
-      'INTERNAL_ERROR'
+      "INTERNAL_ERROR"
     );
   }
 
   // Log error
-  logger.error('API Error:', {
+  logger.error("API Error:", {
     message: apiError.message,
     statusCode: apiError.statusCode,
     code: apiError.code,
@@ -151,7 +158,7 @@ export const errorHandler = (
     url: req.url,
     method: req.method,
     ip: req.ip,
-    userAgent: req.get('User-Agent'),
+    userAgent: req.get("User-Agent"),
     userId: req.userId,
     details: apiError.details,
   });
@@ -163,12 +170,12 @@ export const errorHandler = (
     errors: [apiError.message],
     meta: {
       timestamp: new Date(),
-      version: '1.0.0',
+      version: "1.0.0",
     },
   };
 
   // Include additional details in development
-  if (config.app.env === 'development') {
+  if (config.app.env === "development") {
     (response.meta as any) = {
       ...response.meta,
       code: apiError.code,
@@ -181,15 +188,21 @@ export const errorHandler = (
 };
 
 // 404 handler for unmatched routes
-export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
+export const notFoundHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const error = new NotFoundError(`Route ${req.originalUrl} not found`);
   next(error);
 };
 
 // Async error wrapper
-export const asyncHandler = (fn: Function) => {
+export const asyncHandler = <T extends Request = Request>(
+  fn: (req: T, res: Response, next: NextFunction) => Promise<void>
+) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    Promise.resolve(fn(req as T, res, next)).catch(next);
   };
 };
 
@@ -197,7 +210,7 @@ export const asyncHandler = (fn: Function) => {
 export const sendSuccess = <T>(
   res: Response,
   data?: T,
-  message = 'Success',
+  message = "Success",
   statusCode = 200,
   meta?: any
 ): void => {
@@ -207,7 +220,7 @@ export const sendSuccess = <T>(
     data,
     meta: {
       timestamp: new Date(),
-      version: '1.0.0',
+      version: "1.0.0",
       ...meta,
     },
   };
@@ -219,7 +232,7 @@ export const sendSuccess = <T>(
 export const sendCreated = <T>(
   res: Response,
   data?: T,
-  message = 'Resource created successfully'
+  message = "Resource created successfully"
 ): void => {
   sendSuccess(res, data, message, 201);
 };

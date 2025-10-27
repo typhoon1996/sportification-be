@@ -2,172 +2,210 @@
  * Booking validation rules using express-validator
  */
 
-import { body, query, param } from 'express-validator';
+import {body, query, param} from "express-validator";
 
 export const createBookingValidation = [
-  body('venueId')
+  body("venueId")
     .notEmpty()
-    .withMessage('Venue ID is required')
+    .withMessage("Venue ID is required")
     .isMongoId()
-    .withMessage('Invalid venue ID'),
+    .withMessage("Invalid venue ID"),
 
-  body('startTime')
+  body("startTime")
     .notEmpty()
-    .withMessage('Start time is required')
+    .withMessage("Start time is required")
     .isISO8601()
-    .withMessage('Start time must be a valid ISO 8601 date'),
+    .withMessage("Start time must be a valid ISO 8601 date"),
 
-  body('endTime')
+  body("endTime")
     .notEmpty()
-    .withMessage('End time is required')
+    .withMessage("End time is required")
     .isISO8601()
-    .withMessage('End time must be a valid ISO 8601 date'),
+    .withMessage("End time must be a valid ISO 8601 date"),
 
-  body('bookingType')
+  body("bookingType")
     .notEmpty()
-    .withMessage('Booking type is required')
-    .isIn(['hourly', 'daily', 'recurring'])
-    .withMessage('Invalid booking type'),
+    .withMessage("Booking type is required")
+    .isIn(["hourly", "daily", "recurring"])
+    .withMessage("Invalid booking type"),
 
-  body('participants')
+  body("participants")
     .notEmpty()
-    .withMessage('Number of participants is required')
-    .isInt({ min: 1 })
-    .withMessage('Participants must be at least 1'),
+    .withMessage("Number of participants is required")
+    .isInt({min: 1})
+    .withMessage("Participants must be at least 1"),
 
-  body('notes')
+  body("notes")
     .optional()
     .isString()
-    .withMessage('Notes must be a string')
-    .isLength({ max: 500 })
-    .withMessage('Notes cannot exceed 500 characters'),
+    .withMessage("Notes must be a string")
+    .isLength({max: 500})
+    .withMessage("Notes cannot exceed 500 characters"),
 
-  body('promoCodes').optional().isArray().withMessage('Promo codes must be an array'),
+  body("promoCodes")
+    .optional()
+    .isArray()
+    .withMessage("Promo codes must be an array"),
 
-  body('promoCodes.*')
+  body("promoCodes.*")
     .optional()
     .isString()
-    .withMessage('Each promo code must be a string')
+    .withMessage("Each promo code must be a string")
     .trim()
     .toUpperCase(),
 ];
 
 export const updateBookingValidation = [
-  param('id').isMongoId().withMessage('Invalid booking ID'),
+  param("id").isMongoId().withMessage("Invalid booking ID"),
 
-  body('startTime').optional().isISO8601().withMessage('Start time must be a valid ISO 8601 date'),
+  body("startTime")
+    .optional()
+    .isISO8601()
+    .withMessage("Start time must be a valid ISO 8601 date"),
 
-  body('endTime').optional().isISO8601().withMessage('End time must be a valid ISO 8601 date'),
+  body("endTime")
+    .optional()
+    .isISO8601()
+    .withMessage("End time must be a valid ISO 8601 date"),
 
-  body('participants').optional().isInt({ min: 1 }).withMessage('Participants must be at least 1'),
+  body("participants")
+    .optional()
+    .isInt({min: 1})
+    .withMessage("Participants must be at least 1"),
 
-  body('notes')
+  body("notes")
     .optional()
     .isString()
-    .withMessage('Notes must be a string')
-    .isLength({ max: 500 })
-    .withMessage('Notes cannot exceed 500 characters'),
+    .withMessage("Notes must be a string")
+    .isLength({max: 500})
+    .withMessage("Notes cannot exceed 500 characters"),
 ];
 
 export const cancelBookingValidation = [
-  param('id').isMongoId().withMessage('Invalid booking ID'),
+  param("id").isMongoId().withMessage("Invalid booking ID"),
 
-  body('reason')
+  body("reason")
     .notEmpty()
-    .withMessage('Cancellation reason is required')
+    .withMessage("Cancellation reason is required")
     .isString()
-    .withMessage('Reason must be a string')
-    .isLength({ min: 10, max: 500 })
-    .withMessage('Reason must be between 10 and 500 characters'),
+    .withMessage("Reason must be a string")
+    .isLength({min: 10, max: 500})
+    .withMessage("Reason must be between 10 and 500 characters"),
 ];
 
 export const checkAvailabilityValidation = [
-  body('venueId')
+  body("venueId")
     .notEmpty()
-    .withMessage('Venue ID is required')
+    .withMessage("Venue ID is required")
     .isMongoId()
-    .withMessage('Invalid venue ID'),
+    .withMessage("Invalid venue ID"),
 
-  body('startTime')
+  body("startTime")
     .notEmpty()
-    .withMessage('Start time is required')
+    .withMessage("Start time is required")
     .isISO8601()
-    .withMessage('Start time must be a valid ISO 8601 date'),
+    .withMessage("Start time must be a valid ISO 8601 date"),
 
-  body('endTime')
+  body("endTime")
     .notEmpty()
-    .withMessage('End time is required')
+    .withMessage("End time is required")
     .isISO8601()
-    .withMessage('End time must be a valid ISO 8601 date'),
+    .withMessage("End time must be a valid ISO 8601 date"),
 ];
 
 export const confirmPaymentValidation = [
-  param('id').isMongoId().withMessage('Invalid booking ID'),
+  param("id").isMongoId().withMessage("Invalid booking ID"),
 
-  body('transactionId')
+  body("transactionId")
     .notEmpty()
-    .withMessage('Transaction ID is required')
+    .withMessage("Transaction ID is required")
     .isString()
-    .withMessage('Transaction ID must be a string'),
+    .withMessage("Transaction ID must be a string"),
 
-  body('paymentMethod')
+  body("paymentMethod")
     .notEmpty()
-    .withMessage('Payment method is required')
+    .withMessage("Payment method is required")
     .isString()
-    .withMessage('Payment method must be a string'),
+    .withMessage("Payment method must be a string"),
 ];
 
-export const bookingIdValidation = [param('id').isMongoId().withMessage('Invalid booking ID')];
+export const bookingIdValidation = [
+  param("id").isMongoId().withMessage("Invalid booking ID"),
+];
 
-export const venueIdValidation = [param('venueId').isMongoId().withMessage('Invalid venue ID')];
+export const venueIdValidation = [
+  param("venueId").isMongoId().withMessage("Invalid venue ID"),
+];
 
 export const getBookingsValidation = [
-  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-
-  query('limit')
+  query("page")
     .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage('Limit must be between 1 and 100'),
+    .isInt({min: 1})
+    .withMessage("Page must be a positive integer"),
 
-  query('venueId').optional().isMongoId().withMessage('Invalid venue ID'),
-
-  query('userId').optional().isMongoId().withMessage('Invalid user ID'),
-
-  query('status')
+  query("limit")
     .optional()
-    .isIn(['pending', 'confirmed', 'checked_in', 'completed', 'cancelled', 'no_show'])
-    .withMessage('Invalid booking status'),
+    .isInt({min: 1, max: 100})
+    .withMessage("Limit must be between 1 and 100"),
 
-  query('paymentStatus')
+  query("venueId").optional().isMongoId().withMessage("Invalid venue ID"),
+
+  query("userId").optional().isMongoId().withMessage("Invalid user ID"),
+
+  query("status")
     .optional()
-    .isIn(['pending', 'paid', 'refunded', 'partially_refunded'])
-    .withMessage('Invalid payment status'),
+    .isIn([
+      "pending",
+      "confirmed",
+      "checked_in",
+      "completed",
+      "cancelled",
+      "no_show",
+    ])
+    .withMessage("Invalid booking status"),
 
-  query('startDate').optional().isISO8601().withMessage('Start date must be a valid ISO 8601 date'),
+  query("paymentStatus")
+    .optional()
+    .isIn(["pending", "paid", "refunded", "partially_refunded"])
+    .withMessage("Invalid payment status"),
 
-  query('endDate').optional().isISO8601().withMessage('End date must be a valid ISO 8601 date'),
+  query("startDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Start date must be a valid ISO 8601 date"),
+
+  query("endDate")
+    .optional()
+    .isISO8601()
+    .withMessage("End date must be a valid ISO 8601 date"),
 ];
 
 export const getVenueCalendarValidation = [
-  param('venueId').isMongoId().withMessage('Invalid venue ID'),
+  param("venueId").isMongoId().withMessage("Invalid venue ID"),
 
-  query('startDate')
+  query("startDate")
     .notEmpty()
-    .withMessage('Start date is required')
+    .withMessage("Start date is required")
     .isISO8601()
-    .withMessage('Start date must be a valid ISO 8601 date'),
+    .withMessage("Start date must be a valid ISO 8601 date"),
 
-  query('endDate')
+  query("endDate")
     .notEmpty()
-    .withMessage('End date is required')
+    .withMessage("End date is required")
     .isISO8601()
-    .withMessage('End date must be a valid ISO 8601 date'),
+    .withMessage("End date must be a valid ISO 8601 date"),
 ];
 
 export const getVenueAnalyticsValidation = [
-  param('venueId').isMongoId().withMessage('Invalid venue ID'),
+  param("venueId").isMongoId().withMessage("Invalid venue ID"),
 
-  query('startDate').optional().isISO8601().withMessage('Start date must be a valid ISO 8601 date'),
+  query("startDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Start date must be a valid ISO 8601 date"),
 
-  query('endDate').optional().isISO8601().withMessage('End date must be a valid ISO 8601 date'),
+  query("endDate")
+    .optional()
+    .isISO8601()
+    .withMessage("End date must be a valid ISO 8601 date"),
 ];

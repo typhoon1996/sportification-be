@@ -87,7 +87,11 @@ export interface IMatchService {
   /**
    * Update match status
    */
-  updateMatchStatus(matchId: string, status: MatchStatus, userId: string): Promise<IMatch>;
+  updateMatchStatus(
+    matchId: string,
+    status: MatchStatus,
+    userId: string
+  ): Promise<IMatch>;
 
   /**
    * Cancel match

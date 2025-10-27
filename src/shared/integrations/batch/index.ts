@@ -1,1 +1,1 @@
-export * from './BatchProcessor';
+export * from "./BatchProcessor";

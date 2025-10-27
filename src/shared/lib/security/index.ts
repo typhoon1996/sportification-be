@@ -1,7 +1,7 @@
-import speakeasy from 'speakeasy';
-import QRCode from 'qrcode';
-import crypto from 'crypto';
-import config from '../../config';
+import crypto from "crypto";
+import QRCode from "qrcode";
+import speakeasy from "speakeasy";
+import config from "../../config";
 
 /**
  * Multi-Factor Authentication (MFA) Utility class
@@ -10,31 +10,31 @@ import config from '../../config';
 export class MFAUtil {
   /**
    * Generate a secret key for Time-based One-Time Password (TOTP)
-   * 
+   *
    * @param email - The user's email address to associate with the secret
-   * @returns Object containing the base32 secret and OTP auth URL for QR code
+   * @return Object containing the base32 secret and OTP auth URL for QR code
    * @example
    * const { secret, qrCodeUrl } = MFAUtil.generateSecret('user@example.com');
    * // Store secret in database and show QR code to user
    */
-  static generateSecret(email: string): { secret: string; qrCodeUrl: string } {
+  static generateSecret(email: string): {secret: string; qrCodeUrl: string} {
     const secret = speakeasy.generateSecret({
       issuer: config.mfa.issuer,
       name: email,
-      length: 32
+      length: 32,
     });
 
     return {
-      secret: secret.base32!,
-      qrCodeUrl: secret.otpauth_url!
+      secret: secret.base32,
+      qrCodeUrl: secret.otpauth_url!,
     };
   }
 
   /**
    * Generate QR code image as a data URL for easy display
-   * 
+   *
    * @param otpauthUrl - The OTP auth URL from generateSecret()
-   * @returns Data URL string containing the QR code image
+   * @return Data URL string containing the QR code image
    * @throws {Error} If QR code generation fails
    * @example
    * const qrCodeImage = await MFAUtil.generateQRCode(qrCodeUrl);
@@ -45,16 +45,16 @@ export class MFAUtil {
       const qrCodeDataURL = await QRCode.toDataURL(otpauthUrl);
       return qrCodeDataURL;
     } catch (error) {
-      throw new Error('Failed to generate QR code');
+      throw new Error("Failed to generate QR code");
     }
   }
 
   /**
    * Verify a TOTP token against the secret
-   * 
+   *
    * @param secret - The user's TOTP secret (base32 encoded)
    * @param token - The 6-digit token from user's authenticator app
-   * @returns True if token is valid, false otherwise
+   * @return True if token is valid, false otherwise
    * @example
    * const isValid = MFAUtil.verifyToken(user.mfaSecret, '123456');
    * if (isValid) {
@@ -64,18 +64,18 @@ export class MFAUtil {
   static verifyToken(secret: string, token: string): boolean {
     return speakeasy.totp.verify({
       secret,
-      encoding: 'base32',
+      encoding: "base32",
       token,
-      window: 2 // Allow some time drift (±2 intervals)
+      window: 2, // Allow some time drift (±2 intervals)
     });
   }
 
   /**
    * Generate backup codes for account recovery
    * These codes can be used when the user loses access to their authenticator app
-   * 
+   *
    * @param count - Number of backup codes to generate (default: 8)
-   * @returns Array of backup codes (each 10 characters)
+   * @return Array of backup codes (each 10 characters)
    * @example
    * const backupCodes = MFAUtil.generateBackupCodes(10);
    * // Store hashed versions in database, show plain codes to user once
@@ -83,7 +83,7 @@ export class MFAUtil {
   static generateBackupCodes(count: number = 8): string[] {
     const codes: string[] = [];
     for (let i = 0; i < count; i++) {
-      codes.push(crypto.randomBytes(4).toString('hex').toUpperCase());
+      codes.push(crypto.randomBytes(4).toString("hex").toUpperCase());
     }
     return codes;
   }
@@ -91,16 +91,22 @@ export class MFAUtil {
   /**
    * Verify backup code
    */
-  static verifyBackupCode(userBackupCodes: string[], providedCode: string): boolean {
-    const normalizedCode = providedCode.toUpperCase().replace(/\s+/g, '');
+  static verifyBackupCode(
+    userBackupCodes: string[],
+    providedCode: string
+  ): boolean {
+    const normalizedCode = providedCode.toUpperCase().replace(/\s+/g, "");
     return userBackupCodes.includes(normalizedCode);
   }
 
   /**
    * Remove used backup code
    */
-  static removeBackupCode(userBackupCodes: string[], usedCode: string): string[] {
-    const normalizedCode = usedCode.toUpperCase().replace(/\s+/g, '');
+  static removeBackupCode(
+    userBackupCodes: string[],
+    usedCode: string
+  ): string[] {
+    const normalizedCode = usedCode.toUpperCase().replace(/\s+/g, "");
     return userBackupCodes.filter(code => code !== normalizedCode);
   }
 }
@@ -110,14 +116,14 @@ export class SecurityUtil {
    * Generate secure random token
    */
   static generateSecureToken(length: number = 32): string {
-    return crypto.randomBytes(length).toString('hex');
+    return crypto.randomBytes(length).toString("hex");
   }
 
   /**
    * Hash token for storage
    */
   static hashToken(token: string): string {
-    return crypto.createHash('sha256').update(token).digest('hex');
+    return crypto.createHash("sha256").update(token).digest("hex");
   }
 
   /**
@@ -125,7 +131,7 @@ export class SecurityUtil {
    */
   static generateDeviceFingerprint(userAgent: string, ip: string): string {
     const data = `${userAgent}:${ip}`;
-    return crypto.createHash('sha256').update(data).digest('hex');
+    return crypto.createHash("sha256").update(data).digest("hex");
   }
 
   /**
@@ -141,7 +147,7 @@ export class SecurityUtil {
 
     // Length check
     if (password.length < 8) {
-      feedback.push('Password must be at least 8 characters long');
+      feedback.push("Password must be at least 8 characters long");
     } else if (password.length >= 12) {
       score += 2;
     } else {
@@ -156,40 +162,52 @@ export class SecurityUtil {
 
     // Common patterns check
     if (/(.)\1{2,}/.test(password)) {
-      feedback.push('Avoid repeating characters');
+      feedback.push("Avoid repeating characters");
       score -= 1;
     }
 
     if (/123|abc|qwe/i.test(password)) {
-      feedback.push('Avoid common sequences');
+      feedback.push("Avoid common sequences");
       score -= 1;
     }
 
     // Common passwords check (simplified)
     const commonPasswords = [
-      'password', '123456', 'qwerty', 'abc123', 'password123',
-      'admin', 'letmein', 'welcome', 'monkey', 'dragon'
+      "password",
+      "123456",
+      "qwerty",
+      "abc123",
+      "password123",
+      "admin",
+      "letmein",
+      "welcome",
+      "monkey",
+      "dragon",
     ];
-    if (commonPasswords.some(common => password.toLowerCase().includes(common))) {
-      feedback.push('Avoid common passwords');
+    if (
+      commonPasswords.some(common => password.toLowerCase().includes(common))
+    ) {
+      feedback.push("Avoid common passwords");
       score -= 2;
     }
 
     // Score interpretation
     const isValid = score >= 4 && feedback.length === 0;
-    
+
     if (!isValid && feedback.length === 0) {
       if (score < 2) {
-        feedback.push('Password is very weak. Add more character variety.');
+        feedback.push("Password is very weak. Add more character variety.");
       } else if (score < 4) {
-        feedback.push('Password is weak. Consider adding uppercase, numbers, and symbols.');
+        feedback.push(
+          "Password is weak. Consider adding uppercase, numbers, and symbols."
+        );
       }
     }
 
     return {
       isValid,
       score: Math.max(0, Math.min(5, score)),
-      feedback
+      feedback,
     };
   }
 
@@ -204,22 +222,30 @@ export class SecurityUtil {
   /**
    * Generate email verification token
    */
-  static generateEmailVerificationToken(): { token: string; hashedToken: string; expires: Date } {
+  static generateEmailVerificationToken(): {
+    token: string;
+    hashedToken: string;
+    expires: Date;
+  } {
     const token = this.generateSecureToken();
     const hashedToken = this.hashToken(token);
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    return { token, hashedToken, expires };
+    return {token, hashedToken, expires};
   }
 
   /**
    * Generate password reset token
    */
-  static generatePasswordResetToken(): { token: string; hashedToken: string; expires: Date } {
+  static generatePasswordResetToken(): {
+    token: string;
+    hashedToken: string;
+    expires: Date;
+  } {
     const token = this.generateSecureToken();
     const hashedToken = this.hashToken(token);
     const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-    return { token, hashedToken, expires };
+    return {token, hashedToken, expires};
   }
 }

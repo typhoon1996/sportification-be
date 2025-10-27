@@ -8,7 +8,7 @@ export interface PaginationOptions {
   page?: number;
   limit?: number;
   sort?: string;
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
 }
 
 export interface PaginatedResult<T> {
@@ -27,13 +27,18 @@ export class PaginationHelper {
   /**
    * Validate and normalize pagination options
    */
-  static validateOptions(options: PaginationOptions): Required<PaginationOptions> {
+  static validateOptions(
+    options: PaginationOptions
+  ): Required<PaginationOptions> {
     const page = Math.max(1, parseInt(String(options.page || 1)));
-    const limit = Math.min(100, Math.max(1, parseInt(String(options.limit || 10))));
-    const sort = options.sort || 'createdAt';
-    const order = options.order === 'asc' ? 'asc' : 'desc';
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(String(options.limit || 10)))
+    );
+    const sort = options.sort || "createdAt";
+    const order = options.order === "asc" ? "asc" : "desc";
 
-    return { page, limit, sort, order };
+    return {page, limit, sort, order};
   }
 
   /**
@@ -46,8 +51,11 @@ export class PaginationHelper {
   /**
    * Build MongoDB sort object
    */
-  static buildSortObject(sort: string, order: 'asc' | 'desc'): Record<string, 1 | -1> {
-    return { [sort]: order === 'asc' ? 1 : -1 };
+  static buildSortObject(
+    sort: string,
+    order: "asc" | "desc"
+  ): Record<string, 1 | -1> {
+    return {[sort]: order === "asc" ? 1 : -1};
   }
 
   /**
@@ -81,7 +89,7 @@ export class PaginationHelper {
     query: any,
     options: PaginationOptions
   ): Promise<PaginatedResult<T>> {
-    const { page, limit, sort, order } = this.validateOptions(options);
+    const {page, limit, sort, order} = this.validateOptions(options);
     const skip = this.calculateSkip(page, limit);
     const sortObj = this.buildSortObject(sort, order);
 
@@ -101,7 +109,7 @@ export const getPaginationParams = (query: any): PaginationOptions => {
   return {
     page: query.page ? parseInt(query.page) : 1,
     limit: query.limit ? parseInt(query.limit) : 10,
-    sort: query.sort || 'createdAt',
-    order: query.order === 'asc' ? 'asc' : 'desc',
+    sort: query.sort || "createdAt",
+    order: query.order === "asc" ? "asc" : "desc",
   };
 };

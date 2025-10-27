@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import { ApiKey } from '../../modules/iam/domain/models';
-import logger from '../infrastructure/logging';
-import rateLimit from 'express-rate-limit';
+import crypto from "crypto";
+import {Request, Response, NextFunction} from "express";
+import rateLimit from "express-rate-limit";
+import {ApiKey} from "../../modules/iam/domain/models";
+import logger from "../infrastructure/logging";
+import {authenticate} from "./auth";
 
 // Extend Express Request interface to include API key info
-declare module 'express' {
+declare module "express" {
   interface Request {
     apiKey?: any;
     apiKeyPermissions?: string[];
@@ -24,37 +26,42 @@ export const authenticateApiKey = async (
 ): Promise<void> => {
   try {
     // Extract API key from header
-    const apiKeyHeader = req.headers['x-api-key'] as string;
+    const apiKeyHeader = req.headers["x-api-key"] as string;
 
     if (!apiKeyHeader) {
       res.status(401).json({
         success: false,
-        message: 'API key is required',
-        errors: ['X-API-Key header is missing'],
-        code: 'NO_API_KEY',
+        message: "API key is required",
+        errors: ["X-API-Key header is missing"],
+        code: "NO_API_KEY",
       });
       return;
     }
 
     // Hash the provided key to compare with stored hash
-    const keyHash = require('crypto').createHash('sha256').update(apiKeyHeader).digest('hex');
+    const keyHash = crypto
+      .createHash("sha256")
+      .update(apiKeyHeader)
+      .digest("hex");
 
     // Find API key in database
     const apiKey = await ApiKey.findByHash(keyHash);
-    const populatedApiKey = apiKey ? await ApiKey.findById(apiKey._id).populate('userId') : null;
+    const populatedApiKey = apiKey
+      ? await ApiKey.findById(apiKey._id).populate("userId")
+      : null;
 
     if (!populatedApiKey) {
       logger.warn(`Invalid API key attempted`, {
         ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        keyPrefix: apiKeyHeader.substring(0, 10) + '...',
+        userAgent: req.get("User-Agent"),
+        keyPrefix: apiKeyHeader.substring(0, 10) + "...",
       });
 
       res.status(401).json({
         success: false,
-        message: 'Invalid API key',
-        errors: ['The provided API key is invalid'],
-        code: 'INVALID_API_KEY',
+        message: "Invalid API key",
+        errors: ["The provided API key is invalid"],
+        code: "INVALID_API_KEY",
       });
       return;
     }
@@ -63,15 +70,18 @@ export const authenticateApiKey = async (
     if (populatedApiKey.expiresAt && populatedApiKey.expiresAt < new Date()) {
       res.status(401).json({
         success: false,
-        message: 'API key has expired',
-        errors: ['The API key has expired'],
-        code: 'API_KEY_EXPIRED',
+        message: "API key has expired",
+        errors: ["The API key has expired"],
+        code: "API_KEY_EXPIRED",
       });
       return;
     }
 
     // Check IP restrictions
-    if (populatedApiKey.allowedIPs.length > 0 && !populatedApiKey.allowedIPs.includes(req.ip!)) {
+    if (
+      populatedApiKey.allowedIPs.length > 0 &&
+      !populatedApiKey.allowedIPs.includes(req.ip!)
+    ) {
       logger.warn(`API key used from unauthorized IP`, {
         keyId: populatedApiKey._id,
         ip: req.ip,
@@ -80,9 +90,9 @@ export const authenticateApiKey = async (
 
       res.status(403).json({
         success: false,
-        message: 'Access denied from this IP address',
-        errors: ['Your IP address is not authorized to use this API key'],
-        code: 'IP_NOT_ALLOWED',
+        message: "Access denied from this IP address",
+        errors: ["Your IP address is not authorized to use this API key"],
+        code: "IP_NOT_ALLOWED",
       });
       return;
     }
@@ -95,9 +105,9 @@ export const authenticateApiKey = async (
         max: populatedApiKey.rateLimit.maxRequests,
         message: {
           success: false,
-          message: 'Rate limit exceeded for this API key',
-          errors: ['Too many requests from this API key'],
-          code: 'API_KEY_RATE_LIMIT',
+          message: "Rate limit exceeded for this API key",
+          errors: ["Too many requests from this API key"],
+          code: "API_KEY_RATE_LIMIT",
         },
         standardHeaders: true,
         legacyHeaders: false,
@@ -111,9 +121,9 @@ export const authenticateApiKey = async (
 
           res.status(429).json({
             success: false,
-            message: 'Rate limit exceeded for this API key',
-            errors: ['Too many requests from this API key'],
-            code: 'API_KEY_RATE_LIMIT',
+            message: "Rate limit exceeded for this API key",
+            errors: ["Too many requests from this API key"],
+            code: "API_KEY_RATE_LIMIT",
           });
         },
       });
@@ -130,7 +140,7 @@ export const authenticateApiKey = async (
 
       // Update last used timestamp (async, don't wait)
       populatedApiKey.updateLastUsed().catch((error: any) => {
-        logger.error('Failed to update API key last used timestamp:', error);
+        logger.error("Failed to update API key last used timestamp:", error);
       });
 
       // Attach API key info to request
@@ -149,13 +159,13 @@ export const authenticateApiKey = async (
       next();
     });
   } catch (error: any) {
-    logger.error('API key authentication error:', error);
+    logger.error("API key authentication error:", error);
 
     res.status(500).json({
       success: false,
-      message: 'Authentication failed',
-      errors: ['Internal server error during API key authentication'],
-      code: 'AUTH_ERROR',
+      message: "Authentication failed",
+      errors: ["Internal server error during API key authentication"],
+      code: "AUTH_ERROR",
     });
   }
 };
@@ -168,9 +178,9 @@ export const requireApiKeyPermission = (requiredPermissions: string[]) => {
     if (!req.apiKey) {
       res.status(401).json({
         success: false,
-        message: 'API key authentication required',
-        errors: ['Request must be authenticated with a valid API key'],
-        code: 'API_KEY_REQUIRED',
+        message: "API key authentication required",
+        errors: ["Request must be authenticated with a valid API key"],
+        code: "API_KEY_REQUIRED",
       });
       return;
     }
@@ -178,12 +188,12 @@ export const requireApiKeyPermission = (requiredPermissions: string[]) => {
     const userPermissions = req.apiKeyPermissions || [];
 
     // Check if user has admin permission (grants all access)
-    if (userPermissions.includes('admin:all')) {
+    if (userPermissions.includes("admin:all")) {
       return next();
     }
 
     // Check if user has at least one of the required permissions
-    const hasPermission = requiredPermissions.some((permission) =>
+    const hasPermission = requiredPermissions.some(permission =>
       userPermissions.includes(permission)
     );
 
@@ -199,11 +209,11 @@ export const requireApiKeyPermission = (requiredPermissions: string[]) => {
 
       res.status(403).json({
         success: false,
-        message: 'Insufficient API key permissions',
+        message: "Insufficient API key permissions",
         errors: [
-          `This API key does not have the required permissions: ${requiredPermissions.join(', ')}`,
+          `This API key does not have the required permissions: ${requiredPermissions.join(", ")}`,
         ],
-        code: 'INSUFFICIENT_PERMISSIONS',
+        code: "INSUFFICIENT_PERMISSIONS",
       });
       return;
     }
@@ -221,24 +231,23 @@ export const authenticateApiKeyOrJWT = async (
   next: NextFunction
 ): Promise<void> => {
   // Check if API key is provided
-  const apiKeyHeader = req.headers['x-api-key'];
+  const apiKeyHeader = req.headers["x-api-key"];
   if (apiKeyHeader) {
     return authenticateApiKey(req, res, next);
   }
 
   // Check if JWT token is provided
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
+  if (authHeader && authHeader.startsWith("Bearer ")) {
     // Use existing JWT authentication middleware
-    const { authenticate } = require('./auth');
     return authenticate(req, res, next);
   }
 
   // No authentication provided
   res.status(401).json({
     success: false,
-    message: 'Authentication required',
-    errors: ['Either JWT token or API key must be provided'],
-    code: 'NO_AUTH',
+    message: "Authentication required",
+    errors: ["Either JWT token or API key must be provided"],
+    code: "NO_AUTH",
   });
 };

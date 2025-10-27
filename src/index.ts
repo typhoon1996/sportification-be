@@ -1,16 +1,16 @@
-import App from './app';
-import logger from './shared/infrastructure/logging';
-import { validateAndExit } from './shared/utils/validateEnv';
-import config from './shared/config';
+import App from "./app";
+import config from "./shared/config";
+import logger from "./shared/infrastructure/logging";
+import {validateAndExit} from "./shared/utils/validateEnv";
 
 // Display startup banner
-console.log('\n🏃 Sportification Backend Starting...\n');
-console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log("\n🏃 Sportification Backend Starting...\n");
+console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 console.log(`📦 Application: ${config.app.name}`);
 console.log(`🔖 Version: ${config.app.version}`);
 console.log(`🌍 Environment: ${config.app.env}`);
 console.log(`📡 Port: ${config.app.port}`);
-console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
 // Validate environment configuration
 validateAndExit();
@@ -22,24 +22,24 @@ const shutdown = (error: unknown, type: string) => {
 };
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  logger.error('💥 Uncaught Exception:', error);
-  shutdown(error, 'Uncaught Exception');
+process.on("uncaughtException", error => {
+  logger.error("💥 Uncaught Exception:", error);
+  shutdown(error, "Uncaught Exception");
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
-  shutdown(reason, 'Unhandled Rejection');
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("💥 Unhandled Rejection at:", promise, "reason:", reason);
+  shutdown(reason, "Unhandled Rejection");
 });
 
 // Start the application
-(async () => {
+void (async () => {
   try {
     const app = new App();
     await app.start();
-    logger.info('✅ Application started successfully');
+    logger.info("✅ Application started successfully");
   } catch (error) {
-    shutdown(error, 'Failed to start application');
+    shutdown(error, "Failed to start application");
   }
 })();

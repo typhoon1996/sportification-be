@@ -6,10 +6,10 @@
  */
 
 // Export module instance
-export { iamModule } from "./module";
+export {iamModule} from "./module";
 
 // Export public services
-export { AuthService } from "./domain/services/AuthService";
+export {AuthService} from "./domain/services/AuthService";
 
 // Export events (for other modules to subscribe)
 export {
@@ -23,4 +23,4 @@ export {
 } from "./events/publishers/IamEventPublisher";
 
 // Export public types (if needed)
-export type { IUser } from "../../shared/types";
+export type {IUser} from "../../shared/types";

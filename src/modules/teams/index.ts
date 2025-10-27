@@ -2,8 +2,8 @@
  * Teams Module Public API
  */
 
-export { teamsModule } from "./module";
-export { TeamService } from "./domain/services/TeamService";
+export {teamsModule} from "./module";
+export {TeamService} from "./domain/services/TeamService";
 export {
   TeamCreatedEvent,
   MemberJoinedEvent,
