@@ -11,7 +11,7 @@
  * - ITeamEventPublisher: Domain event publishing
  */
 
-import { ITeam } from '../../../../shared/types';
+import {ITeam} from "../../../../shared/types";
 
 /**
  * Team member data for adding to a team
@@ -61,7 +61,7 @@ export interface ITeamEventPublisher {
     memberCount: number;
   }): void;
 
-  publishMemberLeft(data: { teamId: string; userId: string }): void;
+  publishMemberLeft(data: {teamId: string; userId: string}): void;
 }
 
 /**
@@ -93,7 +93,7 @@ export interface ITeamMemberService {
     team: ITeam,
     userId: string,
     eventPublisher: ITeamEventPublisher
-  ): Promise<{ success: boolean }>;
+  ): Promise<{success: boolean}>;
 
   /**
    * Check if user is a member
@@ -171,7 +171,7 @@ export interface ITeamService {
   /**
    * Remove a user from a team
    */
-  leaveTeam(userId: string, teamId: string): Promise<{ success: boolean }>;
+  leaveTeam(userId: string, teamId: string): Promise<{success: boolean}>;
 
   /**
    * Update team details (captain only)
@@ -185,5 +185,5 @@ export interface ITeamService {
   /**
    * Delete a team (captain only)
    */
-  deleteTeam(teamId: string, userId: string): Promise<{ success: boolean }>;
+  deleteTeam(teamId: string, userId: string): Promise<{success: boolean}>;
 }

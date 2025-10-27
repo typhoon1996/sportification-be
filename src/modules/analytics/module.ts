@@ -1,7 +1,7 @@
-import { Module } from "../../shared/module/Module";
-import { Router } from "express";
+import {Router} from "express";
+import {Module} from "../../shared/module/Module";
 import analyticsRoutes from "./api/routes";
-import { AnalyticsEventSubscriber } from "./events/subscribers/AnalyticsEventSubscriber";
+import {AnalyticsEventSubscriber} from "./events/subscribers/AnalyticsEventSubscriber";
 
 export class AnalyticsModule extends Module {
   private readonly eventSubscriber: AnalyticsEventSubscriber;

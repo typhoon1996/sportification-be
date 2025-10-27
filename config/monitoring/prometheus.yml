@@ -6,8 +6,8 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    cluster: 'sportification'
-    replica: '1'
+    cluster: "sportification"
+    replica: "1"
 
 # Alertmanager configuration
 alerting:
@@ -18,57 +18,57 @@ alerting:
 
 # Load rules once and periodically evaluate them
 rule_files:
-  - 'alerts/*.yml'
+  - "alerts/*.yml"
 
 # Scrape configurations
 scrape_configs:
   # Prometheus itself
-  - job_name: 'prometheus'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
 
   # Node exporter (system metrics)
-  - job_name: 'node'
+  - job_name: "node"
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ["node-exporter:9100"]
 
   # Application metrics
-  - job_name: 'api'
-    metrics_path: '/metrics'
+  - job_name: "api"
+    metrics_path: "/metrics"
     static_configs:
-      - targets: ['api:3000']
+      - targets: ["api:3000"]
     relabel_configs:
       - source_labels: [__address__]
         target_label: instance
-        replacement: 'sportification-api'
+        replacement: "sportification-api"
 
   # MongoDB exporter
-  - job_name: 'mongodb'
+  - job_name: "mongodb"
     static_configs:
-      - targets: ['mongodb-exporter:9216']
+      - targets: ["mongodb-exporter:9216"]
 
   # Redis exporter
-  - job_name: 'redis'
+  - job_name: "redis"
     static_configs:
-      - targets: ['redis-exporter:9121']
+      - targets: ["redis-exporter:9121"]
 
   # AWS CloudWatch exporter
-  - job_name: 'cloudwatch'
+  - job_name: "cloudwatch"
     static_configs:
-      - targets: ['cloudwatch-exporter:9106']
+      - targets: ["cloudwatch-exporter:9106"]
     relabel_configs:
       - source_labels: [__address__]
         target_label: instance
-        replacement: 'aws-cloudwatch'
+        replacement: "aws-cloudwatch"
 
   # ECS Service Discovery (for production)
-  - job_name: 'ecs'
+  - job_name: "ecs"
     ec2_sd_configs:
       - region: us-east-1
         port: 3000
         filters:
           - name: tag:Project
-            values: ['sportification']
+            values: ["sportification"]
     relabel_configs:
       - source_labels: [__meta_ec2_tag_Name]
         target_label: instance

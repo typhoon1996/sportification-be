@@ -1,11 +1,11 @@
 /**
  * Booking Repository - Data Access Layer
- * 
+ *
  * Handles all database operations for bookings following the Repository pattern.
  */
 
-import { Booking } from '../../domain/models/Booking';
-import { IBooking, BookingStatus, BookingFilterOptions } from '../../types';
+import {Booking} from "../../domain/models/Booking";
+import {IBooking, BookingStatus, BookingFilterOptions} from "../../types";
 
 export class BookingRepository {
   /**
@@ -14,7 +14,7 @@ export class BookingRepository {
   async create(bookingData: Partial<IBooking>): Promise<IBooking> {
     const booking = new Booking(bookingData);
     await booking.save();
-    return booking.populate(['venue', 'user']);
+    return booking.populate(["venue", "user"]);
   }
 
   /**
@@ -22,8 +22,8 @@ export class BookingRepository {
    */
   async findById(bookingId: string): Promise<IBooking | null> {
     return Booking.findById(bookingId)
-      .populate('venue')
-      .populate('user', 'email profile')
+      .populate("venue")
+      .populate("user", "email profile")
       .exec();
   }
 
@@ -38,19 +38,19 @@ export class BookingRepository {
   ): Promise<IBooking[]> {
     const query: any = {
       venue: venueId,
-      status: { $in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
+      status: {$in: [BookingStatus.PENDING, BookingStatus.CONFIRMED]},
       $or: [
         // New booking starts during existing booking
-        { startTime: { $lte: startTime }, endTime: { $gt: startTime } },
+        {startTime: {$lte: startTime}, endTime: {$gt: startTime}},
         // New booking ends during existing booking
-        { startTime: { $lt: endTime }, endTime: { $gte: endTime } },
+        {startTime: {$lt: endTime}, endTime: {$gte: endTime}},
         // New booking completely contains existing booking
-        { startTime: { $gte: startTime }, endTime: { $lte: endTime } },
+        {startTime: {$gte: startTime}, endTime: {$lte: endTime}},
       ],
     };
 
     if (excludeBookingId) {
-      query._id = { $ne: excludeBookingId };
+      query._id = {$ne: excludeBookingId};
     }
 
     return Booking.find(query).exec();
@@ -63,7 +63,7 @@ export class BookingRepository {
     userId: string,
     filters?: BookingFilterOptions
   ): Promise<IBooking[]> {
-    const query: any = { user: userId };
+    const query: any = {user: userId};
 
     if (filters?.status) {
       query.status = filters.status;
@@ -81,8 +81,8 @@ export class BookingRepository {
     }
 
     return Booking.find(query)
-      .populate('venue', 'name location')
-      .sort({ startTime: -1 })
+      .populate("venue", "name location")
+      .sort({startTime: -1})
       .limit(filters?.limit || 100)
       .exec();
   }
@@ -94,7 +94,7 @@ export class BookingRepository {
     venueId: string,
     filters?: BookingFilterOptions
   ): Promise<IBooking[]> {
-    const query: any = { venue: venueId };
+    const query: any = {venue: venueId};
 
     if (filters?.status) {
       query.status = filters.status;
@@ -108,8 +108,8 @@ export class BookingRepository {
     }
 
     return Booking.find(query)
-      .populate('user', 'email profile')
-      .sort({ startTime: 1 })
+      .populate("user", "email profile")
+      .sort({startTime: 1})
       .limit(filters?.limit || 100)
       .exec();
   }
@@ -125,8 +125,8 @@ export class BookingRepository {
       new: true,
       runValidators: true,
     })
-      .populate('venue')
-      .populate('user', 'email profile')
+      .populate("venue")
+      .populate("user", "email profile")
       .exec();
   }
 
@@ -137,7 +137,7 @@ export class BookingRepository {
     bookingId: string,
     status: BookingStatus
   ): Promise<IBooking | null> {
-    return this.update(bookingId, { status });
+    return this.update(bookingId, {status});
   }
 
   /**
@@ -160,11 +160,11 @@ export class BookingRepository {
   async findUpcomingByUser(userId: string): Promise<IBooking[]> {
     return Booking.find({
       user: userId,
-      status: { $in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
-      startTime: { $gte: new Date() },
+      status: {$in: [BookingStatus.PENDING, BookingStatus.CONFIRMED]},
+      startTime: {$gte: new Date()},
     })
-      .populate('venue', 'name location')
-      .sort({ startTime: 1 })
+      .populate("venue", "name location")
+      .sort({startTime: 1})
       .exec();
   }
 
@@ -174,11 +174,11 @@ export class BookingRepository {
   async findPastByUser(userId: string, limit = 20): Promise<IBooking[]> {
     return Booking.find({
       user: userId,
-      status: { $in: [BookingStatus.COMPLETED, BookingStatus.CANCELLED] },
-      endTime: { $lt: new Date() },
+      status: {$in: [BookingStatus.COMPLETED, BookingStatus.CANCELLED]},
+      endTime: {$lt: new Date()},
     })
-      .populate('venue', 'name location')
-      .sort({ endTime: -1 })
+      .populate("venue", "name location")
+      .sort({endTime: -1})
       .limit(limit)
       .exec();
   }
@@ -187,14 +187,14 @@ export class BookingRepository {
    * Count bookings by status
    */
   async countByStatus(status: BookingStatus): Promise<number> {
-    return Booking.countDocuments({ status }).exec();
+    return Booking.countDocuments({status}).exec();
   }
 
   /**
    * Count bookings by venue
    */
   async countByVenue(venueId: string): Promise<number> {
-    return Booking.countDocuments({ venue: venueId }).exec();
+    return Booking.countDocuments({venue: venueId}).exec();
   }
 
   /**
@@ -206,10 +206,10 @@ export class BookingRepository {
 
     return Booking.find({
       status: BookingStatus.CONFIRMED,
-      startTime: { $gte: oneHourFromNow, $lte: twoHoursFromNow },
+      startTime: {$gte: oneHourFromNow, $lte: twoHoursFromNow},
     })
-      .populate('user', 'email profile')
-      .populate('venue', 'name location')
+      .populate("user", "email profile")
+      .populate("venue", "name location")
       .exec();
   }
 
@@ -218,11 +218,11 @@ export class BookingRepository {
    */
   async findOverdue(): Promise<IBooking[]> {
     return Booking.find({
-      status: { $in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
-      endTime: { $lt: new Date() },
+      status: {$in: [BookingStatus.PENDING, BookingStatus.CONFIRMED]},
+      endTime: {$lt: new Date()},
     })
-      .populate('venue', 'name location')
-      .populate('user', 'email profile')
+      .populate("venue", "name location")
+      .populate("user", "email profile")
       .exec();
   }
 
@@ -233,7 +233,7 @@ export class BookingRepository {
     filters: BookingFilterOptions,
     page: number = 1,
     limit: number = 10
-  ): Promise<{ bookings: IBooking[]; total: number }> {
+  ): Promise<{bookings: IBooking[]; total: number}> {
     const query: any = {};
 
     if (filters.venueId) {
@@ -260,19 +260,19 @@ export class BookingRepository {
     }
 
     const skip = (page - 1) * limit;
-    
+
     const [bookings, total] = await Promise.all([
       Booking.find(query)
-        .populate('venue', 'name location')
-        .populate('user', 'email profile')
-        .sort({ startTime: -1 })
+        .populate("venue", "name location")
+        .populate("user", "email profile")
+        .sort({startTime: -1})
         .skip(skip)
         .limit(limit)
         .exec(),
       Booking.countDocuments(query).exec(),
     ]);
 
-    return { bookings, total };
+    return {bookings, total};
   }
 
   /**
@@ -285,13 +285,14 @@ export class BookingRepository {
   ): Promise<any> {
     const bookings = await Booking.find({
       venue: venueId,
-      startTime: { $gte: startDate, $lte: endDate },
-      status: { $in: [BookingStatus.CONFIRMED, BookingStatus.COMPLETED] },
+      startTime: {$gte: startDate, $lte: endDate},
+      status: {$in: [BookingStatus.CONFIRMED, BookingStatus.COMPLETED]},
     }).exec();
 
     const totalRevenue = bookings.reduce((sum, b) => sum + b.totalPrice, 0);
     const totalBookings = bookings.length;
-    const averageBookingValue = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+    const averageBookingValue =
+      totalBookings > 0 ? totalRevenue / totalBookings : 0;
 
     return {
       totalRevenue,
@@ -311,11 +312,11 @@ export class BookingRepository {
   ): Promise<IBooking[]> {
     return Booking.find({
       venue: venueId,
-      startTime: { $gte: startDate, $lte: endDate },
-      status: { $in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
+      startTime: {$gte: startDate, $lte: endDate},
+      status: {$in: [BookingStatus.PENDING, BookingStatus.CONFIRMED]},
     })
-      .populate('user', 'email profile')
-      .sort({ startTime: 1 })
+      .populate("user", "email profile")
+      .sort({startTime: 1})
       .exec();
   }
 
@@ -325,11 +326,11 @@ export class BookingRepository {
   async findUpcomingByVenue(venueId: string): Promise<IBooking[]> {
     return Booking.find({
       venue: venueId,
-      status: { $in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
-      startTime: { $gte: new Date() },
+      status: {$in: [BookingStatus.PENDING, BookingStatus.CONFIRMED]},
+      startTime: {$gte: new Date()},
     })
-      .populate('user', 'email profile')
-      .sort({ startTime: 1 })
+      .populate("user", "email profile")
+      .sort({startTime: 1})
       .exec();
   }
 }

@@ -1,11 +1,11 @@
-import { eventBus } from '@/shared/events/EventBus';
-import logger from '@/shared/infrastructure/logging';
+import {eventBus} from "@/shared/events/EventBus";
+import logger from "@/shared/infrastructure/logging";
 
 /**
  * TeamsEventPublisher - Publishes domain events for teams module
  */
 export class TeamsEventPublisher {
-  private static readonly MODULE_NAME = 'teams';
+  private static readonly MODULE_NAME = "teams";
 
   /**
    * Publish entity created event
@@ -15,14 +15,17 @@ export class TeamsEventPublisher {
       eventBus.publish({
         eventType: `${this.MODULE_NAME}.created`,
         aggregateId: data.id,
-        aggregateType: 'Teams',
+        aggregateType: "Teams",
         timestamp: new Date(),
         payload: data,
       });
-      
-      logger.info(`Published ${this.MODULE_NAME}.created event`, { id: data.id });
+
+      logger.info(`Published ${this.MODULE_NAME}.created event`, {id: data.id});
     } catch (error) {
-      logger.error(`Failed to publish ${this.MODULE_NAME}.created event`, error);
+      logger.error(
+        `Failed to publish ${this.MODULE_NAME}.created event`,
+        error
+      );
     }
   }
 
@@ -34,14 +37,17 @@ export class TeamsEventPublisher {
       eventBus.publish({
         eventType: `${this.MODULE_NAME}.updated`,
         aggregateId: data.id,
-        aggregateType: 'Teams',
+        aggregateType: "Teams",
         timestamp: new Date(),
         payload: data,
       });
-      
-      logger.info(`Published ${this.MODULE_NAME}.updated event`, { id: data.id });
+
+      logger.info(`Published ${this.MODULE_NAME}.updated event`, {id: data.id});
     } catch (error) {
-      logger.error(`Failed to publish ${this.MODULE_NAME}.updated event`, error);
+      logger.error(
+        `Failed to publish ${this.MODULE_NAME}.updated event`,
+        error
+      );
     }
   }
 
@@ -53,14 +59,17 @@ export class TeamsEventPublisher {
       eventBus.publish({
         eventType: `${this.MODULE_NAME}.deleted`,
         aggregateId: id,
-        aggregateType: 'Teams',
+        aggregateType: "Teams",
         timestamp: new Date(),
-        payload: { id },
+        payload: {id},
       });
-      
-      logger.info(`Published ${this.MODULE_NAME}.deleted event`, { id });
+
+      logger.info(`Published ${this.MODULE_NAME}.deleted event`, {id});
     } catch (error) {
-      logger.error(`Failed to publish ${this.MODULE_NAME}.deleted event`, error);
+      logger.error(
+        `Failed to publish ${this.MODULE_NAME}.deleted event`,
+        error
+      );
     }
   }
 }

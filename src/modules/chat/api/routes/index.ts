@@ -1,18 +1,18 @@
 /**
  * Chat Routes Module
- * 
+ *
  * Base Path: /api/v1/chats
- * 
+ *
  * Handles real-time messaging and chat room management.
  * Supports both direct messaging (1-on-1) and group chats.
- * 
+ *
  * Features:
  * - Chat creation (direct and group)
  * - Message sending and retrieval
  * - Chat history with pagination
  * - Real-time WebSocket integration
  * - Participant management
- * 
+ *
  * Security:
  * - All routes require authentication
  * - Users can only access chats they're participants in
@@ -20,8 +20,8 @@
  */
 
 import {Router} from "express";
-import {chatController} from "../controllers/ChatController";
 import {authenticate} from "../../../../shared/middleware/auth";
+import {chatController} from "../controllers/ChatController";
 
 const router = Router();
 

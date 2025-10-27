@@ -1,11 +1,11 @@
 /**
  * Venue Routes Module
- * 
+ *
  * Base Path: /api/v1/venues
- * 
+ *
  * Manages sports venues and their bookings.
  * Supports geolocation-based venue discovery and facility management.
- * 
+ *
  * Features:
  * - Venue CRUD operations
  * - Geospatial queries (nearby venues)
@@ -13,25 +13,25 @@
  * - Sports categorization
  * - Booking integration (sub-routes at /bookings)
  * - Photo and media management
- * 
+ *
  * Security:
  * - All venue routes require authentication
  * - Venue creation requires admin/moderator role
  * - Update/delete requires creator authorization
  * - Booking routes have separate authorization
- * 
+ *
  * Sub-Routes:
  * - /bookings/* - Venue booking management (see bookings.ts)
  */
 
 import {Router} from "express";
-import {venueController} from "../controllers/VenueController";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {
   createVenueValidation,
   idParamValidation,
 } from "../../../../shared/validators";
+import {venueController} from "../controllers/VenueController";
 import bookingRoutes from "./bookings";
 
 const router = Router();

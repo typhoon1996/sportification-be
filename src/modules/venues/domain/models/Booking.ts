@@ -1,33 +1,33 @@
-import { Schema, model } from 'mongoose';
-import { IBooking, BookingStatus, BookingType, PricingType } from '../../types';
+import {Schema, model} from "mongoose";
+import {IBooking, BookingStatus, BookingType, PricingType} from "../../types";
 
 const bookingSchema = new Schema<IBooking>(
   {
     venue: {
       type: Schema.Types.ObjectId,
-      ref: 'Venue',
-      required: [true, 'Venue is required'],
+      ref: "Venue",
+      required: [true, "Venue is required"],
       index: true,
     },
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'User is required'],
+      ref: "User",
+      required: [true, "User is required"],
       index: true,
     },
     startTime: {
       type: Date,
-      required: [true, 'Start time is required'],
+      required: [true, "Start time is required"],
       index: true,
     },
     endTime: {
       type: Date,
-      required: [true, 'End time is required'],
+      required: [true, "End time is required"],
       validate: {
         validator: function (this: IBooking, value: Date) {
           return value > this.startTime;
         },
-        message: 'End time must be after start time',
+        message: "End time must be after start time",
       },
     },
     status: {
@@ -43,23 +43,23 @@ const bookingSchema = new Schema<IBooking>(
     },
     participants: {
       type: Number,
-      required: [true, 'Number of participants is required'],
-      min: [1, 'At least 1 participant is required'],
+      required: [true, "Number of participants is required"],
+      min: [1, "At least 1 participant is required"],
     },
     basePrice: {
       type: Number,
-      required: [true, 'Base price is required'],
-      min: [0, 'Base price cannot be negative'],
+      required: [true, "Base price is required"],
+      min: [0, "Base price cannot be negative"],
     },
     discountAmount: {
       type: Number,
       default: 0,
-      min: [0, 'Discount amount cannot be negative'],
+      min: [0, "Discount amount cannot be negative"],
     },
     totalPrice: {
       type: Number,
-      required: [true, 'Total price is required'],
-      min: [0, 'Total price cannot be negative'],
+      required: [true, "Total price is required"],
+      min: [0, "Total price cannot be negative"],
     },
     pricingType: {
       type: String,
@@ -75,8 +75,8 @@ const bookingSchema = new Schema<IBooking>(
     ],
     paymentStatus: {
       type: String,
-      enum: ['pending', 'paid', 'refunded', 'partially_refunded'],
-      default: 'pending',
+      enum: ["pending", "paid", "refunded", "partially_refunded"],
+      default: "pending",
       index: true,
     },
     paymentMethod: {
@@ -96,12 +96,12 @@ const bookingSchema = new Schema<IBooking>(
     },
     notes: {
       type: String,
-      maxlength: [500, 'Notes cannot exceed 500 characters'],
+      maxlength: [500, "Notes cannot exceed 500 characters"],
       trim: true,
     },
     cancellationReason: {
       type: String,
-      maxlength: [500, 'Cancellation reason cannot exceed 500 characters'],
+      maxlength: [500, "Cancellation reason cannot exceed 500 characters"],
       trim: true,
     },
     cancelledAt: {
@@ -109,7 +109,7 @@ const bookingSchema = new Schema<IBooking>(
     },
     refundAmount: {
       type: Number,
-      min: [0, 'Refund amount cannot be negative'],
+      min: [0, "Refund amount cannot be negative"],
     },
     refundedAt: {
       type: Date,
@@ -117,31 +117,35 @@ const bookingSchema = new Schema<IBooking>(
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true},
   }
 );
 
 // Virtual for booking duration in hours
-bookingSchema.virtual('durationHours').get(function () {
+bookingSchema.virtual("durationHours").get(function () {
   const duration = this.endTime.getTime() - this.startTime.getTime();
   return Math.round((duration / (1000 * 60 * 60)) * 100) / 100;
 });
 
 // Virtual for is past booking
-bookingSchema.virtual('isPast').get(function () {
+bookingSchema.virtual("isPast").get(function () {
   return this.endTime < new Date();
 });
 
 // Virtual for is upcoming
-bookingSchema.virtual('isUpcoming').get(function () {
+bookingSchema.virtual("isUpcoming").get(function () {
   return this.startTime > new Date() && this.status !== BookingStatus.CANCELLED;
 });
 
 // Virtual for is ongoing
-bookingSchema.virtual('isOngoing').get(function () {
+bookingSchema.virtual("isOngoing").get(function () {
   const now = new Date();
-  return this.startTime <= now && this.endTime >= now && this.status === BookingStatus.CHECKED_IN;
+  return (
+    this.startTime <= now &&
+    this.endTime >= now &&
+    this.status === BookingStatus.CHECKED_IN
+  );
 });
 
 // Method to calculate price based on various factors
@@ -151,7 +155,9 @@ bookingSchema.methods.calculatePrice = function (): number {
 };
 
 // Method to apply discount
-bookingSchema.methods.applyDiscount = function (discountPercentage: number): void {
+bookingSchema.methods.applyDiscount = function (
+  discountPercentage: number
+): void {
   const discountAmount = (this.basePrice * discountPercentage) / 100;
   this.discountAmount += discountAmount;
   this.totalPrice = this.basePrice - this.discountAmount;
@@ -159,7 +165,10 @@ bookingSchema.methods.applyDiscount = function (discountPercentage: number): voi
 
 // Method to check if booking can be cancelled
 bookingSchema.methods.canCancel = function (): boolean {
-  if (this.status === BookingStatus.CANCELLED || this.status === BookingStatus.COMPLETED) {
+  if (
+    this.status === BookingStatus.CANCELLED ||
+    this.status === BookingStatus.COMPLETED
+  ) {
     return false;
   }
 
@@ -174,7 +183,8 @@ bookingSchema.methods.getRefundAmount = function (): number {
   }
 
   const now = new Date();
-  const hoursUntilStart = (this.startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const hoursUntilStart =
+    (this.startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
   // Refund policy:
   // - More than 24 hours: 100% refund
@@ -190,11 +200,11 @@ bookingSchema.methods.getRefundAmount = function (): number {
 };
 
 // Indexes
-bookingSchema.index({ venue: 1, startTime: 1, endTime: 1 });
-bookingSchema.index({ user: 1, status: 1 });
-bookingSchema.index({ status: 1, startTime: 1 });
-bookingSchema.index({ venue: 1, status: 1, paymentStatus: 1 });
-bookingSchema.index({ createdAt: -1 });
+bookingSchema.index({venue: 1, startTime: 1, endTime: 1});
+bookingSchema.index({user: 1, status: 1});
+bookingSchema.index({status: 1, startTime: 1});
+bookingSchema.index({venue: 1, status: 1, paymentStatus: 1});
+bookingSchema.index({createdAt: -1});
 
 // Compound index for conflict checking
 bookingSchema.index({
@@ -204,4 +214,4 @@ bookingSchema.index({
   endTime: 1,
 });
 
-export const Booking = model<IBooking>('Booking', bookingSchema);
+export const Booking = model<IBooking>("Booking", bookingSchema);

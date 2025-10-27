@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import config from "./index";
 import logger from "../infrastructure/logging";
+import config from "./index";
 
 /**
  * Singleton Database manager for MongoDB using mongoose.
@@ -67,8 +67,9 @@ class Database {
       });
     } catch (error) {
       logger.error("❌ Error connecting to MongoDB:", error);
-      if (config.app.env === "test") {
-        // In test environment rethrow so test runner can handle it
+      if (config.app.env !== "test") {
+        process.exit(1);
+      } else {
         throw error;
       } else {
         process.exit(1);

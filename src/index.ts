@@ -1,7 +1,7 @@
 import App from "./app";
+import config from "./shared/config";
 import logger from "./shared/infrastructure/logging";
 import {validateAndExit} from "./shared/utils/validateEnv";
-import config from "./shared/config";
 
 // Display startup banner
 console.log("\n🏃 Sportification Backend Starting...\n");
@@ -34,17 +34,12 @@ process.on("unhandledRejection", (reason, promise) => {
 });
 
 // Start the application
-/**
- * Main entrypoint — creates and starts the application.
- *
- * @return {Promise<void>} Resolves when the application has started.
- */
-async function main(): Promise<void> {
-  const app = new App();
-  await app.start();
-  logger.info("✅ Application started successfully");
-}
-
-main().catch((error: unknown) => {
-  shutdown(error, "Failed to start application");
-});
+void (async () => {
+  try {
+    const app = new App();
+    await app.start();
+    logger.info("✅ Application started successfully");
+  } catch (error) {
+    shutdown(error, "Failed to start application");
+  }
+})();

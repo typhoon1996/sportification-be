@@ -59,6 +59,7 @@ The documentation is automatically generated from JSDoc `@swagger` annotations i
 For the fastest setup, use our automated setup script:
 
 **Using npm (Works on all platforms):**
+
 ```bash
 git clone <repository-url>
 cd sportification-be
@@ -66,6 +67,7 @@ npm run setup:env
 ```
 
 **Or using shell script (Unix/Linux/macOS only):**
+
 ```bash
 git clone <repository-url>
 cd sportification-be
@@ -100,12 +102,14 @@ This script will:
    We provide an automated script to set up your local environment with secure secrets:
 
    **Cross-platform (recommended):**
+
    ```bash
    # Run the interactive setup script
    npm run setup:env
    ```
 
    **Or on Unix/Linux/macOS:**
+
    ```bash
    ./scripts/development/setup-local-env.sh
    ```
@@ -115,12 +119,12 @@ This script will:
    ```bash
    # Copy environment file for development
    cp config/environments/.env.development .env
-   
+
    # Generate secure secrets
    openssl rand -base64 32  # For JWT_SECRET
    openssl rand -base64 32  # For JWT_REFRESH_SECRET
    openssl rand -base64 32  # For SESSION_SECRET
-   
+
    # Edit the local file with your configuration
    nano .env
    ```
@@ -134,7 +138,7 @@ This script will:
    ```bash
    # Using MongoDB locally
    mongod --dbpath /path/to/your/db
-   
+
    # Or using MongoDB Atlas (update MONGODB_URI in .env)
    ```
 
@@ -405,10 +409,10 @@ npm run test:coverage
 ```markdown
 src/
 ├── tests/
-│   ├── setup.ts           # Test configuration
-│   ├── auth.test.ts       # Authentication tests
-│   ├── matches.test.ts    # Match functionality tests
-│   └── users.test.ts      # User management tests
+│ ├── setup.ts # Test configuration
+│ ├── auth.test.ts # Authentication tests
+│ ├── matches.test.ts # Match functionality tests
+│ └── users.test.ts # User management tests
 ```
 
 ## 🏗️ Project Structure

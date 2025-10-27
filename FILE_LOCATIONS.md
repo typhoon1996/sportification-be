@@ -10,17 +10,17 @@ This guide helps you quickly find files in the new structure.
 
 ### Configuration Files
 
-| Old Location | New Location | Purpose |
-|--------------|--------------|---------|
-| `Dockerfile` | `config/docker/Dockerfile` | Docker build configuration |
-| `docker-compose.yml` | `config/docker/docker-compose.yml` | Docker compose base |
-| `docker-compose.*.yml` | `config/docker/docker-compose.*.yml` | Environment-specific compose |
-| `.env.example` | `config/environments/.env.example` | Environment template |
-| `.env.development` | `config/environments/.env.development` | Dev environment |
-| `.env.test` | `config/environments/.env.test` | Test environment |
-| `.env.production` | `config/environments/.env.production` | Prod environment |
-| `jest.config.js` | `config/jest.config.js` | Test configuration |
-| `tsconfig.json` | `config/tsconfig.json` | TypeScript configuration |
+| Old Location           | New Location                           | Purpose                      |
+| ---------------------- | -------------------------------------- | ---------------------------- |
+| `Dockerfile`           | `config/docker/Dockerfile`             | Docker build configuration   |
+| `docker-compose.yml`   | `config/docker/docker-compose.yml`     | Docker compose base          |
+| `docker-compose.*.yml` | `config/docker/docker-compose.*.yml`   | Environment-specific compose |
+| `.env.example`         | `config/environments/.env.example`     | Environment template         |
+| `.env.development`     | `config/environments/.env.development` | Dev environment              |
+| `.env.test`            | `config/environments/.env.test`        | Test environment             |
+| `.env.production`      | `config/environments/.env.production`  | Prod environment             |
+| `jest.config.js`       | `config/jest.config.js`                | Test configuration           |
+| `tsconfig.json`        | `config/tsconfig.json`                 | TypeScript configuration     |
 
 | `nginx/` | `config/nginx/` | Nginx configuration |
 | `redis/` | `config/redis/` | Redis configuration |
@@ -28,28 +28,28 @@ This guide helps you quickly find files in the new structure.
 
 ### Documentation Files
 
-| Old Location | New Location | Purpose |
-|--------------|--------------|---------|
-| `QUICK_REFERENCE.md` | `project-docs/QUICK_REFERENCE.md` | Command reference |
-| `CHANGELOG.md` | `project-docs/CHANGELOG.md` | Version history |
-| `CONTRIBUTING.md` | `project-docs/CONTRIBUTING.md` | Contribution guide |
-| `SETUP_COMPLETE.md` | `project-docs/SETUP_COMPLETE.md` | Setup guide |
-| `FEATURE_ANALYSIS.md` | `project-docs/FEATURE_ANALYSIS.md` | Feature docs |
-| `BOOKING_*.md` | `project-docs/BOOKING_*.md` | Booking feature docs |
-| `specs.md` | `project-docs/specs.md` | Technical specs |
-| `DEPLOYMENT_CHECKLIST.md` | `docs/deployment/DEPLOYMENT_CHECKLIST.md` | Deployment guide |
-| `docs/PROJECT_STRUCTURE.md` | `docs/architecture/PROJECT_STRUCTURE.md` | Architecture docs |
+| Old Location                | New Location                              | Purpose              |
+| --------------------------- | ----------------------------------------- | -------------------- |
+| `QUICK_REFERENCE.md`        | `project-docs/QUICK_REFERENCE.md`         | Command reference    |
+| `CHANGELOG.md`              | `project-docs/CHANGELOG.md`               | Version history      |
+| `CONTRIBUTING.md`           | `project-docs/CONTRIBUTING.md`            | Contribution guide   |
+| `SETUP_COMPLETE.md`         | `project-docs/SETUP_COMPLETE.md`          | Setup guide          |
+| `FEATURE_ANALYSIS.md`       | `project-docs/FEATURE_ANALYSIS.md`        | Feature docs         |
+| `BOOKING_*.md`              | `project-docs/BOOKING_*.md`               | Booking feature docs |
+| `specs.md`                  | `project-docs/specs.md`                   | Technical specs      |
+| `DEPLOYMENT_CHECKLIST.md`   | `docs/deployment/DEPLOYMENT_CHECKLIST.md` | Deployment guide     |
+| `docs/PROJECT_STRUCTURE.md` | `docs/architecture/PROJECT_STRUCTURE.md`  | Architecture docs    |
 
 ### Script Files
 
-| Old Location | New Location | Purpose |
-|--------------|--------------|---------|
-| `scripts/setup.sh` | `scripts/development/setup.sh` | Initial setup |
+| Old Location                 | New Location                             | Purpose           |
+| ---------------------------- | ---------------------------------------- | ----------------- |
+| `scripts/setup.sh`           | `scripts/development/setup.sh`           | Initial setup     |
 | `scripts/setup-local-env.sh` | `scripts/development/setup-local-env.sh` | Environment setup |
-| `scripts/health-check.sh` | `scripts/development/health-check.sh` | Health check |
-| `scripts/deploy.sh` | `scripts/deployment/deploy.sh` | Deployment script |
-| `scripts/aws-setup.sh` | `scripts/deployment/aws-setup.sh` | AWS setup |
-| `scripts/mongo-init.js` | `scripts/database/mongo-init.js` | MongoDB init |
+| `scripts/health-check.sh`    | `scripts/development/health-check.sh`    | Health check      |
+| `scripts/deploy.sh`          | `scripts/deployment/deploy.sh`           | Deployment script |
+| `scripts/aws-setup.sh`       | `scripts/deployment/aws-setup.sh`        | AWS setup         |
+| `scripts/mongo-init.js`      | `scripts/database/mongo-init.js`         | MongoDB init      |
 
 ---
 

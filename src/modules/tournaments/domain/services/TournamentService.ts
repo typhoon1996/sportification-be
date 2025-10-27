@@ -1,19 +1,19 @@
-import { Tournament } from '../../../tournaments/domain/models/Tournament';
-import { TournamentEventPublisher } from '../../events/publishers/TournamentEventPublisher';
 import {
   NotFoundError,
   ValidationError,
   ConflictError,
-} from '../../../../shared/middleware/errorHandler';
-import { TournamentStatus } from '../../../../shared/types';
+} from "../../../../shared/middleware/errorHandler";
+import {TournamentStatus} from "../../../../shared/types";
+import {Tournament} from "../../../tournaments/domain/models/Tournament";
+import {TournamentEventPublisher} from "../../events/publishers/TournamentEventPublisher";
 
 /**
  * TournamentService - Business logic for tournament management
- * 
+ *
  * Manages tournament lifecycle including creation, participant registration,
  * bracket generation, and match progression. Supports multiple tournament formats
  * such as single-elimination, double-elimination, and round-robin.
- * 
+ *
  * Features:
  * - Tournament creation with scheduling validation
  * - Bracket generation for various formats
@@ -31,11 +31,11 @@ export class TournamentService {
 
   /**
    * Create a new tournament
-   * 
+   *
    * Creates a tournament with the specified format, schedule, and rules.
    * Validates that the start date is in the future. Sets initial status to 'upcoming'.
    * Publishes tournament.created event for notifications.
-   * 
+   *
    * @async
    * @param {string} userId - User ID of the tournament organizer
    * @param {Object} tournamentData - Tournament creation data
@@ -45,10 +45,10 @@ export class TournamentService {
    * @param {Date} tournamentData.schedule.startDate - Tournament start date
    * @param {string} [tournamentData.format] - Tournament format (single-elimination, etc.)
    * @param {number} [tournamentData.maxParticipants] - Maximum number of participants
-   * @returns {Promise<Tournament>} Created tournament document
-   * 
+   * @return {Promise<Tournament>} Created tournament document
+   *
    * @throws {ValidationError} If start date is not in the future
-   * 
+   *
    * @example
    * const tournament = await tournamentService.createTournament('user123', {
    *   name: 'Summer Championship',
@@ -61,15 +61,15 @@ export class TournamentService {
   async createTournament(userId: string, tournamentData: any) {
     const startDate = new Date(tournamentData.schedule.startDate);
     if (startDate <= new Date()) {
-      throw new ValidationError('Tournament start date must be in the future');
+      throw new ValidationError("Tournament start date must be in the future");
     }
 
     const tournament = new Tournament({
       ...tournamentData,
       organizer: userId,
       participants: [],
-      status: 'upcoming',
-      sport: tournamentData.sport || 'General',
+      status: "upcoming",
+      sport: tournamentData.sport || "General",
       schedule: {
         ...tournamentData.schedule,
         startDate,
@@ -82,7 +82,7 @@ export class TournamentService {
     this.eventPublisher.publishTournamentCreated({
       tournamentId: tournament.id,
       name: tournament.name,
-      sport: tournament.sport || 'General',
+      sport: tournament.sport || "General",
       organizerId: userId,
       startDate: tournament.startDate,
     });
@@ -92,25 +92,25 @@ export class TournamentService {
 
   /**
    * Generate tournament bracket
-   * 
+   *
    * Creates the tournament bracket structure based on registered participants.
    * Only the tournament organizer can generate brackets. Tournament must be in
    * 'upcoming' status with at least 2 participants.
-   * 
+   *
    * Algorithm: Creates a single-elimination bracket by randomly shuffling participants
    * and pairing them for first-round matches. Calculates required rounds based on
    * participant count.
-   * 
+   *
    * @async
    * @param {string} tournamentId - Tournament ID to generate bracket for
    * @param {string} userId - User ID attempting to generate (must be organizer)
-   * @returns {Promise<Object>} Success response with generated bracket structure
-   * 
+   * @return {Promise<Object>} Success response with generated bracket structure
+   *
    * @throws {NotFoundError} If tournament does not exist
    * @throws {ValidationError} If user is not the organizer
    * @throws {ValidationError} If less than 2 participants registered
    * @throws {ConflictError} If tournament is not in 'upcoming' status
-   * 
+   *
    * @example
    * const result = await tournamentService.generateBracket('tournament123', 'organizer123');
    * // Returns: { success: true, bracket: { rounds: [...], totalRounds: 4 } }
@@ -119,40 +119,48 @@ export class TournamentService {
     const tournament = await Tournament.findById(tournamentId);
 
     if (!tournament) {
-      throw new NotFoundError('Tournament');
+      throw new NotFoundError("Tournament");
     }
 
     if (tournament.createdBy.toString() !== userId) {
-      throw new ValidationError('Only tournament organizer can generate bracket');
+      throw new ValidationError(
+        "Only tournament organizer can generate bracket"
+      );
     }
 
     if (tournament.status !== TournamentStatus.UPCOMING) {
-      throw new ConflictError('Can only generate bracket for upcoming tournaments');
+      throw new ConflictError(
+        "Can only generate bracket for upcoming tournaments"
+      );
     }
 
     if (tournament.participants.length < 2) {
-      throw new ValidationError('Need at least 2 participants to generate bracket');
+      throw new ValidationError(
+        "Need at least 2 participants to generate bracket"
+      );
     }
 
     // Generate single-elimination bracket
-    const bracket = this.createSingleEliminationBracket(tournament.participants);
+    const bracket = this.createSingleEliminationBracket(
+      tournament.participants
+    );
 
     tournament.bracket = bracket;
     await tournament.save();
 
-    return { success: true, bracket };
+    return {success: true, bracket};
   }
 
   /**
    * Create single-elimination bracket structure
-   * 
+   *
    * Private helper method that generates a single-elimination bracket from
    * a list of participants. Randomly shuffles participants and pairs them
    * into matches. Calculates the number of rounds needed based on participant count.
-   * 
+   *
    * @private
    * @param {any[]} participants - Array of participant IDs
-   * @returns {Object} Bracket structure with rounds and matches
+   * @return {Object} Bracket structure with rounds and matches
    */
   private createSingleEliminationBracket(participants: any[]): any {
     // Shuffle participants
@@ -195,12 +203,12 @@ export class TournamentService {
 
   async getLeaderboard(tournamentId: string) {
     const tournament = await Tournament.findById(tournamentId).populate(
-      'participants',
-      'profile stats'
+      "participants",
+      "profile stats"
     );
 
     if (!tournament) {
-      throw new NotFoundError('Tournament');
+      throw new NotFoundError("Tournament");
     }
 
     // Sort by standings if available
@@ -216,22 +224,22 @@ export class TournamentService {
     const tournament = await Tournament.findById(tournamentId);
 
     if (!tournament) {
-      throw new NotFoundError('Tournament');
+      throw new NotFoundError("Tournament");
     }
 
-    if (tournament.status !== 'upcoming') {
-      throw new ConflictError('Cannot join tournament that is not upcoming');
+    if (tournament.status !== ("upcoming" as any)) {
+      throw new ConflictError("Cannot join tournament that is not upcoming");
     }
 
     if (tournament.participants.includes(userId as any)) {
-      throw new ConflictError('Already participating in this tournament');
+      throw new ConflictError("Already participating in this tournament");
     }
 
     if (
       tournament.maxParticipants &&
       tournament.participants.length >= tournament.maxParticipants
     ) {
-      throw new ConflictError('Tournament is full');
+      throw new ConflictError("Tournament is full");
     }
 
     tournament.participants.push(userId as any);
@@ -251,18 +259,20 @@ export class TournamentService {
     const tournament = await Tournament.findById(tournamentId);
 
     if (!tournament) {
-      throw new NotFoundError('Tournament');
+      throw new NotFoundError("Tournament");
     }
 
     if (!tournament.participants.includes(userId as any)) {
-      throw new ConflictError('Not participating in this tournament');
+      throw new ConflictError("Not participating in this tournament");
     }
 
-    if (tournament.status === 'ongoing') {
-      throw new ConflictError('Cannot leave tournament that is ongoing');
+    if (tournament.status === ("ongoing" as any)) {
+      throw new ConflictError("Cannot leave tournament that is ongoing");
     }
 
-    tournament.participants = tournament.participants.filter((p) => p.toString() !== userId);
+    tournament.participants = tournament.participants.filter(
+      p => p.toString() !== userId
+    );
     await tournament.save();
 
     // Publish event
@@ -271,26 +281,28 @@ export class TournamentService {
       userId,
     });
 
-    return { success: true };
+    return {success: true};
   }
 
   async startTournament(tournamentId: string, userId: string) {
     const tournament = await Tournament.findById(tournamentId);
 
     if (!tournament) {
-      throw new NotFoundError('Tournament');
+      throw new NotFoundError("Tournament");
     }
 
     if (tournament.createdBy.toString() !== userId) {
-      throw new ValidationError('Only tournament organizer can start the tournament');
+      throw new ValidationError(
+        "Only tournament organizer can start the tournament"
+      );
     }
 
     if (tournament.status !== TournamentStatus.UPCOMING) {
-      throw new ConflictError('Tournament is not in upcoming status');
+      throw new ConflictError("Tournament is not in upcoming status");
     }
 
     if (tournament.participants.length < 2) {
-      throw new ValidationError('Tournament must have at least 2 participants');
+      throw new ValidationError("Tournament must have at least 2 participants");
     }
 
     tournament.status = TournamentStatus.ONGOING;
@@ -309,15 +321,17 @@ export class TournamentService {
     const tournament = await Tournament.findById(tournamentId);
 
     if (!tournament) {
-      throw new NotFoundError('Tournament');
+      throw new NotFoundError("Tournament");
     }
 
     if (tournament.createdBy.toString() !== userId) {
-      throw new ValidationError('Only tournament organizer can update the tournament');
+      throw new ValidationError(
+        "Only tournament organizer can update the tournament"
+      );
     }
 
     if (tournament.status === TournamentStatus.COMPLETED) {
-      throw new ConflictError('Cannot update completed tournament');
+      throw new ConflictError("Cannot update completed tournament");
     }
 
     Object.assign(tournament, updates);
@@ -330,19 +344,21 @@ export class TournamentService {
     const tournament = await Tournament.findById(tournamentId);
 
     if (!tournament) {
-      throw new NotFoundError('Tournament');
+      throw new NotFoundError("Tournament");
     }
 
     if (tournament.createdBy.toString() !== userId) {
-      throw new ValidationError('Only tournament organizer can delete the tournament');
+      throw new ValidationError(
+        "Only tournament organizer can delete the tournament"
+      );
     }
 
     if (tournament.status === TournamentStatus.ONGOING) {
-      throw new ConflictError('Cannot delete ongoing tournament');
+      throw new ConflictError("Cannot delete ongoing tournament");
     }
 
     await tournament.deleteOne();
 
-    return { success: true };
+    return {success: true};
   }
 }

@@ -1,12 +1,12 @@
-import { Schema, model, Model } from 'mongoose';
-import { IApiKey, IApiKeyStatics } from '../../../../shared/types';
-import crypto from 'crypto';
+import crypto from "crypto";
+import {Schema, model, Model} from "mongoose";
+import {IApiKey, IApiKeyStatics} from "../../../../shared/types";
 
 const apiKeySchema = new Schema<IApiKey>(
   {
     name: {
       type: String,
-      required: [true, 'API key name is required'],
+      required: [true, "API key name is required"],
       trim: true,
       maxlength: 100,
     },
@@ -18,7 +18,7 @@ const apiKeySchema = new Schema<IApiKey>(
     },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       index: true,
     },
@@ -26,15 +26,15 @@ const apiKeySchema = new Schema<IApiKey>(
       {
         type: String,
         enum: [
-          'read:users',
-          'write:users',
-          'read:matches',
-          'write:matches',
-          'read:tournaments',
-          'write:tournaments',
-          'read:venues',
-          'write:venues',
-          'admin:all',
+          "read:users",
+          "write:users",
+          "read:matches",
+          "write:matches",
+          "read:tournaments",
+          "write:tournaments",
+          "read:venues",
+          "write:venues",
+          "admin:all",
         ],
       },
     ],
@@ -70,7 +70,7 @@ const apiKeySchema = new Schema<IApiKey>(
               ip
             );
           },
-          message: 'Invalid IP address format',
+          message: "Invalid IP address format",
         },
       },
     ],
@@ -91,12 +91,12 @@ const apiKeySchema = new Schema<IApiKey>(
 );
 
 // Indexes
-apiKeySchema.index({ userId: 1, isActive: 1 });
-apiKeySchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+apiKeySchema.index({userId: 1, isActive: 1});
+apiKeySchema.index({expiresAt: 1}, {expireAfterSeconds: 0});
 
 // Instance method to validate API key
 apiKeySchema.methods.validateKey = function (providedKey: string): boolean {
-  const hash = crypto.createHash('sha256').update(providedKey).digest('hex');
+  const hash = crypto.createHash("sha256").update(providedKey).digest("hex");
   return hash === this.keyHash;
 };
 
@@ -108,16 +108,19 @@ apiKeySchema.methods.updateLastUsed = async function (): Promise<void> {
 
 // Static method to find by hash
 apiKeySchema.statics.findByHash = function (keyHash: string) {
-  return this.findOne({ keyHash, isActive: true });
+  return this.findOne({keyHash, isActive: true});
 };
 
 // Static method to generate API key
-apiKeySchema.statics.generateApiKey = function (): { key: string; hash: string } {
+apiKeySchema.statics.generateApiKey = function (): {key: string; hash: string} {
   // Generate a 32-byte random key
-  const key = `sk_${crypto.randomBytes(32).toString('hex')}`;
-  const hash = crypto.createHash('sha256').update(key).digest('hex');
+  const key = `sk_${crypto.randomBytes(32).toString("hex")}`;
+  const hash = crypto.createHash("sha256").update(key).digest("hex");
 
-  return { key, hash };
+  return {key, hash};
 };
 
-export const ApiKey = model<IApiKey, Model<IApiKey> & IApiKeyStatics>('ApiKey', apiKeySchema);
+export const ApiKey = model<IApiKey, Model<IApiKey> & IApiKeyStatics>(
+  "ApiKey",
+  apiKeySchema
+);

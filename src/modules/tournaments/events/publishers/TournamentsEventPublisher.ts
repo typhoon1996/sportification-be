@@ -1,11 +1,11 @@
-import { eventBus } from '@/shared/events/EventBus';
-import logger from '@/shared/infrastructure/logging';
+import {eventBus} from "@/shared/events/EventBus";
+import logger from "@/shared/infrastructure/logging";
 
 /**
  * TournamentsEventPublisher - Publishes domain events for tournaments module
  */
 export class TournamentsEventPublisher {
-  private static readonly MODULE_NAME = 'tournaments';
+  private static readonly MODULE_NAME = "tournaments";
 
   /**
    * Publish entity created event
@@ -15,14 +15,17 @@ export class TournamentsEventPublisher {
       eventBus.publish({
         eventType: `${this.MODULE_NAME}.created`,
         aggregateId: data.id,
-        aggregateType: 'Tournaments',
+        aggregateType: "Tournaments",
         timestamp: new Date(),
         payload: data,
       });
-      
-      logger.info(`Published ${this.MODULE_NAME}.created event`, { id: data.id });
+
+      logger.info(`Published ${this.MODULE_NAME}.created event`, {id: data.id});
     } catch (error) {
-      logger.error(`Failed to publish ${this.MODULE_NAME}.created event`, error);
+      logger.error(
+        `Failed to publish ${this.MODULE_NAME}.created event`,
+        error
+      );
     }
   }
 
@@ -34,14 +37,17 @@ export class TournamentsEventPublisher {
       eventBus.publish({
         eventType: `${this.MODULE_NAME}.updated`,
         aggregateId: data.id,
-        aggregateType: 'Tournaments',
+        aggregateType: "Tournaments",
         timestamp: new Date(),
         payload: data,
       });
-      
-      logger.info(`Published ${this.MODULE_NAME}.updated event`, { id: data.id });
+
+      logger.info(`Published ${this.MODULE_NAME}.updated event`, {id: data.id});
     } catch (error) {
-      logger.error(`Failed to publish ${this.MODULE_NAME}.updated event`, error);
+      logger.error(
+        `Failed to publish ${this.MODULE_NAME}.updated event`,
+        error
+      );
     }
   }
 
@@ -53,14 +59,17 @@ export class TournamentsEventPublisher {
       eventBus.publish({
         eventType: `${this.MODULE_NAME}.deleted`,
         aggregateId: id,
-        aggregateType: 'Tournaments',
+        aggregateType: "Tournaments",
         timestamp: new Date(),
-        payload: { id },
+        payload: {id},
       });
-      
-      logger.info(`Published ${this.MODULE_NAME}.deleted event`, { id });
+
+      logger.info(`Published ${this.MODULE_NAME}.deleted event`, {id});
     } catch (error) {
-      logger.error(`Failed to publish ${this.MODULE_NAME}.deleted event`, error);
+      logger.error(
+        `Failed to publish ${this.MODULE_NAME}.deleted event`,
+        error
+      );
     }
   }
 }

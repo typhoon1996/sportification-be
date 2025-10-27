@@ -1,44 +1,44 @@
-import { Schema, model, Model } from 'mongoose';
-import { IChat, IChatStatics } from '../../../../shared/types';
+import {Schema, model, Model} from "mongoose";
+import {IChat, IChatStatics} from "../../../../shared/types";
 
 const chatSchema = new Schema<IChat>(
   {
     type: {
       type: String,
-      enum: ['direct', 'group', 'match', 'tournament', 'team'],
-      required: [true, 'Chat type is required'],
-      default: 'direct',
+      enum: ["direct", "group", "match", "tournament", "team"],
+      required: [true, "Chat type is required"],
+      default: "direct",
     },
     name: {
       type: String,
       trim: true,
-      maxlength: [100, 'Chat name cannot exceed 100 characters'],
+      maxlength: [100, "Chat name cannot exceed 100 characters"],
       validate: {
         validator: function (this: IChat, name: string) {
           // Name is required for group chats
-          if (this.type === 'group' && !name) return false;
+          if (this.type === "group" && !name) return false;
           return true;
         },
-        message: 'Group chats must have a name',
+        message: "Group chats must have a name",
       },
     },
     participants: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
         required: true,
       },
     ],
     messages: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Message',
+        ref: "Message",
       },
     ],
     media: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Media',
+        ref: "Media",
       },
     ],
     reactions: {
@@ -48,12 +48,12 @@ const chatSchema = new Schema<IChat>(
     threads: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Thread',
+        ref: "Thread",
       },
     ],
     lastMessage: {
       type: Schema.Types.ObjectId,
-      ref: 'Message',
+      ref: "Message",
     },
     lastActivity: {
       type: Date,
@@ -82,36 +82,36 @@ const chatSchema = new Schema<IChat>(
 );
 
 // Indexes
-chatSchema.index({ participants: 1 });
-chatSchema.index({ type: 1, lastActivity: -1 });
-chatSchema.index({ lastActivity: -1 });
+chatSchema.index({participants: 1});
+chatSchema.index({type: 1, lastActivity: -1});
+chatSchema.index({lastActivity: -1});
 
 // Virtual for participant count
-chatSchema.virtual('participantCount').get(function () {
+chatSchema.virtual("participantCount").get(function () {
   return this.participants?.length || 0;
 });
 
 // Virtual for message count
-chatSchema.virtual('messageCount').get(function () {
+chatSchema.virtual("messageCount").get(function () {
   return this.messages?.length || 0;
 });
 
 // Pre-save validation
-chatSchema.pre('save', function (next) {
+chatSchema.pre("save", function (next) {
   // Direct chats must have exactly 2 participants
-  if (this.type === 'direct' && this.participants.length !== 2) {
-    return next(new Error('Direct chats must have exactly 2 participants'));
+  if (this.type === "direct" && this.participants.length !== 2) {
+    return next(new Error("Direct chats must have exactly 2 participants"));
   }
 
   // Group chats must have at least 3 participants
-  if (this.type === 'group' && this.participants.length < 3) {
-    return next(new Error('Group chats must have at least 3 participants'));
+  if (this.type === "group" && this.participants.length < 3) {
+    return next(new Error("Group chats must have at least 3 participants"));
   }
 
   // Check for duplicate participants
-  const uniqueParticipants = new Set(this.participants.map((p) => p.toString()));
+  const uniqueParticipants = new Set(this.participants.map(p => p.toString()));
   if (uniqueParticipants.size !== this.participants.length) {
-    return next(new Error('Duplicate participants are not allowed'));
+    return next(new Error("Duplicate participants are not allowed"));
   }
 
   next();
@@ -123,23 +123,23 @@ chatSchema.statics.findByUser = function (userId: string) {
     participants: userId,
     isActive: true,
   })
-    .populate('participants', 'profile')
-    .populate('lastMessage', 'content sender timestamp')
-    .sort({ lastActivity: -1 });
+    .populate("participants", "profile")
+    .populate("lastMessage", "content sender timestamp")
+    .sort({lastActivity: -1});
 };
 
 // Static method to find direct chat between two users
 chatSchema.statics.findDirectChat = function (user1: string, user2: string) {
   return this.findOne({
-    type: 'direct',
-    participants: { $all: [user1, user2] },
-  }).populate('participants', 'profile');
+    type: "direct",
+    participants: {$all: [user1, user2]},
+  }).populate("participants", "profile");
 };
 
 // Instance method to add participant
 chatSchema.methods.addParticipant = function (userId: string) {
-  if (this.type === 'direct') {
-    throw new Error('Cannot add participants to direct chat');
+  if (this.type === "direct") {
+    throw new Error("Cannot add participants to direct chat");
   }
 
   if (!this.participants.includes(userId)) {
@@ -150,11 +150,13 @@ chatSchema.methods.addParticipant = function (userId: string) {
 
 // Instance method to remove participant
 chatSchema.methods.removeParticipant = function (userId: string) {
-  if (this.type === 'direct') {
-    throw new Error('Cannot remove participants from direct chat');
+  if (this.type === "direct") {
+    throw new Error("Cannot remove participants from direct chat");
   }
 
-  this.participants = this.participants.filter((p: any) => p.toString() !== userId);
+  this.participants = this.participants.filter(
+    (p: any) => p.toString() !== userId
+  );
   this.lastActivity = new Date();
 
   // Deactivate chat if no participants left
@@ -173,4 +175,7 @@ chatSchema.methods.updateActivity = function () {
   this.lastActivity = new Date();
 };
 
-export const Chat = model<IChat, Model<IChat> & IChatStatics>('Chat', chatSchema);
+export const Chat = model<IChat, Model<IChat> & IChatStatics>(
+  "Chat",
+  chatSchema
+);

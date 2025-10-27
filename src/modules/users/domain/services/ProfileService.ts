@@ -8,16 +8,16 @@
  * @implements {IProfileService}
  */
 
-import {User} from "../models/User";
-import {Profile} from "../models/Profile";
+import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
+import {UserEventPublisher} from "../../events/publishers/UserEventPublisher";
 import {
   IProfileService,
   IUserData,
   IProfileUpdate,
   IUserEventPublisher,
 } from "../interfaces";
-import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
-import {UserEventPublisher} from "../../events/publishers/UserEventPublisher";
+import {Profile} from "../models/Profile";
+import {User} from "../models/User";
 
 export class ProfileService implements IProfileService {
   private readonly eventPublisher: IUserEventPublisher;
@@ -30,7 +30,7 @@ export class ProfileService implements IProfileService {
    * Get user profile by ID
    *
    * @param {string} userId - User ID
-   * @returns {Promise<IUserData>} User profile data
+   * @return {Promise<IUserData>} User profile data
    * @throws {AuthenticationError} If user not found
    */
   async getProfile(userId: string): Promise<IUserData> {
@@ -62,7 +62,7 @@ export class ProfileService implements IProfileService {
    *
    * @param {string} userId - User ID
    * @param {IProfileUpdate} updates - Profile update data
-   * @returns {Promise<IUserData>} Updated user data
+   * @return {Promise<IUserData>} Updated user data
    * @throws {AuthenticationError} If user not found
    * @throws {Error} If no valid fields to update
    */
@@ -130,7 +130,7 @@ export class ProfileService implements IProfileService {
    *
    * @private
    * @param {IProfileUpdate} updates - Update data
-   * @returns Separated updates
+   * @return Separated updates
    */
   private separateUpdates(updates: IProfileUpdate): {
     userUpdates: any;

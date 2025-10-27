@@ -8,14 +8,13 @@
  * @implements {IMatchValidationService}
  */
 
-import {Match} from "../models/Match";
-import {IMatch} from "../../../../shared/types";
-import {IMatchValidationService} from "../interfaces";
 import {
   ValidationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
+import {IMatch} from "../../../../shared/types";
 import {MatchStatus} from "../../../../shared/types";
+import {IMatchValidationService} from "../interfaces";
 
 export class MatchValidationService implements IMatchValidationService {
   /**
@@ -60,7 +59,10 @@ export class MatchValidationService implements IMatchValidationService {
     }
 
     // Check capacity
-    if ((match as any).maxParticipants && match.participants.length >= (match as any).maxParticipants) {
+    if (
+      (match as any).maxParticipants &&
+      match.participants.length >= (match as any).maxParticipants
+    ) {
       throw new ConflictError("Match is already full");
     }
   }

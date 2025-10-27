@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {Match} from "../../../matches/domain/models/Match";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   NotFoundError,
   ValidationError,
@@ -8,20 +8,20 @@ import {
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   validatePagination,
   validateSort,
 } from "../../../../shared/middleware/validation";
 import {MatchStatus, MatchType} from "../../../../shared/types";
+import {Match} from "../../../matches/domain/models/Match";
 
 /**
  * MatchController - Handles all match-related HTTP requests
- * 
+ *
  * This controller manages the complete lifecycle of sports matches including creation,
  * participation management, scoring, status updates, and retrieval. It enforces
  * business rules around match participation, privacy, and state transitions.
- * 
+ *
  * Key Features:
  * - Match CRUD operations with proper authorization
  * - Public/Private match visibility controls
@@ -29,16 +29,16 @@ import {MatchStatus, MatchType} from "../../../../shared/types";
  * - Real-time score updates
  * - Status lifecycle management (upcoming → ongoing → completed)
  * - Filtering and pagination support
- * 
+ *
  * @class MatchController
  */
 export class MatchController {
   /**
    * Helper method to extract and validate user ID from authenticated request
-   * 
+   *
    * @private
    * @param {AuthRequest} req - Authenticated request object
-   * @returns {string} User ID from the authenticated request
+   * @return {string} User ID from the authenticated request
    * @throws {Error} If user is not authenticated
    */
   private getUserId(req: AuthRequest): string {
@@ -50,27 +50,27 @@ export class MatchController {
 
   /**
    * Create a new match
-   * 
+   *
    * Creates a sports match with specified details. The creator is automatically
    * added as a participant. Validates that the match date is in the future.
    * Sets default values for maxParticipants based on match type (private: 2, public: 10).
-   * 
+   *
    * Business Rules:
    * - Match date must be in the future
    * - Creator is automatically a participant
    * - Default maxParticipants: 2 for private, 10 for public
    * - Initial status is always UPCOMING
-   * 
+   *
    * @async
    * @param {AuthRequest} req - Authenticated request with match data
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 201 Created with match details
-   * 
+   *
    * @requires Authentication - User must be authenticated
-   * 
+   *
    * @throws {ValidationError} If match date is not in the future
    * @throws {ValidationError} If required fields are missing
-   * 
+   *
    * @example
    * POST /api/v1/matches
    * Body: {
@@ -118,20 +118,20 @@ export class MatchController {
 
   /**
    * Get all matches with filtering and pagination
-   * 
+   *
    * Retrieves a paginated list of matches with support for multiple filters.
    * Enforces privacy rules: only public matches or matches the user is part of are returned.
    * Supports filtering by type, status, sport, venue, and date range.
-   * 
+   *
    * Privacy Rules:
    * - Anonymous users: Only public matches
    * - Authenticated users: Public matches + their private matches
-   * 
+   *
    * @async
    * @param {Request} req - Express request with query parameters
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 200 OK with paginated match list
-   * 
+   *
    * Query Parameters:
    * - page: Page number (default: 1)
    * - limit: Results per page (default: 10)
@@ -142,7 +142,7 @@ export class MatchController {
    * - fromDate: Filter matches from this date
    * - toDate: Filter matches until this date
    * - sort: Sort field (default: -schedule.date)
-   * 
+   *
    * @example
    * GET /api/v1/matches?sport=football&status=upcoming&page=1&limit=20
    */
@@ -209,21 +209,21 @@ export class MatchController {
 
   /**
    * Get match by ID
-   * 
+   *
    * Retrieves detailed information about a specific match including all participants,
    * venue details, and match statistics. Enforces privacy rules for private matches.
-   * 
+   *
    * Privacy Rules:
    * - Public matches: Visible to all
    * - Private matches: Only visible to participants and creator
-   * 
+   *
    * @async
    * @param {Request} req - Express request with match ID parameter
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 200 OK with match details
-   * 
+   *
    * @throws {NotFoundError} If match doesn't exist or user cannot view private match
-   * 
+   *
    * @example
    * GET /api/v1/matches/507f1f77bcf86cd799439011
    */
@@ -255,25 +255,25 @@ export class MatchController {
 
   /**
    * Join a match
-   * 
+   *
    * Adds the authenticated user as a participant to an upcoming match.
    * Validates that the match is not full and user is not already participating.
-   * 
+   *
    * Business Rules:
    * - Can only join UPCOMING matches
    * - Cannot join if already a participant
    * - Cannot join if match is at maxParticipants capacity
-   * 
+   *
    * @async
    * @param {AuthRequest} req - Authenticated request with match ID parameter
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 200 OK with updated match details
-   * 
+   *
    * @requires Authentication - User must be authenticated
-   * 
+   *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If match is not upcoming, user already participating, or match is full
-   * 
+   *
    * @example
    * POST /api/v1/matches/507f1f77bcf86cd799439011/join
    */
@@ -311,25 +311,25 @@ export class MatchController {
 
   /**
    * Leave a match
-   * 
+   *
    * Removes the authenticated user from a match's participants list.
    * The match creator cannot leave their own match.
-   * 
+   *
    * Business Rules:
    * - User must be a participant
    * - Creator cannot leave their own match
    * - Cannot leave ongoing matches
-   * 
+   *
    * @async
    * @param {AuthRequest} req - Authenticated request with match ID parameter
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 200 OK with success message
-   * 
+   *
    * @requires Authentication - User must be authenticated
-   * 
+   *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If user is not a participant, is the creator, or match is ongoing
-   * 
+   *
    * @example
    * POST /api/v1/matches/507f1f77bcf86cd799439011/leave
    */
@@ -364,28 +364,28 @@ export class MatchController {
 
   /**
    * Update match score
-   * 
+   *
    * Updates the score for an ongoing match and optionally sets a winner.
    * Only participants and the match creator can update scores.
    * Setting a winner automatically transitions the match to COMPLETED status.
-   * 
+   *
    * Business Rules:
    * - Only participants or creator can update scores
    * - Can only update scores for ONGOING matches
    * - Winner must be a participant in the match
    * - Setting a winner automatically completes the match
-   * 
+   *
    * @async
    * @param {AuthRequest} req - Authenticated request with score data
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 200 OK with updated match details
-   * 
+   *
    * @requires Authentication - User must be authenticated and be a participant/creator
-   * 
+   *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If user is not authorized or match is not ongoing
    * @throws {ValidationError} If winner is not a participant
-   * 
+   *
    * @example
    * PUT /api/v1/matches/507f1f77bcf86cd799439011/score
    * Body: {
@@ -437,27 +437,27 @@ export class MatchController {
 
   /**
    * Update match status
-   * 
+   *
    * Changes the status of a match through its lifecycle (upcoming → ongoing → completed).
    * Only the match creator or admins/moderators can update status.
    * Validates status transitions are valid according to the match lifecycle.
-   * 
+   *
    * Valid Transitions:
    * - UPCOMING → ONGOING, EXPIRED, or CANCELLED
    * - ONGOING → COMPLETED or CANCELLED
    * - COMPLETED, EXPIRED, CANCELLED → No transitions (terminal states)
-   * 
+   *
    * @async
    * @param {AuthRequest} req - Authenticated request with new status
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 200 OK with updated match details
-   * 
+   *
    * @requires Authentication - User must be match creator or admin/moderator
-   * 
+   *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If user is not authorized
    * @throws {ValidationError} If status transition is invalid
-   * 
+   *
    * @example
    * PUT /api/v1/matches/507f1f77bcf86cd799439011/status
    * Body: { status: "ongoing" }
@@ -511,25 +511,25 @@ export class MatchController {
 
   /**
    * Delete match
-   * 
+   *
    * Permanently deletes a match from the system. This endpoint is restricted to
    * admin and moderator roles via route middleware. Cannot delete ongoing matches
    * to prevent disruption of active games.
-   * 
+   *
    * Business Rules:
    * - Cannot delete ongoing matches
    * - Only admins/moderators can delete (enforced by route middleware)
-   * 
+   *
    * @async
    * @param {AuthRequest} req - Authenticated request with match ID parameter
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 200 OK with success message
-   * 
+   *
    * @requires Authorization - Admin or Moderator role (enforced by route middleware)
-   * 
+   *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If match is currently ongoing
-   * 
+   *
    * @example
    * DELETE /api/v1/matches/507f1f77bcf86cd799439011
    */
@@ -552,21 +552,21 @@ export class MatchController {
 
   /**
    * Get user's matches
-   * 
+   *
    * Retrieves all matches a specific user has created or is participating in.
    * Results are paginated and can be filtered by status.
    * Sorted by most recent match date first.
-   * 
+   *
    * @async
    * @param {Request} req - Express request with user ID parameter and query params
    * @param {Response} res - Express response object
    * @returns {Promise<void>} 200 OK with paginated match list
-   * 
+   *
    * Query Parameters:
    * - page: Page number
    * - limit: Results per page
    * - status: Filter by match status
-   * 
+   *
    * @example
    * GET /api/v1/matches/user/507f1f77bcf86cd799439011?status=upcoming&page=1
    */

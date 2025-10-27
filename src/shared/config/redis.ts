@@ -1,6 +1,6 @@
-import Redis, { RedisOptions } from 'ioredis';
-import config from './index';
-import logger from '../infrastructure/logging';
+import Redis, {RedisOptions} from "ioredis";
+import logger from "../infrastructure/logging";
+import config from "./index";
 
 const defaultOptions: RedisOptions = {
   maxRetriesPerRequest: config.redis.maxRetriesPerRequest,
@@ -14,28 +14,30 @@ const defaultOptions: RedisOptions = {
 };
 
 const attachEventHandlers = (client: Redis): void => {
-  client.on('connect', () => {
-    logger.info('📡 Redis connected successfully');
+  client.on("connect", () => {
+    logger.info("📡 Redis connected successfully");
   });
 
-  client.on('ready', () => {
-    logger.info('🚀 Redis is ready to receive commands');
+  client.on("ready", () => {
+    logger.info("🚀 Redis is ready to receive commands");
   });
 
-  client.on('error', (error: Error) => {
-    logger.error('❌ Redis connection error:', error);
+  client.on("error", (error: Error) => {
+    logger.error("❌ Redis connection error:", error);
   });
 
-  client.on('close', () => {
-    logger.warn('⚠️  Redis connection closed');
+  client.on("close", () => {
+    logger.warn("⚠️  Redis connection closed");
   });
 
-  client.on('reconnecting', (time: number) => {
+  client.on("reconnecting", (time: number) => {
     logger.info(`🔄 Redis reconnecting in ${time}ms`);
   });
 };
 
-export const createRedisClient = (overrides: Partial<RedisOptions> = {}): Redis => {
+export const createRedisClient = (
+  overrides: Partial<RedisOptions> = {}
+): Redis => {
   const client = new Redis(config.redis.url, {
     ...defaultOptions,
     ...overrides,

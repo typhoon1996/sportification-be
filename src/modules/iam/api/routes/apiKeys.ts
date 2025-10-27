@@ -1,9 +1,9 @@
-import { Router } from 'express';
-import { ApiKeyController } from '../controllers/ApiKeyController';
-import { authenticate } from '../../../../shared/middleware/auth';
-import { validateRequest } from '../../../../shared/middleware/validation';
-import { body, param, query } from 'express-validator';
-import { authLimiter } from '../../../../shared/middleware/security';
+import {Router} from "express";
+import {body, param, query} from "express-validator";
+import {authenticate} from "../../../../shared/middleware/auth";
+import {authLimiter} from "../../../../shared/middleware/security";
+import {validateRequest} from "../../../../shared/middleware/validation";
+import {ApiKeyController} from "../controllers/ApiKeyController";
 
 const router = Router();
 
@@ -12,52 +12,70 @@ router.use(authLimiter);
 
 // Validation middleware
 const createApiKeyValidation = [
-  body('name')
+  body("name")
     .notEmpty()
-    .withMessage('API key name is required')
-    .isLength({ min: 1, max: 100 })
-    .withMessage('API key name must be between 1 and 100 characters'),
-  body('permissions').optional().isArray().withMessage('Permissions must be an array'),
-  body('allowedIPs').optional().isArray().withMessage('Allowed IPs must be an array'),
-  body('expiresInDays')
+    .withMessage("API key name is required")
+    .isLength({min: 1, max: 100})
+    .withMessage("API key name must be between 1 and 100 characters"),
+  body("permissions")
     .optional()
-    .isInt({ min: 1, max: 365 })
-    .withMessage('Expiration must be between 1 and 365 days'),
-  body('maxRequests')
+    .isArray()
+    .withMessage("Permissions must be an array"),
+  body("allowedIPs")
     .optional()
-    .isInt({ min: 1, max: 10000 })
-    .withMessage('Max requests must be between 1 and 10000'),
-  body('windowMs')
+    .isArray()
+    .withMessage("Allowed IPs must be an array"),
+  body("expiresInDays")
     .optional()
-    .isInt({ min: 60000, max: 86400000 })
-    .withMessage('Window must be between 1 minute and 24 hours'),
+    .isInt({min: 1, max: 365})
+    .withMessage("Expiration must be between 1 and 365 days"),
+  body("maxRequests")
+    .optional()
+    .isInt({min: 1, max: 10000})
+    .withMessage("Max requests must be between 1 and 10000"),
+  body("windowMs")
+    .optional()
+    .isInt({min: 60000, max: 86400000})
+    .withMessage("Window must be between 1 minute and 24 hours"),
 ];
 
 const updateApiKeyValidation = [
-  param('keyId').isMongoId().withMessage('Invalid API key ID'),
-  body('name')
+  param("keyId").isMongoId().withMessage("Invalid API key ID"),
+  body("name")
     .optional()
-    .isLength({ min: 1, max: 100 })
-    .withMessage('API key name must be between 1 and 100 characters'),
-  body('permissions').optional().isArray().withMessage('Permissions must be an array'),
-  body('allowedIPs').optional().isArray().withMessage('Allowed IPs must be an array'),
-  body('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
-  body('maxRequests')
+    .isLength({min: 1, max: 100})
+    .withMessage("API key name must be between 1 and 100 characters"),
+  body("permissions")
     .optional()
-    .isInt({ min: 1, max: 10000 })
-    .withMessage('Max requests must be between 1 and 10000'),
-  body('windowMs')
+    .isArray()
+    .withMessage("Permissions must be an array"),
+  body("allowedIPs")
     .optional()
-    .isInt({ min: 60000, max: 86400000 })
-    .withMessage('Window must be between 1 minute and 24 hours'),
+    .isArray()
+    .withMessage("Allowed IPs must be an array"),
+  body("isActive")
+    .optional()
+    .isBoolean()
+    .withMessage("isActive must be a boolean"),
+  body("maxRequests")
+    .optional()
+    .isInt({min: 1, max: 10000})
+    .withMessage("Max requests must be between 1 and 10000"),
+  body("windowMs")
+    .optional()
+    .isInt({min: 60000, max: 86400000})
+    .withMessage("Window must be between 1 minute and 24 hours"),
 ];
 
 const listApiKeysValidation = [
-  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-  query('limit')
+  query("page")
     .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage('Limit must be between 1 and 100'),
+    .isInt({min: 1})
+    .withMessage("Page must be a positive integer"),
+  query("limit")
+    .optional()
+    .isInt({min: 1, max: 100})
+    .withMessage("Limit must be between 1 and 100"),
 ];
 
 // All routes require authentication
@@ -117,7 +135,12 @@ router.use(authenticate);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', createApiKeyValidation, validateRequest, ApiKeyController.createApiKey);
+router.post(
+  "/",
+  createApiKeyValidation,
+  validateRequest,
+  ApiKeyController.createApiKey
+);
 
 /**
  * @swagger
@@ -147,7 +170,12 @@ router.post('/', createApiKeyValidation, validateRequest, ApiKeyController.creat
  *       401:
  *         description: Unauthorized
  */
-router.get('/', listApiKeysValidation, validateRequest, ApiKeyController.listApiKeys);
+router.get(
+  "/",
+  listApiKeysValidation,
+  validateRequest,
+  ApiKeyController.listApiKeys
+);
 
 /**
  * @swagger
@@ -163,7 +191,7 @@ router.get('/', listApiKeysValidation, validateRequest, ApiKeyController.listApi
  *       401:
  *         description: Unauthorized
  */
-router.get('/stats', ApiKeyController.getApiKeyStats);
+router.get("/stats", ApiKeyController.getApiKeyStats);
 
 /**
  * @swagger
@@ -188,7 +216,12 @@ router.get('/stats', ApiKeyController.getApiKeyStats);
  *       401:
  *         description: Unauthorized
  */
-router.get('/:keyId', [param('keyId').isMongoId()], validateRequest, ApiKeyController.getApiKey);
+router.get(
+  "/:keyId",
+  [param("keyId").isMongoId()],
+  validateRequest,
+  ApiKeyController.getApiKey
+);
 
 /**
  * @swagger
@@ -236,7 +269,12 @@ router.get('/:keyId', [param('keyId').isMongoId()], validateRequest, ApiKeyContr
  *       401:
  *         description: Unauthorized
  */
-router.patch('/:keyId', updateApiKeyValidation, validateRequest, ApiKeyController.updateApiKey);
+router.patch(
+  "/:keyId",
+  updateApiKeyValidation,
+  validateRequest,
+  ApiKeyController.updateApiKey
+);
 
 /**
  * @swagger
@@ -262,8 +300,8 @@ router.patch('/:keyId', updateApiKeyValidation, validateRequest, ApiKeyControlle
  *         description: Unauthorized
  */
 router.delete(
-  '/:keyId',
-  [param('keyId').isMongoId()],
+  "/:keyId",
+  [param("keyId").isMongoId()],
   validateRequest,
   ApiKeyController.deleteApiKey
 );
@@ -292,8 +330,8 @@ router.delete(
  *         description: Unauthorized
  */
 router.post(
-  '/:keyId/regenerate',
-  [param('keyId').isMongoId()],
+  "/:keyId/regenerate",
+  [param("keyId").isMongoId()],
   validateRequest,
   ApiKeyController.regenerateApiKey
 );

@@ -1,5 +1,4 @@
 import {Router} from "express";
-import {teamController} from "../controllers/TeamController";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {
@@ -7,25 +6,26 @@ import {
   updateTeamValidation,
   idParamValidation,
 } from "../../../../shared/validators";
+import {teamController} from "../controllers/TeamController";
 
 /**
  * Team Routes Module
- * 
+ *
  * Handles all team-related API endpoints including team creation, membership management,
  * and team operations. All routes require authentication.
- * 
+ *
  * Base Path: /api/v1/teams
- * 
+ *
  * Route Categories:
  * - Team Management: Create, list, view, update, delete teams
  * - Membership: Join, leave teams
  * - Team Discovery: Search and filter teams
- * 
+ *
  * Security:
  * - All routes require authentication (JWT token)
  * - Captain-only operations: Update team, delete team
  * - Member operations: Join, leave (captains cannot leave)
- * 
+ *
  * Features:
  * - Team captain system with special privileges
  * - Maximum member capacity enforcement

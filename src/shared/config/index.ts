@@ -1,6 +1,6 @@
+import fs from "fs";
+import path from "path";
 import dotenv from "dotenv";
-import path from "node:path";
-import fs from "node:fs";
 
 // Determine environment
 const env = process.env.NODE_ENV || "development";

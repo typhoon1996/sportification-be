@@ -1,12 +1,12 @@
 /**
  * Admin Analytics Routes Module
- * 
+ *
  * Provides administrative access to advanced analytics, insights, and system monitoring
  * endpoints. These routes offer deep visibility into platform performance, user behavior,
  * business metrics, and predictive analytics exclusively for administrators.
- * 
+ *
  * Base Path: /admin/analytics
- * 
+ *
  * Features:
  * - Comprehensive analytics dashboard with real-time KPIs
  * - Advanced insights including application health and user behavior
@@ -16,26 +16,29 @@
  * - Custom report generation with flexible date ranges
  * - User engagement and retention analytics
  * - System performance monitoring
- * 
+ *
  * Security:
  * - Admin-only access (all routes require admin role)
  * - Rate limiting to prevent resource exhaustion
  * - Request validation on all endpoints
  * - Audit logging of all analytics access
- * 
+ *
  * Access Control:
  * - Requires authentication (JWT token)
  * - Requires admin authorization
  * - Rate limited to prevent abuse
  */
 
-import { Router } from 'express';
-import { AnalyticsController } from '../controllers/AnalyticsController';
-import { InsightsController } from '../controllers/InsightsController';
-import { authenticate, authorize } from '../../../../shared/middleware/auth';
-import { validateRequest } from '../../../../shared/middleware/validation';
-import { body, query } from 'express-validator';
-import { authLimiter } from '../../../../shared/middleware/security';
+import {Router} from "express";
+import {body, query} from "express-validator";
+import {authenticate, authorize} from "../../../../shared/middleware/auth";
+import {authLimiter} from "../../../../shared/middleware/security";
+import {validateRequest} from "../../../../shared/middleware/validation";
+import {Match} from "../../../matches/domain/models/Match";
+import {Tournament} from "../../../tournaments/domain/models/Tournament";
+import {User} from "../../../users/domain/models/User";
+import {AnalyticsController} from "../controllers/AnalyticsController";
+import {InsightsController} from "../controllers/InsightsController";
 
 const router = Router();
 
@@ -44,20 +47,33 @@ router.use(authLimiter);
 
 // All routes require authentication and admin authorization
 router.use(authenticate);
-router.use(authorize(['admin']));
+router.use(authorize(["admin"]));
 
 // Validation middleware
 const dateRangeValidation = [
-  query('startDate').isISO8601().withMessage('Start date must be a valid ISO 8601 date'),
-  query('endDate').isISO8601().withMessage('End date must be a valid ISO 8601 date'),
+  query("startDate")
+    .isISO8601()
+    .withMessage("Start date must be a valid ISO 8601 date"),
+  query("endDate")
+    .isISO8601()
+    .withMessage("End date must be a valid ISO 8601 date"),
 ];
 
 const customReportValidation = [
-  body('reportType')
-    .isIn(['user_retention', 'feature_adoption', 'performance_summary', 'revenue_analysis'])
-    .withMessage('Invalid report type'),
-  body('startDate').isISO8601().withMessage('Start date must be a valid ISO 8601 date'),
-  body('endDate').isISO8601().withMessage('End date must be a valid ISO 8601 date'),
+  body("reportType")
+    .isIn([
+      "user_retention",
+      "feature_adoption",
+      "performance_summary",
+      "revenue_analysis",
+    ])
+    .withMessage("Invalid report type"),
+  body("startDate")
+    .isISO8601()
+    .withMessage("Start date must be a valid ISO 8601 date"),
+  body("endDate")
+    .isISO8601()
+    .withMessage("End date must be a valid ISO 8601 date"),
 ];
 
 /**
@@ -121,7 +137,7 @@ const customReportValidation = [
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/analytics/dashboard', AnalyticsController.getAnalyticsDashboard);
+router.get("/analytics/dashboard", AnalyticsController.getAnalyticsDashboard);
 
 /**
  * @swagger
@@ -168,7 +184,7 @@ router.get('/analytics/dashboard', AnalyticsController.getAnalyticsDashboard);
  *         description: Forbidden - Admin access required
  */
 router.get(
-  '/analytics/user-engagement',
+  "/analytics/user-engagement",
   dateRangeValidation,
   validateRequest,
   AnalyticsController.getUserEngagementAnalytics
@@ -219,7 +235,7 @@ router.get(
  *         description: Forbidden - Admin access required
  */
 router.get(
-  '/analytics/performance',
+  "/analytics/performance",
   dateRangeValidation,
   validateRequest,
   AnalyticsController.getPerformanceAnalytics
@@ -271,7 +287,7 @@ router.get(
  *         description: Forbidden - Admin access required
  */
 router.get(
-  '/analytics/business-intelligence',
+  "/analytics/business-intelligence",
   dateRangeValidation,
   validateRequest,
   AnalyticsController.getBusinessIntelligence
@@ -306,7 +322,10 @@ router.get(
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/analytics/system-health', AnalyticsController.getSystemHealthMonitoring);
+router.get(
+  "/analytics/system-health",
+  AnalyticsController.getSystemHealthMonitoring
+);
 
 /**
  * @swagger
@@ -336,7 +355,7 @@ router.get('/analytics/system-health', AnalyticsController.getSystemHealthMonito
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/analytics/predictive', AnalyticsController.getPredictiveAnalytics);
+router.get("/analytics/predictive", AnalyticsController.getPredictiveAnalytics);
 
 /**
  * @swagger
@@ -414,7 +433,7 @@ router.get('/analytics/predictive', AnalyticsController.getPredictiveAnalytics);
  *         description: Forbidden - Admin access required
  */
 router.post(
-  '/analytics/reports/custom',
+  "/analytics/reports/custom",
   customReportValidation,
   validateRequest,
   AnalyticsController.getCustomReports
@@ -462,7 +481,7 @@ router.post(
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/insights/application', InsightsController.getApplicationInsights);
+router.get("/insights/application", InsightsController.getApplicationInsights);
 
 /**
  * @swagger
@@ -487,7 +506,10 @@ router.get('/insights/application', InsightsController.getApplicationInsights);
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/insights/user-behavior', InsightsController.getUserBehaviorInsights);
+router.get(
+  "/insights/user-behavior",
+  InsightsController.getUserBehaviorInsights
+);
 
 /**
  * @swagger
@@ -505,7 +527,7 @@ router.get('/insights/user-behavior', InsightsController.getUserBehaviorInsights
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/insights/business', InsightsController.getBusinessInsights);
+router.get("/insights/business", InsightsController.getBusinessInsights);
 
 /**
  * @swagger
@@ -523,7 +545,7 @@ router.get('/insights/business', InsightsController.getBusinessInsights);
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/insights/predictive', InsightsController.getPredictiveInsights);
+router.get("/insights/predictive", InsightsController.getPredictiveInsights);
 
 /**
  * @swagger
@@ -541,7 +563,7 @@ router.get('/insights/predictive', InsightsController.getPredictiveInsights);
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/insights/competitive', InsightsController.getCompetitiveInsights);
+router.get("/insights/competitive", InsightsController.getCompetitiveInsights);
 
 /**
  * @swagger
@@ -565,13 +587,13 @@ router.get('/insights/competitive', InsightsController.getCompetitiveInsights);
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/system/overview', async (req, res) => {
+router.get("/system/overview", async (req, res) => {
   // Advanced admin-only system overview
   const insights = {
     systemOverview: {
-      totalUsers: await require('../../../../models/User').User.countDocuments(),
-      totalMatches: await require('../../../../models/Match').Match.countDocuments(),
-      totalTournaments: await require('../../../../models/Tournament').Tournament.countDocuments(),
+      totalUsers: await User.countDocuments(),
+      totalMatches: await Match.countDocuments(),
+      totalTournaments: await Tournament.countDocuments(),
       systemUptime: process.uptime(),
       memoryUsage: process.memoryUsage(),
     },
@@ -592,7 +614,7 @@ router.get('/system/overview', async (req, res) => {
   res.json({
     success: true,
     data: insights,
-    message: 'System overview retrieved successfully',
+    message: "System overview retrieved successfully",
   });
 });
 
@@ -631,7 +653,7 @@ router.get('/system/overview', async (req, res) => {
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/users/management', async (_req, res) => {
+router.get("/users/management", async (_req, res) => {
   // This would be implemented with proper user management logic
   const users = {
     total: 1000,
@@ -646,7 +668,7 @@ router.get('/users/management', async (_req, res) => {
   res.json({
     success: true,
     data: users,
-    message: 'User management data retrieved successfully',
+    message: "User management data retrieved successfully",
   });
 });
 

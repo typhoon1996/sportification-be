@@ -1,7 +1,6 @@
-import { Chat } from '../models/Chat';
-import { Message } from '../models/Message';
-import { IChat, IMessage } from '../../../../shared/types';
-import { IChatEventPublisher, IMessageService } from '../interfaces';
+import {IChat, IMessage} from "../../../../shared/types";
+import {IChatEventPublisher, IMessageService} from "../interfaces";
+import {Message} from "../models/Message";
 
 /**
  * MessageService - Handles message operations (SRP)
@@ -35,7 +34,7 @@ export class MessageService implements IMessageService {
    * @param senderId - User ID of message sender
    * @param content - Message text content
    * @param eventPublisher - Event publisher for domain events
-   * @returns Created message document
+   * @return Created message document
    */
   async sendMessage(
     chat: IChat,
@@ -77,12 +76,12 @@ export class MessageService implements IMessageService {
    *
    * @param chatId - Chat ID to retrieve messages from
    * @param limit - Maximum number of messages to retrieve (default: 50)
-   * @returns Array of message documents with populated sender
+   * @return Array of message documents with populated sender
    */
   async getMessages(chatId: string, limit: number = 50): Promise<IMessage[]> {
-    const messages = await Message.find({ chat: chatId })
-      .populate('sender', 'profile')
-      .sort({ createdAt: -1 })
+    const messages = await Message.find({chat: chatId})
+      .populate("sender", "profile")
+      .sort({createdAt: -1})
       .limit(limit);
 
     return messages;

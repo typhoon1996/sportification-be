@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
-import { User } from '../../modules/users/domain/models';
-import { JWTUtil } from '../lib/auth/jwt';
-import { IApiError } from '../types';
-import logger from '../infrastructure/logging';
+import {Request, Response, NextFunction} from "express";
+import {User} from "../../modules/users/domain/models";
+import logger from "../infrastructure/logging";
+import {JWTUtil} from "../lib/auth/jwt";
+import {IApiError} from "../types";
 
 // Extend Express Request interface to include user
-declare module 'express' {
+declare module "express" {
   interface Request {
     user?: any;
     userId?: string;
@@ -30,9 +30,9 @@ export const authenticate = async (
 
     if (!token) {
       const error: IApiError = {
-        message: 'Access token is required',
+        message: "Access token is required",
         statusCode: 401,
-        code: 'NO_TOKEN',
+        code: "NO_TOKEN",
       };
       res.status(401).json({
         success: false,
@@ -46,13 +46,15 @@ export const authenticate = async (
     const decoded = JWTUtil.verifyAccessToken(token);
 
     // Find user
-    const user = await User.findById(decoded.userId).populate('profile').select('+refreshTokens');
+    const user = await User.findById(decoded.userId)
+      .populate("profile")
+      .select("+refreshTokens");
 
     if (!user || !user.isActive) {
       const error: IApiError = {
-        message: 'User not found or inactive',
+        message: "User not found or inactive",
         statusCode: 401,
-        code: 'USER_NOT_FOUND',
+        code: "USER_NOT_FOUND",
       };
       res.status(401).json({
         success: false,
@@ -72,18 +74,18 @@ export const authenticate = async (
 
     next();
   } catch (error: any) {
-    logger.error('Authentication error:', error);
+    logger.error("Authentication error:", error);
 
     const statusCode = 401;
-    let message = 'Authentication failed';
-    let code = 'AUTH_FAILED';
+    let message = "Authentication failed";
+    let code = "AUTH_FAILED";
 
-    if (error.message === 'Token expired') {
-      message = 'Access token has expired';
-      code = 'TOKEN_EXPIRED';
-    } else if (error.message === 'Invalid token') {
-      message = 'Invalid access token';
-      code = 'INVALID_TOKEN';
+    if (error.message === "Token expired") {
+      message = "Access token has expired";
+      code = "TOKEN_EXPIRED";
+    } else if (error.message === "Invalid token") {
+      message = "Invalid access token";
+      code = "INVALID_TOKEN";
     }
 
     res.status(statusCode).json({
@@ -108,7 +110,7 @@ export const optionalAuthenticate = async (
     }
 
     const decoded = JWTUtil.verifyAccessToken(token);
-    const user = await User.findById(decoded.userId).populate('profile');
+    const user = await User.findById(decoded.userId).populate("profile");
 
     if (user && user.isActive) {
       req.user = user;
@@ -117,7 +119,7 @@ export const optionalAuthenticate = async (
 
     next();
   } catch (error) {
-    logger.error('Optional authentication error:', error);
+    logger.error("Optional authentication error:", error);
     // For optional auth, we just continue without user
     next();
   }
@@ -129,21 +131,21 @@ export const authorize = (roles: string[]) => {
     if (!req.user) {
       res.status(401).json({
         success: false,
-        message: 'Authentication required',
-        errors: ['User not authenticated'],
+        message: "Authentication required",
+        errors: ["User not authenticated"],
       });
       return;
     }
 
     // For now, we'll use a simple role system
     // In a real app, you'd have proper role management
-    const userRole = req.user.role || 'user';
+    const userRole = req.user.role || "user";
 
     if (!roles.includes(userRole)) {
       res.status(403).json({
         success: false,
-        message: 'Insufficient permissions',
-        errors: ['User does not have required permissions'],
+        message: "Insufficient permissions",
+        errors: ["User does not have required permissions"],
       });
       return;
     }
@@ -153,13 +155,13 @@ export const authorize = (roles: string[]) => {
 };
 
 // Check if user owns resource
-export const requireOwnership = (resourceField = 'createdBy') => {
+export const requireOwnership = (resourceField = "createdBy") => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({
         success: false,
-        message: 'Authentication required',
-        errors: ['User not authenticated'],
+        message: "Authentication required",
+        errors: ["User not authenticated"],
       });
       return;
     }
@@ -171,13 +173,13 @@ export const requireOwnership = (resourceField = 'createdBy') => {
 };
 
 // Check if user is participant in resource
-export const requireParticipation = (participantField = 'participants') => {
+export const requireParticipation = (participantField = "participants") => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({
         success: false,
-        message: 'Authentication required',
-        errors: ['User not authenticated'],
+        message: "Authentication required",
+        errors: ["User not authenticated"],
       });
       return;
     }

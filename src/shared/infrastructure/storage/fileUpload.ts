@@ -4,16 +4,17 @@
  * Handles file uploads with validation and storage
  */
 
-import multer from 'multer';
-import path from 'path';
-import { Request } from 'express';
-import { ValidationError } from '../../middleware/errorHandler';
-import logger from '../logging';
+import {promises as fs} from "fs";
+import path from "path";
+import {Request} from "express";
+import multer from "multer";
+import {ValidationError} from "../../middleware/errorHandler";
+import logger from "../logging";
 
 // Allowed file types
-export const ALLOWED_IMAGE_TYPES = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-export const ALLOWED_DOCUMENT_TYPES = ['pdf', 'doc', 'docx', 'txt'];
-export const ALLOWED_VIDEO_TYPES = ['mp4', 'avi', 'mov', 'webm'];
+export const ALLOWED_IMAGE_TYPES = ["jpg", "jpeg", "png", "gif", "webp"];
+export const ALLOWED_DOCUMENT_TYPES = ["pdf", "doc", "docx", "txt"];
+export const ALLOWED_VIDEO_TYPES = ["mp4", "avi", "mov", "webm"];
 
 // Max file sizes (in MB)
 export const MAX_IMAGE_SIZE = 5;
@@ -26,14 +27,17 @@ export const MAX_VIDEO_SIZE = 50;
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Store in different folders based on file type
-    let folder = 'uploads/misc';
+    let folder = "uploads/misc";
 
-    if (file.mimetype.startsWith('image/')) {
-      folder = 'uploads/images';
-    } else if (file.mimetype.startsWith('video/')) {
-      folder = 'uploads/videos';
-    } else if (file.mimetype === 'application/pdf' || file.mimetype.includes('document')) {
-      folder = 'uploads/documents';
+    if (file.mimetype.startsWith("image/")) {
+      folder = "uploads/images";
+    } else if (file.mimetype.startsWith("video/")) {
+      folder = "uploads/videos";
+    } else if (
+      file.mimetype === "application/pdf" ||
+      file.mimetype.includes("document")
+    ) {
+      folder = "uploads/documents";
     }
 
     cb(null, folder);
@@ -49,18 +53,26 @@ const storage = multer.diskStorage({
 /**
  * File filter
  */
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
   const ext = path.extname(file.originalname).toLowerCase().slice(1);
 
   // Check if file type is allowed
-  const allowedTypes = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOCUMENT_TYPES, ...ALLOWED_VIDEO_TYPES];
+  const allowedTypes = [
+    ...ALLOWED_IMAGE_TYPES,
+    ...ALLOWED_DOCUMENT_TYPES,
+    ...ALLOWED_VIDEO_TYPES,
+  ];
 
   if (allowedTypes.includes(ext)) {
     cb(null, true);
   } else {
     cb(
       new ValidationError(
-        `File type .${ext} is not allowed. Allowed types: ${allowedTypes.join(', ')}`
+        `File type .${ext} is not allowed. Allowed types: ${allowedTypes.join(", ")}`
       )
     );
   }
@@ -90,7 +102,7 @@ export const imageUpload = multer({
     } else {
       cb(
         new ValidationError(
-          `Only image files are allowed. Supported: ${ALLOWED_IMAGE_TYPES.join(', ')}`
+          `Only image files are allowed. Supported: ${ALLOWED_IMAGE_TYPES.join(", ")}`
         )
       );
     }
@@ -113,7 +125,7 @@ export const documentUpload = multer({
     } else {
       cb(
         new ValidationError(
-          `Only document files are allowed. Supported: ${ALLOWED_DOCUMENT_TYPES.join(', ')}`
+          `Only document files are allowed. Supported: ${ALLOWED_DOCUMENT_TYPES.join(", ")}`
         )
       );
     }
@@ -134,7 +146,7 @@ export const avatarUpload = multer({
     if (ALLOWED_IMAGE_TYPES.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new ValidationError('Only image files are allowed for avatars'));
+      cb(new ValidationError("Only image files are allowed for avatars"));
     }
   },
   limits: {
@@ -154,7 +166,6 @@ export const getFileUrl = (filename: string, baseUrl: string): string => {
  */
 export const deleteFile = async (filePath: string): Promise<void> => {
   try {
-    const fs = require('fs').promises;
     await fs.unlink(filePath);
     logger.info(`File deleted: ${filePath}`);
   } catch (error) {

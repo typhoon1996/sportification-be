@@ -1,4 +1,4 @@
-import { eventBus } from "../../../../shared/events/EventBus";
+import {eventBus} from "../../../../shared/events/EventBus";
 
 export const ChatCreatedEvent = "chat.chat.created";
 export const MessageSentEvent = "chat.message.sent";

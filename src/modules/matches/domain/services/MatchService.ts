@@ -1,21 +1,20 @@
-import {Match} from "../../../matches/domain/models/Match";
-import {IMatch} from "../../../../shared/types";
-import {MatchEventPublisher} from "../../events/publishers/MatchEventPublisher";
 import {
   NotFoundError,
   ValidationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
+import {IMatch} from "../../../../shared/types";
 import {MatchStatus, MatchType} from "../../../../shared/types";
+import {Match} from "../../../matches/domain/models/Match";
+import {MatchEventPublisher} from "../../events/publishers/MatchEventPublisher";
 import {
   IMatchService,
   IMatchValidationService,
   IMatchParticipantService,
   IMatchEventPublisher,
-  IMatchData,
 } from "../interfaces";
-import {MatchValidationService} from "./MatchValidationService";
 import {MatchParticipantService} from "./MatchParticipantService";
+import {MatchValidationService} from "./MatchValidationService";
 
 /**
  * Match Service - Business Logic for Match Management (Refactored with SOLID principles)
@@ -90,7 +89,7 @@ export class MatchService implements IMatchService {
    * @async
    * @param {string} userId - ID of the user creating the match
    * @param {any} matchData - Match details (sport, schedule, venue, etc.)
-   * @returns {Promise<IMatch>} Created match with populated fields
+   * @return {Promise<IMatch>} Created match with populated fields
    *
    * @throws {ValidationError} If scheduled date is in the past
    *
@@ -161,7 +160,7 @@ export class MatchService implements IMatchService {
    * @async
    * @param {string} userId - ID of the user joining
    * @param {string} matchId - ID of the match to join
-   * @returns {Promise<IMatch>} Updated match with new participant
+   * @return {Promise<IMatch>} Updated match with new participant
    *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If already participating, match full, or match not upcoming
@@ -200,7 +199,7 @@ export class MatchService implements IMatchService {
    * @async
    * @param {string} userId - ID of the user leaving
    * @param {string} matchId - ID of the match to leave
-   * @returns {Promise<IMatch>} Updated match without the user
+   * @return {Promise<IMatch>} Updated match without the user
    *
    * @throws {NotFoundError} If match doesn't exist
    * @throws {ConflictError} If user is creator, not participating, or match not upcoming
@@ -299,13 +298,13 @@ export class MatchService implements IMatchService {
    */
   async getMatchById(matchId: string): Promise<IMatch> {
     const match = await Match.findById(matchId)
-      .populate('createdBy', 'profile')
-      .populate('participants', 'profile')
-      .populate('venue', 'name location')
+      .populate("createdBy", "profile")
+      .populate("participants", "profile")
+      .populate("venue", "name location")
       .exec();
 
     if (!match) {
-      throw new NotFoundError('Match');
+      throw new NotFoundError("Match");
     }
 
     return match;
@@ -318,15 +317,15 @@ export class MatchService implements IMatchService {
     const match = await Match.findById(matchId);
 
     if (!match) {
-      throw new NotFoundError('Match');
+      throw new NotFoundError("Match");
     }
 
     if (match.createdBy.toString() !== userId) {
-      throw new ValidationError('Only match creator can cancel');
+      throw new ValidationError("Only match creator can cancel");
     }
 
     if (match.status === MatchStatus.COMPLETED) {
-      throw new ConflictError('Cannot cancel completed match');
+      throw new ConflictError("Cannot cancel completed match");
     }
 
     match.status = MatchStatus.CANCELLED;
@@ -334,7 +333,7 @@ export class MatchService implements IMatchService {
 
     this.eventPublisher.publishMatchCancelled({
       matchId: match.id,
-      reason: 'Cancelled by creator',
+      reason: "Cancelled by creator",
     });
 
     return match;
@@ -347,15 +346,15 @@ export class MatchService implements IMatchService {
     const match = await Match.findById(matchId);
 
     if (!match) {
-      throw new NotFoundError('Match');
+      throw new NotFoundError("Match");
     }
 
     if (match.createdBy.toString() !== userId) {
-      throw new ValidationError('Only match creator can delete');
+      throw new ValidationError("Only match creator can delete");
     }
 
     if (match.status !== MatchStatus.CANCELLED) {
-      throw new ConflictError('Only cancelled matches can be deleted');
+      throw new ConflictError("Only cancelled matches can be deleted");
     }
 
     await Match.findByIdAndDelete(matchId);

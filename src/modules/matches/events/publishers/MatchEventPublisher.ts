@@ -1,4 +1,4 @@
-import { eventBus } from "../../../../shared/events/EventBus";
+import {eventBus} from "../../../../shared/events/EventBus";
 
 export const MatchCreatedEvent = "matches.match.created";
 export const MatchCompletedEvent = "matches.match.completed";
@@ -40,7 +40,7 @@ export class MatchEventPublisher {
     });
   }
 
-  publishMatchCancelled(payload: { matchId: string; reason: string }): void {
+  publishMatchCancelled(payload: {matchId: string; reason: string}): void {
     eventBus.publish({
       eventType: MatchCancelledEvent,
       aggregateId: payload.matchId,
@@ -64,7 +64,7 @@ export class MatchEventPublisher {
     });
   }
 
-  publishPlayerLeft(payload: { matchId: string; userId: string }): void {
+  publishPlayerLeft(payload: {matchId: string; userId: string}): void {
     eventBus.publish({
       eventType: PlayerLeftEvent,
       aggregateId: payload.matchId,
