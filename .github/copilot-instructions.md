@@ -6,6 +6,35 @@
 
 ---
 
+## ⚠️ IMPORTANT: Living Document Guidelines
+
+> **This is a LIVING DOCUMENT** - Keep it in sync with the codebase at all times.
+
+**For All Developers (Human & AI):**
+- ✅ **ALWAYS update this file** when adding/modifying features, modules, services, or files
+- ✅ **REVIEW this file FIRST** before starting any new feature development
+- ✅ **Check for existing implementations** to prevent duplicate work
+- ✅ **Document integration points** when connecting modules or external services
+- ✅ **Update examples** when patterns or best practices change
+- ✅ **Maintain accuracy** - outdated documentation is worse than no documentation
+
+**What to Update:**
+- New modules added → Update "Codebase Overview" and "Module Structure Deep Dive"
+- New shared services → Update "Shared Infrastructure" section
+- New utilities/middleware → Update relevant sections with usage examples
+- Architecture changes → Update "Architecture Philosophy" and patterns
+- New dependencies → Update configuration sections
+- Breaking changes → Update all affected examples and guidelines
+
+**Benefits of Keeping This Updated:**
+- 🚀 Faster onboarding for new team members
+- 🔄 Better code reuse and consistency
+- 🤝 Streamlined collaboration across the team
+- 🧠 AI agents stay context-aware and produce better code
+- 📚 Single source of truth for architectural decisions
+
+---
+
 ## 📚 Table of Contents
 
 1. [Codebase Overview](#codebase-overview) ⭐ NEW
