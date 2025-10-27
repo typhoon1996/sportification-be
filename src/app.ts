@@ -12,6 +12,7 @@ import {chatModule} from "./modules/chat";
 import {iamModule} from "./modules/iam";
 import apiKeyRoutes from "./modules/iam/api/routes/apiKeys";
 import mfaRoutes from "./modules/iam/api/routes/mfa";
+import oauthRoutes from "./modules/iam/api/routes/oauth";
 import securityRoutes from "./modules/iam/api/routes/security";
 import {matchesModule} from "./modules/matches";
 import {notificationsModule} from "./modules/notifications";
@@ -378,6 +379,7 @@ class App {
 
     this.app.use(`${apiPrefix}/api-keys`, apiKeyRoutes);
     this.app.use(`${apiPrefix}/mfa`, mfaRoutes);
+    this.app.use(`${apiPrefix}/oauth`, oauthRoutes);
     this.app.use(`${apiPrefix}/security`, securityRoutes);
     this.app.use(`${apiPrefix}/admin`, adminRoutes);
   }
