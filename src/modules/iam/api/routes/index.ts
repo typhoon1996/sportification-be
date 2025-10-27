@@ -7,8 +7,11 @@ import {
   loginValidation,
   refreshTokenValidation,
   changePasswordValidation,
+  deactivateAccountValidation,
 } from "../../../../shared/validators";
 import {authController} from "../controllers/AuthController";
+import emailRoutes from "./email";
+import sessionRoutes from "./sessions";
 
 /**
  * Authentication Routes
@@ -18,6 +21,7 @@ import {authController} from "../controllers/AuthController";
  * - Token management (refresh, logout)
  * - Profile management
  * - Password operations
+ * - Email verification and password reset
  *
  * Security Features:
  * - Rate limiting applied to all routes (20 requests per 15 minutes)
@@ -249,6 +253,18 @@ router.post(
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *     responses:
  *       200:
  *         description: Logout successful
@@ -374,6 +390,19 @@ router.put(
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: SecurePass123!
  *     responses:
  *       200:
  *         description: Account deactivated successfully
@@ -385,9 +414,23 @@ router.put(
  *               success: true
  *               message: Account deactivated successfully
  *               data: null
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.delete("/deactivate", authenticate, authController.deactivateAccount);
+router.delete(
+  "/deactivate",
+  authenticate,
+  deactivateAccountValidation,
+  validateRequest,
+  authController.deactivateAccount
+);
+
+// Mount email routes (verification, password reset)
+router.use("/", emailRoutes);
+
+// Mount session routes (session management)
+router.use("/", sessionRoutes);
 
 export default router;

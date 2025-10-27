@@ -71,8 +71,6 @@ class Database {
         process.exit(1);
       } else {
         throw error;
-      } else {
-        process.exit(1);
       }
     }
   }

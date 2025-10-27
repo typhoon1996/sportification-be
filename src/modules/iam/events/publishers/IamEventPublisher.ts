@@ -110,4 +110,46 @@ export class IamEventPublisher {
       payload,
     });
   }
+
+  publishEmailVerificationRequested(payload: {
+    userId: string;
+    email: string;
+    token: string;
+  }): void {
+    eventBus.publish({
+      eventType: "iam.email_verification.requested",
+      aggregateId: payload.userId,
+      aggregateType: "User",
+      timestamp: new Date(),
+      payload,
+    });
+  }
+
+  publishEmailVerified(payload: {
+    userId: string;
+    email: string;
+  }): void {
+    eventBus.publish({
+      eventType: "iam.email.verified",
+      aggregateId: payload.userId,
+      aggregateType: "User",
+      timestamp: new Date(),
+      payload,
+    });
+  }
+
+  publishPasswordResetRequested(payload: {
+    userId: string;
+    email: string;
+    token: string;
+    expiresAt: Date;
+  }): void {
+    eventBus.publish({
+      eventType: "iam.password_reset.requested",
+      aggregateId: payload.userId,
+      aggregateType: "User",
+      timestamp: new Date(),
+      payload,
+    });
+  }
 }
