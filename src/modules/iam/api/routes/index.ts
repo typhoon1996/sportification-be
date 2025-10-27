@@ -10,6 +10,8 @@ import {
   deactivateAccountValidation,
 } from "../../../../shared/validators";
 import {authController} from "../controllers/AuthController";
+import emailRoutes from "./email";
+import sessionRoutes from "./sessions";
 
 /**
  * Authentication Routes
@@ -19,6 +21,7 @@ import {authController} from "../controllers/AuthController";
  * - Token management (refresh, logout)
  * - Profile management
  * - Password operations
+ * - Email verification and password reset
  *
  * Security Features:
  * - Rate limiting applied to all routes (20 requests per 15 minutes)
@@ -423,5 +426,11 @@ router.delete(
   validateRequest,
   authController.deactivateAccount
 );
+
+// Mount email routes (verification, password reset)
+router.use("/", emailRoutes);
+
+// Mount session routes (session management)
+router.use("/", sessionRoutes);
 
 export default router;
