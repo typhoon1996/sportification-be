@@ -114,6 +114,7 @@ const swaggerDefinition: SwaggerDefinition = {
   tags: [
     {name: "System", description: "Health checks and service metadata"},
     {name: "Authentication", description: "IAM and session management"},
+    {name: "MFA", description: "Two-factor authentication management"},
     {name: "Users", description: "Profiles, preferences, relationships"},
     {name: "Matches", description: "Match lifecycle, roster, and status"},
     {name: "Tournaments", description: "Bracket management and scheduling"},
