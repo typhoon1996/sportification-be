@@ -31,7 +31,7 @@ export class FriendService implements IFriendService {
    *
    * @param {string} userId - User ID
    * @param {string} friendId - Friend's user ID
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    * @throws {Error} If trying to add self as friend
    * @throws {AuthenticationError} If user or friend not found
    * @throws {ConflictError} If already friends
@@ -80,7 +80,7 @@ export class FriendService implements IFriendService {
    *
    * @param {string} userId - User ID
    * @param {string} friendId - Friend's user ID
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    * @throws {AuthenticationError} If user or friend not found
    */
   async removeFriend(
@@ -117,7 +117,7 @@ export class FriendService implements IFriendService {
    * Retrieves all friends for a user with populated data.
    *
    * @param {string} userId - User ID
-   * @returns {Promise<any[]>} List of friends
+   * @return {Promise<any[]>} List of friends
    * @throws {AuthenticationError} If user not found
    */
   async getFriends(userId: string): Promise<any[]> {
@@ -185,7 +185,7 @@ export class FriendService implements IFriendService {
    * @param {string} userId - User ID
    * @param {any} user - User document
    * @param {string[]} friendIds - Friend IDs to filter
-   * @returns {string[]} Valid friend IDs
+   * @return {string[]} Valid friend IDs
    */
   private filterValidFriendIds(
     userId: string,

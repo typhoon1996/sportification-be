@@ -10,23 +10,23 @@ import {body} from "express-validator";
 
 /**
  * Tournament Routes Module
- * 
+ *
  * Handles all tournament-related API endpoints including tournament creation,
  * bracket management, and participant registration. All routes require authentication.
- * 
+ *
  * Base Path: /api/v1/tournaments
- * 
+ *
  * Route Categories:
  * - Tournament Management: Create, list, view tournaments
  * - Bracket Operations: Generate and view tournament brackets
  * - Participation: Register for tournaments, view participants
  * - Match Management: Update match results, progress tournament
- * 
+ *
  * Security:
  * - All routes require authentication (JWT token)
  * - Organizer-only operations: Bracket generation, match result updates
  * - Participant operations: Registration, viewing brackets
- * 
+ *
  * Features:
  * - Multiple tournament formats (single/double elimination, round-robin)
  * - Automatic bracket generation

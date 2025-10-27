@@ -1,8 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import logger from '../infrastructure/logging';
+import {Request, Response, NextFunction} from "express";
+import logger from "../infrastructure/logging";
 
 // Enhanced request logging middleware
-export const advancedRequestLogger = (req: Request, res: Response, next: NextFunction): void => {
+export const advancedRequestLogger = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const startTime = Date.now();
   const originalSend = res.send;
   const originalJson = res.json;
@@ -12,11 +16,11 @@ export const advancedRequestLogger = (req: Request, res: Response, next: NextFun
     method: req.method,
     url: req.originalUrl,
     ip: req.ip || req.socket?.remoteAddress,
-    userAgent: req.get('User-Agent'),
-    contentType: req.get('Content-Type'),
-    contentLength: req.get('Content-Length'),
-    referer: req.get('Referer'),
-    userId: (req as any).userId || 'anonymous',
+    userAgent: req.get("User-Agent"),
+    contentType: req.get("Content-Type"),
+    contentLength: req.get("Content-Length"),
+    referer: req.get("Referer"),
+    userId: (req as any).userId || "anonymous",
     timestamp: new Date().toISOString(),
     requestId: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
   };
@@ -63,25 +67,29 @@ function logRequestResponse(requestInfo: any, responseInfo: any) {
 
   // Log based on status code
   if (responseInfo.statusCode >= 500) {
-    logger.error('Request failed', logData);
+    logger.error("Request failed", logData);
   } else if (responseInfo.statusCode >= 400) {
-    logger.warn('Client error', logData);
+    logger.warn("Client error", logData);
   } else {
-    logger.info('Request completed', logData);
+    logger.info("Request completed", logData);
   }
 
   // Log slow requests
   if (responseInfo.duration > 1000) {
-    logger.warn('Slow request detected', {
+    logger.warn("Slow request detected", {
       ...logData,
       slowRequest: true,
-      performanceImpact: responseInfo.duration > 5000 ? 'high' : 'medium',
+      performanceImpact: responseInfo.duration > 5000 ? "high" : "medium",
     });
   }
 }
 
 // Security logging middleware
-export const securityLogger = (req: Request, res: Response, next: NextFunction): void => {
+export const securityLogger = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const suspiciousPatterns = [
     /\.\.\//, // Path traversal
     /<script/i, // XSS
@@ -93,33 +101,33 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
   ];
 
   const checkForSuspiciousContent = (content: string): boolean => {
-    return suspiciousPatterns.some((pattern) => pattern.test(content));
+    return suspiciousPatterns.some(pattern => pattern.test(content));
   };
 
   // Check URL for suspicious patterns
   if (checkForSuspiciousContent(req.originalUrl)) {
-    logger.warn('Suspicious URL detected', {
+    logger.warn("Suspicious URL detected", {
       url: req.originalUrl,
       ip: req.ip,
-      userAgent: req.get('User-Agent'),
+      userAgent: req.get("User-Agent"),
       method: req.method,
       timestamp: new Date().toISOString(),
-      type: 'suspicious_url',
+      type: "suspicious_url",
     });
   }
 
   // Check request body for suspicious patterns
-  if (req.body && typeof req.body === 'object') {
+  if (req.body && typeof req.body === "object") {
     const bodyStr = JSON.stringify(req.body);
     if (checkForSuspiciousContent(bodyStr)) {
-      logger.warn('Suspicious request body detected', {
+      logger.warn("Suspicious request body detected", {
         url: req.originalUrl,
         ip: req.ip,
-        userAgent: req.get('User-Agent'),
+        userAgent: req.get("User-Agent"),
         method: req.method,
         bodyPreview: bodyStr.substring(0, 200),
         timestamp: new Date().toISOString(),
-        type: 'suspicious_body',
+        type: "suspicious_body",
       });
     }
   }
@@ -128,17 +136,21 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
 };
 
 // API usage analytics middleware
-export const analyticsLogger = (req: Request, res: Response, next: NextFunction): void => {
+export const analyticsLogger = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const originalEnd = res.end;
 
   res.end = function (this: any, chunk?: any, encoding?: any, cb?: any) {
     // Log API usage analytics
-    logger.info('API Analytics', {
+    logger.info("API Analytics", {
       endpoint: req.route?.path || req.originalUrl,
       method: req.method,
       statusCode: res.statusCode,
       userId: (req as any).userId,
-      userAgent: req.get('User-Agent'),
+      userAgent: req.get("User-Agent"),
       ip: req.ip,
       timestamp: new Date().toISOString(),
       success: res.statusCode < 400,
@@ -152,13 +164,13 @@ export const analyticsLogger = (req: Request, res: Response, next: NextFunction)
 };
 
 function categorizeEndpoint(url: string): string {
-  if (url.includes('/auth')) return 'authentication';
-  if (url.includes('/users')) return 'user_management';
-  if (url.includes('/matches')) return 'match_management';
-  if (url.includes('/tournaments')) return 'tournament_management';
-  if (url.includes('/notifications')) return 'notifications';
-  if (url.includes('/chats')) return 'messaging';
-  return 'other';
+  if (url.includes("/auth")) return "authentication";
+  if (url.includes("/users")) return "user_management";
+  if (url.includes("/matches")) return "match_management";
+  if (url.includes("/tournaments")) return "tournament_management";
+  if (url.includes("/notifications")) return "notifications";
+  if (url.includes("/chats")) return "messaging";
+  return "other";
 }
 
 // Error tracking middleware
@@ -170,15 +182,15 @@ export const errorTracker = (
 ): void => {
   // Enhanced error logging with context
   let severity: string;
-  if (error.name === 'ValidationError') {
-    severity = 'low';
-  } else if (error.name === 'UnauthorizedError') {
-    severity = 'medium';
+  if (error.name === "ValidationError") {
+    severity = "low";
+  } else if (error.name === "UnauthorizedError") {
+    severity = "medium";
   } else {
-    severity = 'high';
+    severity = "high";
   }
 
-  logger.error('Application Error', {
+  logger.error("Application Error", {
     error: {
       name: error.name,
       message: error.message,
@@ -188,9 +200,9 @@ export const errorTracker = (
       method: req.method,
       url: req.originalUrl,
       headers: req.headers,
-      body: req.method !== 'GET' ? req.body : undefined,
+      body: req.method !== "GET" ? req.body : undefined,
       ip: req.ip,
-      userAgent: req.get('User-Agent'),
+      userAgent: req.get("User-Agent"),
       userId: (req as any).userId,
       requestId: (req as any).requestId,
     },

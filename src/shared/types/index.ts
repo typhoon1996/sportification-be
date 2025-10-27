@@ -1,8 +1,8 @@
-import { Document, Types } from 'mongoose';
+import {Document, Types} from "mongoose";
 
 // User related types
 export interface ISocialLogin {
-  provider: 'google' | 'facebook' | 'github';
+  provider: "google" | "facebook" | "github";
   providerId: string;
   email?: string;
   name?: string;
@@ -37,7 +37,7 @@ export interface IUser extends Document {
   refreshTokens: string[];
   lastLoginAt?: Date;
   isActive: boolean;
-  role: 'user' | 'admin' | 'moderator';
+  role: "user" | "admin" | "moderator";
   socialLogins: ISocialLogin[];
   mfaSettings: IMFASettings;
   securitySettings: ISecuritySettings;
@@ -57,7 +57,10 @@ export interface IUser extends Document {
 
 export interface IUserStatics {
   findByEmail(email: string): Promise<IUser | null>;
-  findBySocialLogin(provider: string, providerId: string): Promise<IUser | null>;
+  findBySocialLogin(
+    provider: string,
+    providerId: string
+  ): Promise<IUser | null>;
 }
 
 export interface IProfile extends Document {
@@ -87,16 +90,16 @@ export interface IProfileStatics {
 
 // Match related types
 export enum MatchType {
-  PUBLIC = 'public',
-  PRIVATE = 'private',
+  PUBLIC = "public",
+  PRIVATE = "private",
 }
 
 export enum MatchStatus {
-  UPCOMING = 'upcoming',
-  ONGOING = 'ongoing',
-  COMPLETED = 'completed',
-  EXPIRED = 'expired',
-  CANCELLED = 'cancelled',
+  UPCOMING = "upcoming",
+  ONGOING = "ongoing",
+  COMPLETED = "completed",
+  EXPIRED = "expired",
+  CANCELLED = "cancelled",
 }
 
 export interface IMatch extends Document {
@@ -128,9 +131,9 @@ export interface IMatch extends Document {
 
 // Tournament related types
 export enum TournamentStatus {
-  UPCOMING = 'upcoming',
-  ONGOING = 'ongoing',
-  COMPLETED = 'completed',
+  UPCOMING = "upcoming",
+  ONGOING = "ongoing",
+  COMPLETED = "completed",
 }
 
 export interface ITournament extends Document {
@@ -160,12 +163,12 @@ export interface ITournament extends Document {
 
 // Notification types
 export enum NotificationType {
-  MATCH = 'match',
-  TOURNAMENT = 'tournament',
-  TEAM = 'team',
-  SYSTEM = 'system',
-  CHAT = 'chat',
-  ALERT = 'alert',
+  MATCH = "match",
+  TOURNAMENT = "tournament",
+  TEAM = "team",
+  SYSTEM = "system",
+  CHAT = "chat",
+  ALERT = "alert",
 }
 
 export interface INotification extends Document {
@@ -185,22 +188,22 @@ export interface INotification extends Document {
 
 // Chat related types
 export enum ChatType {
-  DIRECT = 'direct',
-  GROUP = 'group',
-  MATCH = 'match',
-  TOURNAMENT = 'tournament',
-  TEAM = 'team',
+  DIRECT = "direct",
+  GROUP = "group",
+  MATCH = "match",
+  TOURNAMENT = "tournament",
+  TEAM = "team",
 }
 
 export enum MessageType {
-  TEXT = 'text',
-  MEDIA = 'media',
-  SYSTEM = 'system',
-  FILE = 'file',
+  TEXT = "text",
+  MEDIA = "media",
+  SYSTEM = "system",
+  FILE = "file",
 }
 
 export interface IChat extends Document {
-  type: 'direct' | 'group' | 'match' | 'tournament' | 'team';
+  type: "direct" | "group" | "match" | "tournament" | "team";
   name?: string;
   participants: Types.ObjectId[];
   messages: Types.ObjectId[];
@@ -230,9 +233,9 @@ export interface IMessage extends Document {
   content: string;
   timestamp: Date;
   media: Types.ObjectId[];
-  reactions: Record<string, { users: Types.ObjectId[]; count: number }>;
+  reactions: Record<string, {users: Types.ObjectId[]; count: number}>;
   thread?: Types.ObjectId;
-  messageType: 'text' | 'media' | 'system' | 'file';
+  messageType: "text" | "media" | "system" | "file";
   editedAt?: Date;
   deletedAt?: Date;
   isSystem: boolean;
@@ -246,13 +249,17 @@ export interface IMessage extends Document {
 }
 
 export interface IMessageStatics {
-  findByChat(chatId: string, limit?: number, before?: Date): Promise<IMessage[]>;
+  findByChat(
+    chatId: string,
+    limit?: number,
+    before?: Date
+  ): Promise<IMessage[]>;
 }
 
 export enum MediaType {
-  IMAGE = 'image',
-  VIDEO = 'video',
-  FILE = 'file',
+  IMAGE = "image",
+  VIDEO = "video",
+  FILE = "file",
 }
 
 export interface IMedia extends Document {
@@ -286,12 +293,12 @@ export interface ISettings extends Document {
     pushNotifications: boolean;
   };
   preferences: {
-    theme: 'light' | 'dark' | 'auto';
+    theme: "light" | "dark" | "auto";
     sportPreferences: string[];
-    units: 'metric' | 'imperial';
+    units: "metric" | "imperial";
   };
   privacy: {
-    profileVisibility: 'public' | 'friends' | 'private';
+    profileVisibility: "public" | "friends" | "private";
     showOnlineStatus: boolean;
     allowDirectMessages: boolean;
     showAchievements: boolean;
@@ -317,13 +324,13 @@ export interface IAdminTool extends Document {
   analytics: Record<string, unknown>;
   refunds: Record<string, unknown>;
   eventId: Types.ObjectId;
-  eventType: 'match' | 'tournament';
+  eventType: "match" | "tournament";
 }
 
 // Team related types
 export enum TeamRole {
-  CAPTAIN = 'captain',
-  PLAYER = 'player',
+  CAPTAIN = "captain",
+  PLAYER = "player",
 }
 
 export interface ITeamMember {
@@ -374,11 +381,26 @@ export interface IVenue extends Document {
     country: string;
     zipCode?: string;
   };
-  surfaceType: 'grass' | 'clay' | 'hard' | 'indoor' | 'outdoor' | 'sand' | 'pool' | 'court';
+  surfaceType:
+    | "grass"
+    | "clay"
+    | "hard"
+    | "indoor"
+    | "outdoor"
+    | "sand"
+    | "pool"
+    | "court";
   capacity?: number;
   amenities: string[];
   operatingHours?: {
-    [key in 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday']?: {
+    [key in
+      | "monday"
+      | "tuesday"
+      | "wednesday"
+      | "thursday"
+      | "friday"
+      | "saturday"
+      | "sunday"]?: {
       open: string;
       close: string;
     };
@@ -422,14 +444,14 @@ export interface IAchievement extends Document {
   criteria: Record<string, unknown>;
   points: number;
   isActive: boolean;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  rarity: "common" | "rare" | "epic" | "legendary";
 }
 
 // JWT Payload type
 export interface IJWTPayload {
   userId: string;
   email: string;
-  type: 'access' | 'refresh';
+  type: "access" | "refresh";
   iat?: number;
   exp?: number;
 }
@@ -538,5 +560,5 @@ export interface IApiKey extends Document {
 
 export interface IApiKeyStatics {
   findByHash(keyHash: string): Promise<IApiKey | null>;
-  generateApiKey(): { key: string; hash: string };
+  generateApiKey(): {key: string; hash: string};
 }

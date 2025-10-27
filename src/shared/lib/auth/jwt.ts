@@ -1,6 +1,6 @@
-import jwt, { SignOptions } from "jsonwebtoken";
-import { StringValue } from "ms";
-import { IJWTPayload } from "../../types";
+import jwt, {SignOptions} from "jsonwebtoken";
+import {StringValue} from "ms";
+import {IJWTPayload} from "../../types";
 import config from "../../config";
 
 /**
@@ -13,7 +13,7 @@ export class JWTUtil {
    *
    * @param userId - The unique identifier of the user
    * @param email - The email address of the user
-   * @returns A signed JWT access token
+   * @return A signed JWT access token
    * @example
    * const token = JWTUtil.generateAccessToken('user123', 'user@example.com');
    */
@@ -38,7 +38,7 @@ export class JWTUtil {
    *
    * @param userId - The unique identifier of the user
    * @param email - The email address of the user
-   * @returns A signed JWT refresh token with longer expiration
+   * @return A signed JWT refresh token with longer expiration
    * @example
    * const refreshToken = JWTUtil.generateRefreshToken('user123', 'user@example.com');
    */
@@ -62,7 +62,7 @@ export class JWTUtil {
    * Verify and decode an access token
    *
    * @param token - The JWT access token to verify
-   * @returns The decoded JWT payload
+   * @return The decoded JWT payload
    * @throws {Error} If token is invalid, expired, or wrong type
    * @example
    * try {
@@ -99,7 +99,7 @@ export class JWTUtil {
    * Verify and decode a refresh token
    *
    * @param token - The JWT refresh token to verify
-   * @returns The decoded JWT payload
+   * @return The decoded JWT payload
    * @throws {Error} If token is invalid, expired, or wrong type
    * @example
    * try {

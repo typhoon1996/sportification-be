@@ -4,7 +4,7 @@
  * Provides utilities for efficient batch processing of operations
  */
 
-import logger from '../../infrastructure/logging';
+import logger from "../../infrastructure/logging";
 
 export interface BatchOptions {
   batchSize?: number;
@@ -22,30 +22,30 @@ export class BatchProcessor {
     processor: (item: T) => Promise<R>,
     options: BatchOptions = {}
   ): Promise<R[]> {
-    const { batchSize = 10, concurrency = 5, onProgress, onError } = options;
+    const {batchSize = 10, concurrency = 5, onProgress, onError} = options;
 
     const results: R[] = [];
-    const errors: Array<{ item: T; error: Error }> = [];
+    const errors: Array<{item: T; error: Error}> = [];
 
     for (let i = 0; i < items.length; i += batchSize) {
       const batch = items.slice(i, Math.min(i + batchSize, items.length));
 
       // Process batch with concurrency limit
-      const batchPromises = batch.map(async (item) => {
+      const batchPromises = batch.map(async item => {
         try {
           return await processor(item);
         } catch (error) {
           if (onError) {
             onError(error as Error, item);
           }
-          errors.push({ item, error: error as Error });
+          errors.push({item, error: error as Error});
           return null;
         }
       });
 
       // Wait for batch to complete
       const batchResults = await Promise.all(batchPromises);
-      results.push(...(batchResults.filter((r) => r !== null) as R[]));
+      results.push(...(batchResults.filter(r => r !== null) as R[]));
 
       // Report progress
       if (onProgress) {
@@ -84,7 +84,7 @@ export class BatchProcessor {
     delayMs: number,
     options: BatchOptions = {}
   ): Promise<R[]> {
-    const { batchSize = 10, onProgress } = options;
+    const {batchSize = 10, onProgress} = options;
     const results: R[] = [];
     const chunks = this.chunk(items, batchSize);
 
@@ -94,7 +94,9 @@ export class BatchProcessor {
       if (!chunk) continue;
 
       // Process chunk
-      const chunkResults = await Promise.all(chunk.map((item) => processor(item)));
+      const chunkResults = await Promise.all(
+        chunk.map(item => processor(item))
+      );
       results.push(...chunkResults);
 
       // Report progress
@@ -104,7 +106,7 @@ export class BatchProcessor {
 
       // Delay before next chunk (except for last chunk)
       if (i < chunks.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        await new Promise(resolve => setTimeout(resolve, delayMs));
       }
     }
 
@@ -126,15 +128,18 @@ export class BatchProcessor {
         return await operation();
       } catch (error) {
         lastError = error as Error;
-        logger.warn(`Operation failed (attempt ${attempt}/${maxRetries}):`, error);
+        logger.warn(
+          `Operation failed (attempt ${attempt}/${maxRetries}):`,
+          error
+        );
 
         if (attempt < maxRetries) {
-          await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+          await new Promise(resolve => setTimeout(resolve, delayMs * attempt));
         }
       }
     }
 
-    throw new Error(lastError!.message || 'Operation failed after retries');
+    throw new Error(lastError!.message || "Operation failed after retries");
   }
 
   /**
@@ -149,7 +154,7 @@ export class BatchProcessor {
     const executing: Promise<void>[] = [];
 
     for (const item of items) {
-      const promise = processor(item).then((result) => {
+      const promise = processor(item).then(result => {
         results.push(result);
       });
 
@@ -158,7 +163,7 @@ export class BatchProcessor {
       if (executing.length >= limit) {
         await Promise.race(executing);
         executing.splice(
-          executing.findIndex((p) => p === promise),
+          executing.findIndex(p => p === promise),
           1
         );
       }
@@ -181,12 +186,12 @@ export class BatchDatabaseOperations {
     documents: T[],
     options: BatchOptions = {}
   ): Promise<any[]> {
-    const { batchSize = 1000 } = options;
+    const {batchSize = 1000} = options;
     const chunks = BatchProcessor.chunk(documents, batchSize);
     const results: any[] = [];
 
     for (const chunk of chunks) {
-      const insertedDocs = await model.insertMany(chunk, { ordered: false });
+      const insertedDocs = await model.insertMany(chunk, {ordered: false});
       results.push(...insertedDocs);
     }
 
@@ -199,15 +204,15 @@ export class BatchDatabaseOperations {
    */
   static async bulkUpdate(
     model: any,
-    updates: Array<{ filter: any; update: any }>,
+    updates: Array<{filter: any; update: any}>,
     options: BatchOptions = {}
   ): Promise<number> {
-    const { batchSize = 1000 } = options;
+    const {batchSize = 1000} = options;
     const chunks = BatchProcessor.chunk(updates, batchSize);
     let modifiedCount = 0;
 
     for (const chunk of chunks) {
-      const bulkOps = chunk.map((op) => ({
+      const bulkOps = chunk.map(op => ({
         updateMany: {
           filter: op.filter,
           update: op.update,
@@ -225,13 +230,17 @@ export class BatchDatabaseOperations {
   /**
    * Bulk delete documents
    */
-  static async bulkDelete(model: any, filters: any[], options: BatchOptions = {}): Promise<number> {
-    const { batchSize = 1000 } = options;
+  static async bulkDelete(
+    model: any,
+    filters: any[],
+    options: BatchOptions = {}
+  ): Promise<number> {
+    const {batchSize = 1000} = options;
     const chunks = BatchProcessor.chunk(filters, batchSize);
     let deletedCount = 0;
 
     for (const chunk of chunks) {
-      const bulkOps = chunk.map((filter) => ({
+      const bulkOps = chunk.map(filter => ({
         deleteMany: {
           filter,
         },

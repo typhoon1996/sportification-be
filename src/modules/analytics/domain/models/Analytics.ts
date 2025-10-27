@@ -1,5 +1,5 @@
-import { Schema, model } from 'mongoose';
-import { Document, Types } from 'mongoose';
+import {Schema, model} from "mongoose";
+import {Document, Types} from "mongoose";
 
 // User Activity Analytics
 export interface IUserActivity extends Document {
@@ -7,13 +7,13 @@ export interface IUserActivity extends Document {
   sessionId: string;
   activity: {
     type:
-      | 'page_view'
-      | 'match_join'
-      | 'tournament_create'
-      | 'message_send'
-      | 'profile_update'
-      | 'search'
-      | 'api_call';
+      | "page_view"
+      | "match_join"
+      | "tournament_create"
+      | "message_send"
+      | "profile_update"
+      | "search"
+      | "api_call";
     resource: string;
     resourceId?: string;
     metadata?: Record<string, unknown>;
@@ -27,7 +27,7 @@ export interface IUserActivity extends Document {
     coordinates?: [number, number]; // [longitude, latitude]
   };
   device: {
-    type: 'desktop' | 'mobile' | 'tablet';
+    type: "desktop" | "mobile" | "tablet";
     os: string;
     browser: string;
     userAgent: string;
@@ -42,7 +42,7 @@ export interface IUserActivity extends Document {
 // Application Performance Metrics
 export interface IPerformanceMetrics extends Document {
   endpoint: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   responseTime: number;
   statusCode: number;
   requestSize: number;
@@ -69,21 +69,26 @@ export interface IBusinessMetrics extends Document {
   value: number;
   dimensions: Record<string, string | number>;
   timestamp: Date;
-  aggregationType: 'sum' | 'average' | 'count' | 'min' | 'max';
-  category: 'user_engagement' | 'performance' | 'revenue' | 'security' | 'content';
+  aggregationType: "sum" | "average" | "count" | "min" | "max";
+  category:
+    | "user_engagement"
+    | "performance"
+    | "revenue"
+    | "security"
+    | "content";
 }
 
 // Real-time System Health
 export interface ISystemHealth extends Document {
-  component: 'api' | 'database' | 'cache' | 'external_service' | 'queue';
-  status: 'healthy' | 'degraded' | 'down';
+  component: "api" | "database" | "cache" | "external_service" | "queue";
+  status: "healthy" | "degraded" | "down";
   responseTime: number;
   errorRate: number;
   throughput: number;
   timestamp: Date;
   details?: Record<string, unknown>;
   alerts?: Array<{
-    level: 'info' | 'warning' | 'error' | 'critical';
+    level: "info" | "warning" | "error" | "critical";
     message: string;
     timestamp: Date;
   }>;
@@ -94,7 +99,7 @@ const userActivitySchema = new Schema<IUserActivity>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       index: true,
     },
@@ -107,13 +112,13 @@ const userActivitySchema = new Schema<IUserActivity>(
       type: {
         type: String,
         enum: [
-          'page_view',
-          'match_join',
-          'tournament_create',
-          'message_send',
-          'profile_update',
-          'search',
-          'api_call',
+          "page_view",
+          "match_join",
+          "tournament_create",
+          "message_send",
+          "profile_update",
+          "search",
+          "api_call",
         ],
         required: true,
         index: true,
@@ -141,7 +146,7 @@ const userActivitySchema = new Schema<IUserActivity>(
     device: {
       type: {
         type: String,
-        enum: ['desktop', 'mobile', 'tablet'],
+        enum: ["desktop", "mobile", "tablet"],
         required: true,
       },
       os: String,
@@ -156,7 +161,7 @@ const userActivitySchema = new Schema<IUserActivity>(
   },
   {
     timestamps: true,
-    collection: 'user_activities',
+    collection: "user_activities",
   }
 );
 
@@ -169,7 +174,7 @@ const performanceMetricsSchema = new Schema<IPerformanceMetrics>(
     },
     method: {
       type: String,
-      enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      enum: ["GET", "POST", "PUT", "PATCH", "DELETE"],
       required: true,
     },
     responseTime: {
@@ -191,12 +196,12 @@ const performanceMetricsSchema = new Schema<IPerformanceMetrics>(
     },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
     requestErrors: [String],
     dbQueries: {
-      count: { type: Number, default: 0 },
-      totalTime: { type: Number, default: 0 },
+      count: {type: Number, default: 0},
+      totalTime: {type: Number, default: 0},
       slowQueries: [
         {
           query: String,
@@ -204,12 +209,12 @@ const performanceMetricsSchema = new Schema<IPerformanceMetrics>(
         },
       ],
     },
-    cacheHits: { type: Number, default: 0 },
-    cacheMisses: { type: Number, default: 0 },
+    cacheHits: {type: Number, default: 0},
+    cacheMisses: {type: Number, default: 0},
   },
   {
     timestamps: true,
-    collection: 'performance_metrics',
+    collection: "performance_metrics",
   }
 );
 
@@ -235,19 +240,25 @@ const businessMetricsSchema = new Schema<IBusinessMetrics>(
     },
     aggregationType: {
       type: String,
-      enum: ['sum', 'average', 'count', 'min', 'max'],
+      enum: ["sum", "average", "count", "min", "max"],
       required: true,
     },
     category: {
       type: String,
-      enum: ['user_engagement', 'performance', 'revenue', 'security', 'content'],
+      enum: [
+        "user_engagement",
+        "performance",
+        "revenue",
+        "security",
+        "content",
+      ],
       required: true,
       index: true,
     },
   },
   {
     timestamps: true,
-    collection: 'business_metrics',
+    collection: "business_metrics",
   }
 );
 
@@ -255,13 +266,13 @@ const systemHealthSchema = new Schema<ISystemHealth>(
   {
     component: {
       type: String,
-      enum: ['api', 'database', 'cache', 'external_service', 'queue'],
+      enum: ["api", "database", "cache", "external_service", "queue"],
       required: true,
       index: true,
     },
     status: {
       type: String,
-      enum: ['healthy', 'degraded', 'down'],
+      enum: ["healthy", "degraded", "down"],
       required: true,
       index: true,
     },
@@ -287,7 +298,7 @@ const systemHealthSchema = new Schema<ISystemHealth>(
       {
         level: {
           type: String,
-          enum: ['info', 'warning', 'error', 'critical'],
+          enum: ["info", "warning", "error", "critical"],
         },
         message: String,
         timestamp: Date,
@@ -296,35 +307,56 @@ const systemHealthSchema = new Schema<ISystemHealth>(
   },
   {
     timestamps: true,
-    collection: 'system_health',
+    collection: "system_health",
   }
 );
 
 // Indexes for performance
-userActivitySchema.index({ userId: 1, timestamp: -1 });
-userActivitySchema.index({ 'activity.type': 1, timestamp: -1 });
-userActivitySchema.index({ sessionId: 1, timestamp: -1 });
+userActivitySchema.index({userId: 1, timestamp: -1});
+userActivitySchema.index({"activity.type": 1, timestamp: -1});
+userActivitySchema.index({sessionId: 1, timestamp: -1});
 
-performanceMetricsSchema.index({ endpoint: 1, timestamp: -1 });
-performanceMetricsSchema.index({ responseTime: -1, timestamp: -1 });
-performanceMetricsSchema.index({ statusCode: 1, timestamp: -1 });
+performanceMetricsSchema.index({endpoint: 1, timestamp: -1});
+performanceMetricsSchema.index({responseTime: -1, timestamp: -1});
+performanceMetricsSchema.index({statusCode: 1, timestamp: -1});
 
-businessMetricsSchema.index({ metric: 1, category: 1, timestamp: -1 });
-businessMetricsSchema.index({ category: 1, timestamp: -1 });
+businessMetricsSchema.index({metric: 1, category: 1, timestamp: -1});
+businessMetricsSchema.index({category: 1, timestamp: -1});
 
-systemHealthSchema.index({ component: 1, timestamp: -1 });
-systemHealthSchema.index({ status: 1, timestamp: -1 });
+systemHealthSchema.index({component: 1, timestamp: -1});
+systemHealthSchema.index({status: 1, timestamp: -1});
 
 // TTL indexes for data retention
-userActivitySchema.index({ timestamp: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 }); // 90 days
-performanceMetricsSchema.index({ timestamp: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 }); // 30 days
-businessMetricsSchema.index({ timestamp: 1 }, { expireAfterSeconds: 365 * 24 * 60 * 60 }); // 1 year
-systemHealthSchema.index({ timestamp: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 }); // 7 days
+userActivitySchema.index(
+  {timestamp: 1},
+  {expireAfterSeconds: 90 * 24 * 60 * 60}
+); // 90 days
+performanceMetricsSchema.index(
+  {timestamp: 1},
+  {expireAfterSeconds: 30 * 24 * 60 * 60}
+); // 30 days
+businessMetricsSchema.index(
+  {timestamp: 1},
+  {expireAfterSeconds: 365 * 24 * 60 * 60}
+); // 1 year
+systemHealthSchema.index(
+  {timestamp: 1},
+  {expireAfterSeconds: 7 * 24 * 60 * 60}
+); // 7 days
 
-export const UserActivity = model<IUserActivity>('UserActivity', userActivitySchema);
+export const UserActivity = model<IUserActivity>(
+  "UserActivity",
+  userActivitySchema
+);
 export const PerformanceMetrics = model<IPerformanceMetrics>(
-  'PerformanceMetrics',
+  "PerformanceMetrics",
   performanceMetricsSchema
 );
-export const BusinessMetrics = model<IBusinessMetrics>('BusinessMetrics', businessMetricsSchema);
-export const SystemHealth = model<ISystemHealth>('SystemHealth', systemHealthSchema);
+export const BusinessMetrics = model<IBusinessMetrics>(
+  "BusinessMetrics",
+  businessMetricsSchema
+);
+export const SystemHealth = model<ISystemHealth>(
+  "SystemHealth",
+  systemHealthSchema
+);

@@ -75,7 +75,7 @@ class CacheService {
   /**
    * Check if Redis connection is ready for operations
    *
-   * @returns True if connected and ready, false otherwise
+   * @return True if connected and ready, false otherwise
    */
   isReady(): boolean {
     return this.isConnected && this._redis.status === "ready";
@@ -122,7 +122,7 @@ class CacheService {
    * Automatically deserializes JSON to the expected type
    *
    * @param key - Cache key to retrieve (will be prefixed with 'sportification:cache:')
-   * @returns The cached value or null if not found
+   * @return The cached value or null if not found
    * @example
    * const userData = await cache.get<User>('user:123');
    * if (userData) {

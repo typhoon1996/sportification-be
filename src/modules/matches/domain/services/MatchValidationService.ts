@@ -60,7 +60,10 @@ export class MatchValidationService implements IMatchValidationService {
     }
 
     // Check capacity
-    if ((match as any).maxParticipants && match.participants.length >= (match as any).maxParticipants) {
+    if (
+      (match as any).maxParticipants &&
+      match.participants.length >= (match as any).maxParticipants
+    ) {
       throw new ConflictError("Match is already full");
     }
   }

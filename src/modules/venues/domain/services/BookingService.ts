@@ -160,7 +160,7 @@ export class BookingService {
       pricingType = PricingType.OFF_PEAK;
     }
 
-    let basePrice = baseHourlyRate * durationHours;
+    const basePrice = baseHourlyRate * durationHours;
     let discountAmount = 0;
 
     // Early bird discount (7+ days in advance)

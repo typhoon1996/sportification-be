@@ -1,7 +1,7 @@
-import { eventBus } from "../../../../shared/events/EventBus";
-import { UserRegisteredEvent } from "../../../iam";
-import { Profile } from "../../../users/domain/models/Profile";
-import logger from '../../../../shared/infrastructure/logging';
+import {eventBus} from "../../../../shared/events/EventBus";
+import {UserRegisteredEvent} from "../../../iam";
+import {Profile} from "../../../users/domain/models/Profile";
+import logger from "../../../../shared/infrastructure/logging";
 
 export class UserEventSubscriber {
   static initialize(): void {
@@ -14,8 +14,7 @@ export class UserEventSubscriber {
 
   private static async handleUserRegistered(event: any): Promise<void> {
     try {
-      const { userId, profileId, firstName, lastName, username } =
-        event.payload;
+      const {userId, profileId, firstName, lastName, username} = event.payload;
 
       logger.info(
         `✓ User profile already created during registration: ${username}`,

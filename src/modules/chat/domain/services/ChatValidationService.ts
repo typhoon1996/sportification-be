@@ -1,6 +1,6 @@
-import { IChat } from '../../../../shared/types';
-import { ValidationError } from '../../../../shared/middleware/errorHandler';
-import { IChatValidationService, IChatCreationData } from '../interfaces';
+import {IChat} from "../../../../shared/types";
+import {ValidationError} from "../../../../shared/middleware/errorHandler";
+import {IChatValidationService, IChatCreationData} from "../interfaces";
 
 /**
  * ChatValidationService - Handles chat business rule validation (SRP)
@@ -34,7 +34,7 @@ export class ChatValidationService implements IChatValidationService {
    */
   validateParticipant(chat: IChat, userId: string): void {
     if (!chat.participants.some((p: any) => p.toString() === userId)) {
-      throw new ValidationError('User not authorized to access this chat');
+      throw new ValidationError("User not authorized to access this chat");
     }
   }
 
@@ -53,26 +53,28 @@ export class ChatValidationService implements IChatValidationService {
     const totalParticipants = 1 + data.participantIds.length; // creator + others
 
     if (totalParticipants < 2) {
-      throw new ValidationError('Chat must have at least 2 participants');
+      throw new ValidationError("Chat must have at least 2 participants");
     }
 
-    if (data.type === 'direct' && totalParticipants !== 2) {
-      throw new ValidationError('Direct chat must have exactly 2 participants');
+    if (data.type === "direct" && totalParticipants !== 2) {
+      throw new ValidationError("Direct chat must have exactly 2 participants");
     }
 
     if (data.participantIds.length === 0) {
-      throw new ValidationError('Must specify at least one participant');
+      throw new ValidationError("Must specify at least one participant");
     }
 
     // Check for duplicate participants
     const uniqueParticipants = new Set(data.participantIds);
     if (uniqueParticipants.size !== data.participantIds.length) {
-      throw new ValidationError('Duplicate participants not allowed');
+      throw new ValidationError("Duplicate participants not allowed");
     }
 
     // Check if creator is in participant list (should not be)
     if (data.participantIds.includes(data.creatorId)) {
-      throw new ValidationError('Creator is automatically added as participant');
+      throw new ValidationError(
+        "Creator is automatically added as participant"
+      );
     }
   }
 
@@ -88,11 +90,13 @@ export class ChatValidationService implements IChatValidationService {
    */
   validateMessageContent(content: string): void {
     if (!content || content.trim().length === 0) {
-      throw new ValidationError('Message content cannot be empty');
+      throw new ValidationError("Message content cannot be empty");
     }
 
     if (content.length > 5000) {
-      throw new ValidationError('Message content cannot exceed 5000 characters');
+      throw new ValidationError(
+        "Message content cannot exceed 5000 characters"
+      );
     }
   }
 }

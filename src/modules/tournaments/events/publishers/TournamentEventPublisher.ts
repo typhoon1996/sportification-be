@@ -1,4 +1,4 @@
-import { eventBus } from "../../../../shared/events/EventBus";
+import {eventBus} from "../../../../shared/events/EventBus";
 
 export const TournamentCreatedEvent = "tournaments.tournament.created";
 export const TournamentStartedEvent = "tournaments.tournament.started";

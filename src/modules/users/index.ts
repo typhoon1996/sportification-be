@@ -3,10 +3,10 @@
  */
 
 // Export module instance
-export { usersModule } from "./module";
+export {usersModule} from "./module";
 
 // Export public services
-export { UserService } from "./domain/services/UserService";
+export {UserService} from "./domain/services/UserService";
 
 // Export events (for other modules to subscribe)
 export {

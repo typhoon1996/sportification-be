@@ -1,7 +1,7 @@
-import { Module } from "../../shared/module/Module";
-import { Router } from "express";
+import {Module} from "../../shared/module/Module";
+import {Router} from "express";
 import matchRoutes from "./api/routes";
-import { MatchEventSubscriber } from "./events/subscribers/MatchEventSubscriber";
+import {MatchEventSubscriber} from "./events/subscribers/MatchEventSubscriber";
 
 export class MatchesModule extends Module {
   constructor() {

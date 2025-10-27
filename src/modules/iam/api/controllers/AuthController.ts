@@ -195,7 +195,7 @@ export class AuthController {
   logout = asyncHandler(async (req: AuthRequest, res: Response) => {
     const {refreshToken} = req.body;
 
-    await this.authService.logout(req.userId!, refreshToken);
+    await this.authService.logout(req.userId, refreshToken);
 
     logger.info(`User logged out: ${req.user.email}`, {
       userId: req.userId,
@@ -205,7 +205,7 @@ export class AuthController {
     await AuditLogger.logAuth({
       req,
       action: "logout",
-      userId: req.userId!,
+      userId: req.userId,
       status: "success",
       details: {tokenCleared: !!refreshToken},
     });
@@ -231,7 +231,7 @@ export class AuthController {
    * Headers: { Authorization: "Bearer <access-token>" }
    */
   getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const result = await this.authService.getProfile(req.userId!);
+    const result = await this.authService.getProfile(req.userId);
 
     sendSuccess(res, result);
   });
@@ -265,7 +265,7 @@ export class AuthController {
     const {currentPassword, newPassword} = req.body;
 
     await this.authService.changePassword(
-      req.userId!,
+      req.userId,
       currentPassword,
       newPassword
     );
@@ -305,7 +305,7 @@ export class AuthController {
   deactivateAccount = asyncHandler(async (req: AuthRequest, res: Response) => {
     const {password} = req.body;
 
-    await this.authService.deactivateAccount(req.userId!, password);
+    await this.authService.deactivateAccount(req.userId, password);
 
     logger.info(`Account deactivated for user: ${req.user.email}`, {
       userId: req.userId,

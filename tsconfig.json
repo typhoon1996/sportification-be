@@ -1,13 +1,11 @@
 {
-    "extends": "./config/tsconfig.json",
-    "ts-node": {
-        "require": [
-            "tsconfig-paths/register"
-        ],
-        "transpileOnly": true,
-        "files": true,
-        "compilerOptions": {
-            "module": "commonjs"
-        }
+  "extends": "./config/tsconfig.json",
+  "ts-node": {
+    "require": ["tsconfig-paths/register"],
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+      "module": "commonjs"
     }
+  }
 }

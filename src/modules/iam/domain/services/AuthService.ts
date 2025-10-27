@@ -79,7 +79,7 @@ export class AuthService implements IAuthService {
    * - Better error handling
    *
    * @param {IUserRegistrationData} data - Registration data
-   * @returns {Promise<IAuthResult>} User data with tokens
+   * @return {Promise<IAuthResult>} User data with tokens
    * @throws {ConflictError} If email or username already exists
    * @throws {ValidationError} If password doesn't meet requirements
    */
@@ -145,7 +145,7 @@ export class AuthService implements IAuthService {
    *
    * @param {string} email - User email
    * @param {string} password - User password
-   * @returns {Promise<IAuthResult | IMfaRequired>} Auth result or MFA challenge
+   * @return {Promise<IAuthResult | IMfaRequired>} Auth result or MFA challenge
    * @throws {AuthenticationError} If credentials invalid or account locked
    */
   async login(
@@ -203,7 +203,7 @@ export class AuthService implements IAuthService {
    * Refactored to use TokenService for verification and generation.
    *
    * @param {string} refreshToken - Valid refresh token
-   * @returns {Promise<{tokens: any}>} New token pair
+   * @return {Promise<{tokens: any}>} New token pair
    * @throws {AuthenticationError} If token invalid or user not found
    */
   async refreshToken(refreshToken: string): Promise<{tokens: any}> {
@@ -235,7 +235,7 @@ export class AuthService implements IAuthService {
    *
    * @param {string} userId - User ID
    * @param {string} refreshToken - Optional specific token to invalidate
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    */
   async logout(
     userId: string,
@@ -271,7 +271,7 @@ export class AuthService implements IAuthService {
    * @param {string} userId - User ID
    * @param {string} currentPassword - Current password
    * @param {string} newPassword - New password
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    * @throws {AuthenticationError} If current password incorrect
    * @throws {ValidationError} If new password doesn't meet requirements
    */
@@ -322,7 +322,7 @@ export class AuthService implements IAuthService {
    *
    * @param {string} userId - User ID
    * @param {string} password - Password confirmation
-   * @returns {Promise<{success: boolean}>} Success indicator
+   * @return {Promise<{success: boolean}>} Success indicator
    */
   async deactivateAccount(
     userId: string,
@@ -359,7 +359,7 @@ export class AuthService implements IAuthService {
    * Get user profile
    *
    * @param {string} userId - User ID
-   * @returns {Promise<any>} User profile data
+   * @return {Promise<any>} User profile data
    */
   async getProfile(userId: string): Promise<any> {
     const user = await User.findById(userId)

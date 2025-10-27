@@ -47,7 +47,7 @@ export class TokenService implements ITokenService {
    *
    * @param {string} userId - User's unique identifier
    * @param {string} email - User's email address
-   * @returns {ITokenPair} Token pair with access token, refresh token, and expiration
+   * @return {ITokenPair} Token pair with access token, refresh token, and expiration
    *
    * @example
    * const tokens = tokenService.generateTokenPair('user123', 'user@example.com');
@@ -90,7 +90,7 @@ export class TokenService implements ITokenService {
    * Throws AuthenticationError if token is invalid, expired, or tampered.
    *
    * @param {string} token - JWT access token to verify
-   * @returns {ITokenPayload} Decoded token payload containing userId and email
+   * @return {ITokenPayload} Decoded token payload containing userId and email
    * @throws {AuthenticationError} If token is invalid or expired
    *
    * @example
@@ -130,7 +130,7 @@ export class TokenService implements ITokenService {
    * Uses a separate secret to ensure refresh tokens cannot be forged from access tokens.
    *
    * @param {string} token - JWT refresh token to verify
-   * @returns {ITokenPayload} Decoded token payload containing userId and email
+   * @return {ITokenPayload} Decoded token payload containing userId and email
    * @throws {AuthenticationError} If token is invalid or expired
    *
    * @example
@@ -170,7 +170,7 @@ export class TokenService implements ITokenService {
    * WARNING: Do not use for authentication - this does not verify the token!
    *
    * @param {string} token - JWT token to decode
-   * @returns {ITokenPayload | null} Decoded payload or null if invalid format
+   * @return {ITokenPayload | null} Decoded payload or null if invalid format
    *
    * @example
    * const payload = tokenService.decodeToken(token);
@@ -203,7 +203,7 @@ export class TokenService implements ITokenService {
    *
    * @private
    * @param {string} expiry - Expiry string (e.g., '7d', '24h', '3600')
-   * @returns {number} Expiration time in seconds
+   * @return {number} Expiration time in seconds
    */
   private parseExpiryToSeconds(expiry: string): number {
     const timeUnit = expiry.slice(-1);

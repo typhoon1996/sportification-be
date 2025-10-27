@@ -4,14 +4,18 @@
  * Optimizes API responses for better performance
  */
 
-import { Request, Response, NextFunction } from 'express';
-import logger from '../infrastructure/logging';
-import cacheService from '../infrastructure/cache';
+import {Request, Response, NextFunction} from "express";
+import logger from "../infrastructure/logging";
+import cacheService from "../infrastructure/cache";
 
 /**
  * Response transformation middleware
  */
-export const transformResponse = (req: Request, res: Response, next: NextFunction): void => {
+export const transformResponse = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const originalJson = res.json;
 
   res.json = function (data: any) {
@@ -19,7 +23,7 @@ export const transformResponse = (req: Request, res: Response, next: NextFunctio
     const responseTime = Date.now() - (req as any).startTime;
 
     // Add metadata to response
-    if (data && typeof data === 'object' && data.meta) {
+    if (data && typeof data === "object" && data.meta) {
       data.meta = {
         ...data.meta,
         responseTime: `${responseTime}ms`,
@@ -39,7 +43,7 @@ export const transformResponse = (req: Request, res: Response, next: NextFunctio
 export const cacheResponse = (ttlSeconds: number = 300) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     // Only cache GET requests
-    if (req.method !== 'GET') {
+    if (req.method !== "GET") {
       return next();
     }
 
@@ -61,8 +65,8 @@ export const cacheResponse = (ttlSeconds: number = 300) => {
       // Override json method to cache response
       res.json = function (data: any) {
         // Cache the response
-        cacheService.set(cacheKey, data, ttlSeconds).catch((err) => {
-          logger.error('Failed to cache response:', err);
+        cacheService.set(cacheKey, data, ttlSeconds).catch(err => {
+          logger.error("Failed to cache response:", err);
         });
 
         return originalJson.call(this, data);
@@ -70,7 +74,7 @@ export const cacheResponse = (ttlSeconds: number = 300) => {
 
       next();
     } catch (error) {
-      logger.error('Cache middleware error:', error);
+      logger.error("Cache middleware error:", error);
       next();
     }
   };
@@ -80,19 +84,25 @@ export const cacheResponse = (ttlSeconds: number = 300) => {
  * Field filtering middleware
  * Allows clients to request specific fields only
  */
-export const fieldFilter = (req: Request, res: Response, next: NextFunction): void => {
+export const fieldFilter = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const originalJson = res.json;
 
   res.json = function (data: any) {
     const fields = req.query.fields as string;
 
-    if (fields && data && typeof data === 'object') {
-      const fieldsArray = fields.split(',').map((f) => f.trim());
+    if (fields && data && typeof data === "object") {
+      const fieldsArray = fields.split(",").map(f => f.trim());
 
       if (data.data && Array.isArray(data.data)) {
         // Filter array data
-        data.data = data.data.map((item: any) => filterObject(item, fieldsArray));
-      } else if (data.data && typeof data.data === 'object') {
+        data.data = data.data.map((item: any) =>
+          filterObject(item, fieldsArray)
+        );
+      } else if (data.data && typeof data.data === "object") {
         // Filter single object
         data.data = filterObject(data.data, fieldsArray);
       }
@@ -108,13 +118,13 @@ export const fieldFilter = (req: Request, res: Response, next: NextFunction): vo
  * Helper to filter object fields
  */
 const filterObject = (obj: any, fields: string[]): any => {
-  if (!obj || typeof obj !== 'object') {
+  if (!obj || typeof obj !== "object") {
     return obj;
   }
 
   const filtered: any = {};
 
-  fields.forEach((field) => {
+  fields.forEach(field => {
     if (obj.hasOwnProperty(field)) {
       filtered[field] = obj[field];
     }
@@ -130,12 +140,12 @@ export const etag = (req: Request, res: Response, next: NextFunction): void => {
   const originalJson = res.json;
 
   res.json = function (data: any) {
-    if (req.method === 'GET') {
-      const etag = `"${Buffer.from(JSON.stringify(data)).toString('base64').slice(0, 27)}"`;
-      res.setHeader('ETag', etag);
+    if (req.method === "GET") {
+      const etag = `"${Buffer.from(JSON.stringify(data)).toString("base64").slice(0, 27)}"`;
+      res.setHeader("ETag", etag);
 
       // Check if client has cached version
-      const clientEtag = req.headers['if-none-match'];
+      const clientEtag = req.headers["if-none-match"];
       if (clientEtag === etag) {
         return res.status(304).end();
       }
@@ -159,16 +169,18 @@ export const responseSizeLimit = (maxSizeKB: number = 5000) => {
       const sizeKB = size / 1024;
 
       if (sizeKB > maxSizeKB) {
-        logger.warn(`Response size (${sizeKB.toFixed(2)}KB) exceeds limit (${maxSizeKB}KB)`);
+        logger.warn(
+          `Response size (${sizeKB.toFixed(2)}KB) exceeds limit (${maxSizeKB}KB)`
+        );
 
         // Return minimal response
         return res.status(413).json({
           success: false,
-          message: 'Response too large',
+          message: "Response too large",
           meta: {
             size: `${sizeKB.toFixed(2)}KB`,
             limit: `${maxSizeKB}KB`,
-            suggestion: 'Use pagination or field filtering',
+            suggestion: "Use pagination or field filtering",
           },
         });
       }

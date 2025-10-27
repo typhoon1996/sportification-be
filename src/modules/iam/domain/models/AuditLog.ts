@@ -1,5 +1,5 @@
-import { Schema, model, Model } from 'mongoose';
-import { Document, Types } from 'mongoose';
+import {Schema, model, Model} from "mongoose";
+import {Document, Types} from "mongoose";
 
 export interface IAuditLog extends Document {
   userId?: Types.ObjectId;
@@ -9,8 +9,8 @@ export interface IAuditLog extends Document {
   details: Record<string, unknown>;
   ipAddress: string;
   userAgent?: string;
-  status: 'success' | 'failure' | 'warning';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: "success" | "failure" | "warning";
+  severity: "low" | "medium" | "high" | "critical";
   timestamp: Date;
   sessionId?: string;
   apiKeyId?: Types.ObjectId;
@@ -25,8 +25,8 @@ export interface IAuditLogStatics {
     details?: Record<string, unknown>;
     ipAddress: string;
     userAgent?: string;
-    status?: 'success' | 'failure' | 'warning';
-    severity?: 'low' | 'medium' | 'high' | 'critical';
+    status?: "success" | "failure" | "warning";
+    severity?: "low" | "medium" | "high" | "critical";
     sessionId?: string;
     apiKeyId?: string;
   }): Promise<IAuditLog>;
@@ -46,7 +46,7 @@ const auditLogSchema = new Schema<IAuditLog>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       index: true,
     },
     action: {
@@ -55,47 +55,47 @@ const auditLogSchema = new Schema<IAuditLog>(
       index: true,
       enum: [
         // Authentication actions
-        'login',
-        'logout',
-        'login_failed',
-        'account_locked',
-        'password_reset_requested',
-        'password_reset_completed',
-        'password_changed',
-        'email_verified',
+        "login",
+        "logout",
+        "login_failed",
+        "account_locked",
+        "password_reset_requested",
+        "password_reset_completed",
+        "password_changed",
+        "email_verified",
 
         // MFA actions
-        'mfa_enabled',
-        'mfa_disabled',
-        'mfa_login_success',
-        'mfa_login_failed',
-        'mfa_backup_code_used',
+        "mfa_enabled",
+        "mfa_disabled",
+        "mfa_login_success",
+        "mfa_login_failed",
+        "mfa_backup_code_used",
 
         // OAuth actions
-        'oauth_login',
-        'oauth_account_linked',
-        'oauth_account_unlinked',
+        "oauth_login",
+        "oauth_account_linked",
+        "oauth_account_unlinked",
 
         // API key actions
-        'api_key_created',
-        'api_key_used',
-        'api_key_regenerated',
-        'api_key_deleted',
-        'api_key_rate_limited',
-        'api_key_expired',
+        "api_key_created",
+        "api_key_used",
+        "api_key_regenerated",
+        "api_key_deleted",
+        "api_key_rate_limited",
+        "api_key_expired",
 
         // Security actions
-        'security_settings_updated',
-        'ip_restriction_violation',
-        'suspicious_activity',
-        'data_export_requested',
-        'account_deleted',
+        "security_settings_updated",
+        "ip_restriction_violation",
+        "suspicious_activity",
+        "data_export_requested",
+        "account_deleted",
 
         // Admin actions
-        'user_impersonated',
-        'admin_action',
-        'permission_granted',
-        'permission_revoked',
+        "user_impersonated",
+        "admin_action",
+        "permission_granted",
+        "permission_revoked",
       ],
     },
     resource: {
@@ -103,18 +103,18 @@ const auditLogSchema = new Schema<IAuditLog>(
       required: true,
       index: true,
       enum: [
-        'user',
-        'auth',
-        'mfa',
-        'oauth',
-        'api_key',
-        'security',
-        'admin',
-        'match',
-        'tournament',
-        'venue',
-        'notification',
-        'chat',
+        "user",
+        "auth",
+        "mfa",
+        "oauth",
+        "api_key",
+        "security",
+        "admin",
+        "match",
+        "tournament",
+        "venue",
+        "notification",
+        "chat",
       ],
     },
     resourceId: {
@@ -136,15 +136,15 @@ const auditLogSchema = new Schema<IAuditLog>(
     status: {
       type: String,
       required: true,
-      enum: ['success', 'failure', 'warning'],
-      default: 'success',
+      enum: ["success", "failure", "warning"],
+      default: "success",
       index: true,
     },
     severity: {
       type: String,
       required: true,
-      enum: ['low', 'medium', 'high', 'critical'],
-      default: 'low',
+      enum: ["low", "medium", "high", "critical"],
+      default: "low",
       index: true,
     },
     timestamp: {
@@ -159,7 +159,7 @@ const auditLogSchema = new Schema<IAuditLog>(
     },
     apiKeyId: {
       type: Schema.Types.ObjectId,
-      ref: 'ApiKey',
+      ref: "ApiKey",
       index: true,
     },
   },
@@ -175,14 +175,17 @@ const auditLogSchema = new Schema<IAuditLog>(
 );
 
 // Indexes for performance
-auditLogSchema.index({ timestamp: -1 });
-auditLogSchema.index({ userId: 1, timestamp: -1 });
-auditLogSchema.index({ action: 1, timestamp: -1 });
-auditLogSchema.index({ severity: 1, timestamp: -1 });
-auditLogSchema.index({ ipAddress: 1, timestamp: -1 });
+auditLogSchema.index({timestamp: -1});
+auditLogSchema.index({userId: 1, timestamp: -1});
+auditLogSchema.index({action: 1, timestamp: -1});
+auditLogSchema.index({severity: 1, timestamp: -1});
+auditLogSchema.index({ipAddress: 1, timestamp: -1});
 
 // TTL index to automatically delete old logs (keep for 2 years)
-auditLogSchema.index({ timestamp: 1 }, { expireAfterSeconds: 2 * 365 * 24 * 60 * 60 });
+auditLogSchema.index(
+  {timestamp: 1},
+  {expireAfterSeconds: 2 * 365 * 24 * 60 * 60}
+);
 
 // Static method to log actions
 auditLogSchema.statics.logAction = async function (params: {
@@ -193,24 +196,28 @@ auditLogSchema.statics.logAction = async function (params: {
   details?: Record<string, unknown>;
   ipAddress: string;
   userAgent?: string;
-  status?: 'success' | 'failure' | 'warning';
-  severity?: 'low' | 'medium' | 'high' | 'critical';
+  status?: "success" | "failure" | "warning";
+  severity?: "low" | "medium" | "high" | "critical";
   sessionId?: string;
   apiKeyId?: string;
 }): Promise<IAuditLog> {
   try {
     const auditLog = new this({
-      userId: params.userId ? Types.ObjectId.createFromHexString(params.userId) : undefined,
+      userId: params.userId
+        ? Types.ObjectId.createFromHexString(params.userId)
+        : undefined,
       action: params.action,
       resource: params.resource,
       resourceId: params.resourceId,
       details: params.details || {},
       ipAddress: params.ipAddress,
       userAgent: params.userAgent,
-      status: params.status || 'success',
-      severity: params.severity || 'low',
+      status: params.status || "success",
+      severity: params.severity || "low",
       sessionId: params.sessionId,
-      apiKeyId: params.apiKeyId ? Types.ObjectId.createFromHexString(params.apiKeyId) : undefined,
+      apiKeyId: params.apiKeyId
+        ? Types.ObjectId.createFromHexString(params.apiKeyId)
+        : undefined,
       timestamp: new Date(),
     });
 
@@ -218,7 +225,7 @@ auditLogSchema.statics.logAction = async function (params: {
     return auditLog;
   } catch (error) {
     // Log to console if audit logging fails (don't throw to avoid breaking main flow)
-    console.error('Failed to create audit log:', error);
+    console.error("Failed to create audit log:", error);
     throw error;
   }
 };
@@ -254,14 +261,14 @@ auditLogSchema.statics.getSecurityEvents = function (params: {
   }
 
   return this.find(filter)
-    .populate('userId', 'email profile')
-    .populate('apiKeyId', 'name')
-    .sort({ timestamp: -1 })
+    .populate("userId", "email profile")
+    .populate("apiKeyId", "name")
+    .sort({timestamp: -1})
     .skip(params.skip || 0)
     .limit(params.limit || 100);
 };
 
 export const AuditLog = model<IAuditLog, Model<IAuditLog> & IAuditLogStatics>(
-  'AuditLog',
+  "AuditLog",
   auditLogSchema
 );

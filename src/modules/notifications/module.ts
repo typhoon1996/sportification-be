@@ -1,7 +1,7 @@
-import { Module } from "../../shared/module/Module";
-import { Router } from "express";
+import {Module} from "../../shared/module/Module";
+import {Router} from "express";
 import notificationRoutes from "./api/routes";
-import { NotificationEventSubscriber } from "./events/subscribers/NotificationEventSubscriber";
+import {NotificationEventSubscriber} from "./events/subscribers/NotificationEventSubscriber";
 
 export class NotificationsModule extends Module {
   private eventSubscriber: NotificationEventSubscriber;

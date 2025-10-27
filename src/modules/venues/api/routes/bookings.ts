@@ -1,12 +1,12 @@
 /**
  * Booking Routes Module
- * 
+ *
  * Handles all venue booking-related endpoints including reservation creation, management,
  * payment processing, and availability checking. Provides comprehensive booking lifecycle
  * management from availability check to check-out.
- * 
+ *
  * Base Path: /api/v1/venues/bookings
- * 
+ *
  * Features:
  * - Availability checking with real-time conflict detection
  * - Booking creation with automatic venue capacity validation
@@ -17,13 +17,13 @@
  * - Booking history and filtering
  * - Calendar view for venue scheduling
  * - Analytics for venue utilization
- * 
+ *
  * Security:
  * - All routes require authentication
  * - Creator/venue owner permissions for modifications
  * - Admin/moderator override capabilities
  * - Rate limiting applied to prevent abuse
- * 
+ *
  * Validation:
  * - Comprehensive request validation on all endpoints
  * - Date/time format validation

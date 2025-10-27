@@ -1,2 +1,2 @@
-export * from './CacheManager';
-export { default } from './CacheManager';
+export * from "./CacheManager";
+export {default} from "./CacheManager";

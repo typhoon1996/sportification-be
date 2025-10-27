@@ -1,6 +1,6 @@
-import nodemailer from 'nodemailer';
-import config from '../../config';
-import logger from '../../infrastructure/logging';
+import nodemailer from "nodemailer";
+import config from "../../config";
+import logger from "../../infrastructure/logging";
 
 /**
  * Email Service
@@ -41,7 +41,9 @@ class EmailService {
   private setupTransporter(): void {
     try {
       if (!config.email.user || !config.email.pass) {
-        logger.warn('⚠️  Email service not configured - no credentials provided');
+        logger.warn(
+          "⚠️  Email service not configured - no credentials provided"
+        );
         return;
       }
 
@@ -57,9 +59,9 @@ class EmailService {
       });
 
       this.isConfigured = true;
-      logger.info('📧 Email service configured successfully');
+      logger.info("📧 Email service configured successfully");
     } catch (error) {
-      logger.error('❌ Failed to configure email service:', error);
+      logger.error("❌ Failed to configure email service:", error);
     }
   }
 
@@ -68,16 +70,16 @@ class EmailService {
    */
   async verify(): Promise<boolean> {
     if (!this.isConfigured || !this.transporter) {
-      logger.warn('⚠️  Email service not configured');
+      logger.warn("⚠️  Email service not configured");
       return false;
     }
 
     try {
       await this.transporter.verify();
-      logger.info('✅ Email service verification successful');
+      logger.info("✅ Email service verification successful");
       return true;
     } catch (error) {
-      logger.error('❌ Email service verification failed:', error);
+      logger.error("❌ Email service verification failed:", error);
       return false;
     }
   }
@@ -87,22 +89,22 @@ class EmailService {
    */
   async sendEmail(options: EmailOptions): Promise<boolean> {
     if (!this.isConfigured || !this.transporter) {
-      logger.warn('⚠️  Attempted to send email but service not configured');
+      logger.warn("⚠️  Attempted to send email but service not configured");
       return false;
     }
 
     try {
       const mailOptions = {
         from: options.from || `"Sports Companion" <${config.email.user}>`,
-        to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
+        to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
         cc: options.cc
           ? Array.isArray(options.cc)
-            ? options.cc.join(', ')
+            ? options.cc.join(", ")
             : options.cc
           : undefined,
         bcc: options.bcc
           ? Array.isArray(options.bcc)
-            ? options.bcc.join(', ')
+            ? options.bcc.join(", ")
             : options.bcc
           : undefined,
         subject: options.subject,
@@ -112,7 +114,9 @@ class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      logger.info(`📧 Email sent successfully to ${options.to}`, { messageId: info.messageId });
+      logger.info(`📧 Email sent successfully to ${options.to}`, {
+        messageId: info.messageId,
+      });
       return true;
     } catch (error) {
       logger.error(`❌ Failed to send email to ${options.to}:`, error);
@@ -123,7 +127,11 @@ class EmailService {
   /**
    * Send welcome email to new user
    */
-  async sendWelcomeEmail(email: string, firstName: string, username: string): Promise<boolean> {
+  async sendWelcomeEmail(
+    email: string,
+    firstName: string,
+    username: string
+  ): Promise<boolean> {
     const template = this.getWelcomeTemplate(firstName, username);
 
     return await this.sendEmail({
@@ -196,7 +204,10 @@ class EmailService {
     firstName: string,
     tournamentDetails: any
   ): Promise<boolean> {
-    const template = this.getTournamentNotificationTemplate(firstName, tournamentDetails);
+    const template = this.getTournamentNotificationTemplate(
+      firstName,
+      tournamentDetails
+    );
 
     return await this.sendEmail({
       to: email,
@@ -214,10 +225,12 @@ class EmailService {
     subject: string,
     html: string,
     text: string
-  ): Promise<{ sent: number; failed: number }> {
+  ): Promise<{sent: number; failed: number}> {
     if (!this.isConfigured) {
-      logger.warn('⚠️  Attempted to send bulk email but service not configured');
-      return { sent: 0, failed: recipients.length };
+      logger.warn(
+        "⚠️  Attempted to send bulk email but service not configured"
+      );
+      return {sent: 0, failed: recipients.length};
     }
 
     let sent = 0;
@@ -239,24 +252,32 @@ class EmailService {
         logger.info(`📧 Bulk email batch sent to ${batch.length} recipients`);
       } catch (error) {
         failed += batch.length;
-        logger.error(`❌ Failed to send bulk email batch to ${batch.length} recipients:`, error);
+        logger.error(
+          `❌ Failed to send bulk email batch to ${batch.length} recipients:`,
+          error
+        );
       }
 
       // Small delay between batches
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    logger.info(`📊 Bulk email campaign completed: ${sent} sent, ${failed} failed`);
-    return { sent, failed };
+    logger.info(
+      `📊 Bulk email campaign completed: ${sent} sent, ${failed} failed`
+    );
+    return {sent, failed};
   }
 
   /**
    * Email Templates
    */
 
-  private getWelcomeTemplate(firstName: string, username: string): EmailTemplate {
+  private getWelcomeTemplate(
+    firstName: string,
+    username: string
+  ): EmailTemplate {
     return {
-      subject: '🎉 Welcome to Sports Companion!',
+      subject: "🎉 Welcome to Sports Companion!",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
@@ -283,11 +304,14 @@ class EmailService {
     };
   }
 
-  private getVerificationTemplate(firstName: string, verificationToken: string): EmailTemplate {
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+  private getVerificationTemplate(
+    firstName: string,
+    verificationToken: string
+  ): EmailTemplate {
+    const verificationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
 
     return {
-      subject: '✉️ Please verify your email address',
+      subject: "✉️ Please verify your email address",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #4CAF50; padding: 20px; text-align: center;">
@@ -310,11 +334,14 @@ class EmailService {
     };
   }
 
-  private getPasswordResetTemplate(firstName: string, resetToken: string): EmailTemplate {
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+  private getPasswordResetTemplate(
+    firstName: string,
+    resetToken: string
+  ): EmailTemplate {
+    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/reset-password?token=${resetToken}`;
 
     return {
-      subject: '🔒 Reset your password',
+      subject: "🔒 Reset your password",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #FF9800; padding: 20px; text-align: center;">
@@ -337,7 +364,10 @@ class EmailService {
     };
   }
 
-  private getMatchNotificationTemplate(firstName: string, matchDetails: any): EmailTemplate {
+  private getMatchNotificationTemplate(
+    firstName: string,
+    matchDetails: any
+  ): EmailTemplate {
     return {
       subject: `🏆 Match Update: ${matchDetails.sport}`,
       html: `
@@ -352,7 +382,7 @@ class EmailService {
               <p><strong>Date:</strong> ${matchDetails.date}</p>
               <p><strong>Time:</strong> ${matchDetails.time}</p>
               <p><strong>Status:</strong> ${matchDetails.status}</p>
-              ${matchDetails.venue ? `<p><strong>Venue:</strong> ${matchDetails.venue}</p>` : ''}
+              ${matchDetails.venue ? `<p><strong>Venue:</strong> ${matchDetails.venue}</p>` : ""}
             </div>
             <p>Check your dashboard for more details and updates.</p>
           </div>
@@ -398,11 +428,11 @@ class EmailService {
     user: any;
     priceBreakdown?: any;
   }): Promise<boolean> {
-    const { booking, venue, user, priceBreakdown } = data;
-    const firstName = user.profile?.firstName || user.firstName || 'Customer';
+    const {booking, venue, user, priceBreakdown} = data;
+    const firstName = user.profile?.firstName || user.firstName || "Customer";
 
     const template = {
-      subject: '✅ Booking Confirmation',
+      subject: "✅ Booking Confirmation",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #4CAF50; padding: 20px; text-align: center;">
@@ -415,7 +445,7 @@ class EmailService {
             <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <h3 style="margin-top: 0;">📍 Venue Details</h3>
               <p><strong>Venue:</strong> ${venue.name}</p>
-              <p><strong>Address:</strong> ${venue.location?.address || 'N/A'}</p>
+              <p><strong>Address:</strong> ${venue.location?.address || "N/A"}</p>
               
               <h3>📅 Booking Details</h3>
               <p><strong>Start Time:</strong> ${new Date(booking.startTime).toLocaleString()}</p>
@@ -425,17 +455,17 @@ class EmailService {
               
               <h3>💰 Price Details</h3>
               <p><strong>Base Price:</strong> $${(priceBreakdown?.basePrice || booking.basePrice || booking.totalPrice).toFixed(2)}</p>
-              ${priceBreakdown?.discounts?.length > 0 ? `<p><strong>Discounts Applied:</strong> -$${priceBreakdown.discounts.reduce((sum: number, d: any) => sum + d.amount, 0).toFixed(2)}</p>` : ''}
+              ${priceBreakdown?.discounts?.length > 0 ? `<p><strong>Discounts Applied:</strong> -$${priceBreakdown.discounts.reduce((sum: number, d: any) => sum + d.amount, 0).toFixed(2)}</p>` : ""}
               <p><strong>Total Price:</strong> $${(booking.totalPrice || 0).toFixed(2)}</p>
             </div>
             
-            ${booking.notes ? `<p><strong>Notes:</strong> ${booking.notes}</p>` : ''}
+            ${booking.notes ? `<p><strong>Notes:</strong> ${booking.notes}</p>` : ""}
             
             <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <p style="margin: 0;"><strong>⏰ Please arrive at least 15 minutes before your booking time.</strong></p>
             </div>
             
-            ${venue.contactInfo?.phone ? `<p><strong>Venue Contact:</strong> ${venue.contactInfo.phone}</p>` : ''}
+            ${venue.contactInfo?.phone ? `<p><strong>Venue Contact:</strong> ${venue.contactInfo.phone}</p>` : ""}
             
             <p>If you need to cancel or modify your booking, please log in to your account.</p>
             <p>Thank you for choosing us!</p>
@@ -463,11 +493,11 @@ class EmailService {
     user: any;
     refundAmount: number;
   }): Promise<boolean> {
-    const { booking, venue, user, refundAmount } = data;
-    const firstName = user.profile?.firstName || user.firstName || 'Customer';
+    const {booking, venue, user, refundAmount} = data;
+    const firstName = user.profile?.firstName || user.firstName || "Customer";
 
     const template = {
-      subject: '❌ Booking Cancelled',
+      subject: "❌ Booking Cancelled",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #f44336; padding: 20px; text-align: center;">
@@ -486,12 +516,12 @@ class EmailService {
               <p><strong>Refund Amount:</strong> $${refundAmount.toFixed(2)}</p>
             </div>
             
-            ${booking.cancellationReason ? `<p><strong>Cancellation Reason:</strong> ${booking.cancellationReason}</p>` : ''}
+            ${booking.cancellationReason ? `<p><strong>Cancellation Reason:</strong> ${booking.cancellationReason}</p>` : ""}
             
             ${
               refundAmount > 0
                 ? '<div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0;"><p style="margin: 0;">💳 Your refund will be processed within 5-7 business days.</p></div>'
-                : '<p>⚠️ No refund is applicable for this cancellation based on our cancellation policy.</p>'
+                : "<p>⚠️ No refund is applicable for this cancellation based on our cancellation policy.</p>"
             }
             
             <p>We hope to see you again soon!</p>
@@ -499,7 +529,7 @@ class EmailService {
           </div>
         </div>
       `,
-      text: `Booking Cancelled. Venue: ${venue.name}. Time: ${new Date(booking.startTime).toLocaleString()}. Original: $${(booking.totalPrice || 0).toFixed(2)}. Refund: $${refundAmount.toFixed(2)}. ${refundAmount > 0 ? 'Refund will be processed within 5-7 business days.' : ''}`,
+      text: `Booking Cancelled. Venue: ${venue.name}. Time: ${new Date(booking.startTime).toLocaleString()}. Original: $${(booking.totalPrice || 0).toFixed(2)}. Refund: $${refundAmount.toFixed(2)}. ${refundAmount > 0 ? "Refund will be processed within 5-7 business days." : ""}`,
     };
 
     return await this.sendEmail({
@@ -513,12 +543,16 @@ class EmailService {
   /**
    * Send booking reminder email
    */
-  async sendBookingReminderEmail(data: { booking: any; venue: any; user: any }): Promise<boolean> {
-    const { booking, venue, user } = data;
-    const firstName = user.profile?.firstName || user.firstName || 'Customer';
+  async sendBookingReminderEmail(data: {
+    booking: any;
+    venue: any;
+    user: any;
+  }): Promise<boolean> {
+    const {booking, venue, user} = data;
+    const firstName = user.profile?.firstName || user.firstName || "Customer";
 
     const template = {
-      subject: '⏰ Booking Reminder',
+      subject: "⏰ Booking Reminder",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #FF9800; padding: 20px; text-align: center;">
@@ -531,12 +565,12 @@ class EmailService {
             <div style="background: #fff3e0; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <h3 style="margin-top: 0;">📍 Booking Details</h3>
               <p><strong>Venue:</strong> ${venue.name}</p>
-              <p><strong>Address:</strong> ${venue.location?.address || 'N/A'}</p>
+              <p><strong>Address:</strong> ${venue.location?.address || "N/A"}</p>
               <p><strong>Start Time:</strong> ${new Date(booking.startTime).toLocaleString()}</p>
               <p><strong>End Time:</strong> ${new Date(booking.endTime).toLocaleString()}</p>
             </div>
             
-            ${venue.contactInfo?.phone ? `<p><strong>Venue Contact:</strong> ${venue.contactInfo.phone}</p>` : ''}
+            ${venue.contactInfo?.phone ? `<p><strong>Venue Contact:</strong> ${venue.contactInfo.phone}</p>` : ""}
             
             <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <p style="margin: 0;"><strong>⏰ Please arrive at least 15 minutes before your booking time.</strong></p>
@@ -547,7 +581,7 @@ class EmailService {
           </div>
         </div>
       `,
-      text: `Booking Reminder! Venue: ${venue.name} at ${venue.location?.address || 'N/A'}. Time: ${new Date(booking.startTime).toLocaleString()}. Please arrive 15 minutes early.`,
+      text: `Booking Reminder! Venue: ${venue.name} at ${venue.location?.address || "N/A"}. Time: ${new Date(booking.startTime).toLocaleString()}. Please arrive 15 minutes early.`,
     };
 
     return await this.sendEmail({
@@ -564,7 +598,7 @@ class EmailService {
   async close(): Promise<void> {
     if (this.isConfigured && this.transporter) {
       this.transporter.close();
-      logger.info('📧 Email service closed');
+      logger.info("📧 Email service closed");
     }
   }
 }

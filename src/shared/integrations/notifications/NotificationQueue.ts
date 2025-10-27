@@ -5,10 +5,10 @@
  */
 
 // Update the import path to the correct location of Notification model
-import { Notification } from '@/modules/notifications/domain/models/Notification';
-import { NotificationType } from '../../types';
-import logger from '../../infrastructure/logging';
-import cacheService from '../../infrastructure/cache';
+import {Notification} from "@/modules/notifications/domain/models/Notification";
+import {NotificationType} from "../../types";
+import logger from "../../infrastructure/logging";
+import cacheService from "../../infrastructure/cache";
 
 export interface QueuedNotification {
   userId: string;
@@ -16,21 +16,21 @@ export interface QueuedNotification {
   title: string;
   message: string;
   data?: Record<string, any>;
-  priority?: 'low' | 'normal' | 'high';
+  priority?: "low" | "normal" | "high";
   scheduledFor?: Date;
 }
 
 export class NotificationQueue {
-  private static readonly QUEUE_KEY = 'notification:queue';
-  private static readonly PROCESSING_KEY = 'notification:processing';
-  private static readonly FAILED_KEY = 'notification:failed';
+  private static readonly QUEUE_KEY = "notification:queue";
+  private static readonly PROCESSING_KEY = "notification:processing";
+  private static readonly FAILED_KEY = "notification:failed";
 
   /**
    * Add notification to queue
    */
   static async enqueue(notification: QueuedNotification): Promise<void> {
     try {
-      const priority = notification.priority || 'normal';
+      const priority = notification.priority || "normal";
       const score = this.calculateScore(priority, notification.scheduledFor);
 
       // Store in Redis sorted set
@@ -39,7 +39,7 @@ export class NotificationQueue {
 
       logger.info(`Notification queued for user ${notification.userId}`);
     } catch (error) {
-      logger.error('Failed to enqueue notification:', error);
+      logger.error("Failed to enqueue notification:", error);
       throw error;
     }
   }
@@ -47,12 +47,14 @@ export class NotificationQueue {
   /**
    * Batch enqueue multiple notifications
    */
-  static async enqueueBatch(notifications: QueuedNotification[]): Promise<void> {
+  static async enqueueBatch(
+    notifications: QueuedNotification[]
+  ): Promise<void> {
     try {
       const pipeline = cacheService.redis.pipeline();
 
       for (const notification of notifications) {
-        const priority = notification.priority || 'normal';
+        const priority = notification.priority || "normal";
         const score = this.calculateScore(priority, notification.scheduledFor);
         const notificationData = JSON.stringify(notification);
 
@@ -63,7 +65,7 @@ export class NotificationQueue {
 
       logger.info(`Batch queued ${notifications.length} notifications`);
     } catch (error) {
-      logger.error('Failed to batch enqueue notifications:', error);
+      logger.error("Failed to batch enqueue notifications:", error);
       throw error;
     }
   }
@@ -80,7 +82,7 @@ export class NotificationQueue {
         this.QUEUE_KEY,
         0,
         now,
-        'LIMIT',
+        "LIMIT",
         0,
         limit
       );
@@ -110,10 +112,14 @@ export class NotificationQueue {
 
           processed++;
         } catch (error) {
-          logger.error('Failed to process notification:', error);
+          logger.error("Failed to process notification:", error);
 
           // Move to failed queue
-          await cacheService.redis.zadd(this.FAILED_KEY, Date.now(), notificationData);
+          await cacheService.redis.zadd(
+            this.FAILED_KEY,
+            Date.now(),
+            notificationData
+          );
           await cacheService.redis.zrem(this.QUEUE_KEY, notificationData);
         }
       }
@@ -121,7 +127,7 @@ export class NotificationQueue {
       logger.info(`Processed ${processed} notifications from queue`);
       return processed;
     } catch (error) {
-      logger.error('Failed to process notification queue:', error);
+      logger.error("Failed to process notification queue:", error);
       return 0;
     }
   }
@@ -163,7 +169,7 @@ export class NotificationQueue {
       logger.info(`Retried ${retried} failed notifications`);
       return retried;
     } catch (error) {
-      logger.error('Failed to retry notifications:', error);
+      logger.error("Failed to retry notifications:", error);
       return 0;
     }
   }
@@ -183,10 +189,10 @@ export class NotificationQueue {
         cacheService.redis.zcard(this.FAILED_KEY),
       ]);
 
-      return { queued, processing, failed };
+      return {queued, processing, failed};
     } catch (error) {
-      logger.error('Failed to get queue stats:', error);
-      return { queued: 0, processing: 0, failed: 0 };
+      logger.error("Failed to get queue stats:", error);
+      return {queued: 0, processing: 0, failed: 0};
     }
   }
 
@@ -201,16 +207,19 @@ export class NotificationQueue {
         cacheService.redis.del(this.FAILED_KEY),
       ]);
 
-      logger.info('Cleared notification queues');
+      logger.info("Cleared notification queues");
     } catch (error) {
-      logger.error('Failed to clear queues:', error);
+      logger.error("Failed to clear queues:", error);
     }
   }
 
   /**
    * Calculate priority score for sorted set
    */
-  private static calculateScore(priority: 'low' | 'normal' | 'high', scheduledFor?: Date): number {
+  private static calculateScore(
+    priority: "low" | "normal" | "high",
+    scheduledFor?: Date
+  ): number {
     const now = Date.now();
     const scheduled = scheduledFor ? scheduledFor.getTime() : now;
 
@@ -228,15 +237,19 @@ export class NotificationQueue {
 /**
  * Start notification queue processor
  */
-export const startNotificationProcessor = (intervalMs: number = 5000): NodeJS.Timer => {
-  logger.info('Starting notification queue processor');
+export const startNotificationProcessor = (
+  intervalMs: number = 5000
+): NodeJS.Timer => {
+  logger.info("Starting notification queue processor");
 
   return setInterval(async () => {
     try {
       const processed = await NotificationQueue.process();
 
       if (processed > 0) {
-        logger.debug(`Notification processor: processed ${processed} notifications`);
+        logger.debug(
+          `Notification processor: processed ${processed} notifications`
+        );
       }
 
       // Retry failed notifications every 10 cycles
@@ -244,7 +257,7 @@ export const startNotificationProcessor = (intervalMs: number = 5000): NodeJS.Ti
         await NotificationQueue.retryFailed();
       }
     } catch (error) {
-      logger.error('Notification processor error:', error);
+      logger.error("Notification processor error:", error);
     }
   }, intervalMs);
 };

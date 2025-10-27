@@ -1,5 +1,5 @@
-import { Module } from "../../shared/module/Module";
-import { Router } from "express";
+import {Module} from "../../shared/module/Module";
+import {Router} from "express";
 import chatRoutes from "./api/routes";
 
 export class ChatModule extends Module {

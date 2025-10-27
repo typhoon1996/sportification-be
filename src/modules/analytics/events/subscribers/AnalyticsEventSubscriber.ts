@@ -1,6 +1,6 @@
-import { eventBus, DomainEvent } from "../../../../shared/events/EventBus";
-import { AnalyticsService } from "../../domain/services/AnalyticsService";
-import { UserRegisteredEvent } from "../../../iam/events/publishers/IamEventPublisher";
+import {eventBus, DomainEvent} from "../../../../shared/events/EventBus";
+import {AnalyticsService} from "../../domain/services/AnalyticsService";
+import {UserRegisteredEvent} from "../../../iam/events/publishers/IamEventPublisher";
 import {
   MatchCreatedEvent,
   PlayerJoinedEvent,
@@ -16,7 +16,7 @@ import {
   MemberJoinedEvent,
   MemberLeftEvent,
 } from "../../../teams/events/publishers/TeamEventPublisher";
-import { MessageSentEvent } from "../../../chat/events/publishers/ChatEventPublisher";
+import {MessageSentEvent} from "../../../chat/events/publishers/ChatEventPublisher";
 
 export class AnalyticsEventSubscriber {
   private analyticsService: AnalyticsService;

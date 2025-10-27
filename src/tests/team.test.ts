@@ -1,12 +1,12 @@
-import { Team } from '../modules/teams/domain/models/Team';
-import { User } from '../modules/users/domain/models/User';
-import { Profile } from '../modules/users/domain/models/Profile';
-import { Chat } from '../modules/chat/domain/models/Chat';
-import { TeamRole } from '../shared/types';
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import {Team} from "../modules/teams/domain/models/Team";
+import {User} from "../modules/users/domain/models/User";
+import {Profile} from "../modules/users/domain/models/Profile";
+import {Chat} from "../modules/chat/domain/models/Chat";
+import {TeamRole} from "../shared/types";
+import mongoose from "mongoose";
+import {MongoMemoryServer} from "mongodb-memory-server";
 
-describe('Team Model', () => {
+describe("Team Model", () => {
   let mongoServer: MongoMemoryServer;
   let testUser1: any;
   let testUser2: any;
@@ -26,45 +26,45 @@ describe('Team Model', () => {
   beforeEach(async () => {
     // Create test users
     const profile1 = await Profile.create({
-      firstName: 'Test',
-      lastName: 'User1',
-      username: 'testuser1',
+      firstName: "Test",
+      lastName: "User1",
+      username: "testuser1",
       user: new mongoose.Types.ObjectId(),
     });
 
     const profile2 = await Profile.create({
-      firstName: 'Test',
-      lastName: 'User2',
-      username: 'testuser2',
+      firstName: "Test",
+      lastName: "User2",
+      username: "testuser2",
       user: new mongoose.Types.ObjectId(),
     });
 
     const profile3 = await Profile.create({
-      firstName: 'Test',
-      lastName: 'User3',
-      username: 'testuser3',
+      firstName: "Test",
+      lastName: "User3",
+      username: "testuser3",
       user: new mongoose.Types.ObjectId(),
     });
 
     testUser1 = await User.create({
-      email: 'test1@example.com',
-      password: 'Password123!',
+      email: "test1@example.com",
+      password: "Password123!",
       profile: profile1._id,
       isEmailVerified: true,
       isActive: true,
     });
 
     testUser2 = await User.create({
-      email: 'test2@example.com',
-      password: 'Password123!',
+      email: "test2@example.com",
+      password: "Password123!",
       profile: profile2._id,
       isEmailVerified: true,
       isActive: true,
     });
 
     testUser3 = await User.create({
-      email: 'test3@example.com',
-      password: 'Password123!',
+      email: "test3@example.com",
+      password: "Password123!",
       profile: profile3._id,
       isEmailVerified: true,
       isActive: true,
@@ -85,19 +85,19 @@ describe('Team Model', () => {
     await Chat.deleteMany({});
   });
 
-  describe('Team Creation', () => {
-    it('should create a team with valid data', async () => {
+  describe("Team Creation", () => {
+    it("should create a team with valid data", async () => {
       const chat = await Chat.create({
-        type: 'team',
-        name: 'Test Team Chat',
+        type: "team",
+        name: "Test Team Chat",
         participants: [testUser1._id],
         isActive: true,
       });
 
       const team = await Team.create({
-        name: 'Test Team',
-        description: 'A test team',
-        sport: 'Basketball',
+        name: "Test Team",
+        description: "A test team",
+        sport: "Basketball",
         captain: testUser1._id,
         createdBy: testUser1._id,
         chat: chat._id,
@@ -111,17 +111,17 @@ describe('Team Model', () => {
       });
 
       expect(team).toBeDefined();
-      expect(team.name).toBe('Test Team');
-      expect(team.sport).toBe('Basketball');
+      expect(team.name).toBe("Test Team");
+      expect(team.sport).toBe("Basketball");
       expect(team.captain.toString()).toBe(testUser1._id.toString());
       expect(team.members).toHaveLength(1);
     });
 
-    it('should fail to create team without required fields', async () => {
+    it("should fail to create team without required fields", async () => {
       let error;
       try {
         await Team.create({
-          description: 'A test team',
+          description: "A test team",
         });
       } catch (e) {
         error = e;
@@ -129,10 +129,10 @@ describe('Team Model', () => {
       expect(error).toBeDefined();
     });
 
-    it('should fail if captain is not a member', async () => {
+    it("should fail if captain is not a member", async () => {
       const chat = await Chat.create({
-        type: 'team',
-        name: 'Test Team Chat',
+        type: "team",
+        name: "Test Team Chat",
         participants: [testUser1._id],
         isActive: true,
       });
@@ -140,7 +140,7 @@ describe('Team Model', () => {
       let error;
       try {
         await Team.create({
-          name: 'Test Team',
+          name: "Test Team",
           captain: testUser1._id,
           createdBy: testUser1._id,
           chat: chat._id,
@@ -156,24 +156,24 @@ describe('Team Model', () => {
         error = e;
       }
       expect(error).toBeDefined();
-      expect((error as any).message).toContain('Captain must be a member');
+      expect((error as any).message).toContain("Captain must be a member");
     });
   });
 
-  describe('Team Member Management', () => {
+  describe("Team Member Management", () => {
     let team: any;
     let teamChat: any;
 
     beforeEach(async () => {
       teamChat = await Chat.create({
-        type: 'team',
-        name: 'Test Team Chat',
+        type: "team",
+        name: "Test Team Chat",
         participants: [testUser1._id],
         isActive: true,
       });
 
       team = await Team.create({
-        name: 'Test Team',
+        name: "Test Team",
         captain: testUser1._id,
         createdBy: testUser1._id,
         chat: teamChat._id,
@@ -187,7 +187,7 @@ describe('Team Model', () => {
       });
     });
 
-    it('should add a member to the team', async () => {
+    it("should add a member to the team", async () => {
       team.addMember(testUser2._id, TeamRole.PLAYER);
       await team.save();
 
@@ -195,7 +195,7 @@ describe('Team Model', () => {
       expect(team.isMember(testUser2._id.toString())).toBe(true);
     });
 
-    it('should not add duplicate members', async () => {
+    it("should not add duplicate members", async () => {
       let error;
       try {
         team.addMember(testUser1._id, TeamRole.PLAYER);
@@ -203,10 +203,10 @@ describe('Team Model', () => {
         error = e;
       }
       expect(error).toBeDefined();
-      expect((error as any).message).toContain('already a member');
+      expect((error as any).message).toContain("already a member");
     });
 
-    it('should remove a member from the team', async () => {
+    it("should remove a member from the team", async () => {
       team.addMember(testUser2._id, TeamRole.PLAYER);
       await team.save();
 
@@ -217,7 +217,7 @@ describe('Team Model', () => {
       expect(team.isMember(testUser2._id.toString())).toBe(false);
     });
 
-    it('should not allow removing captain', async () => {
+    it("should not allow removing captain", async () => {
       let error;
       try {
         team.removeMember(testUser1._id.toString());
@@ -225,33 +225,33 @@ describe('Team Model', () => {
         error = e;
       }
       expect(error).toBeDefined();
-      expect((error as any).message).toContain('Cannot remove captain');
+      expect((error as any).message).toContain("Cannot remove captain");
     });
 
-    it('should check if user is a member', async () => {
+    it("should check if user is a member", async () => {
       expect(team.isMember(testUser1._id.toString())).toBe(true);
       expect(team.isMember(testUser2._id.toString())).toBe(false);
     });
 
-    it('should check if user is captain', async () => {
+    it("should check if user is captain", async () => {
       expect(team.isCaptain(testUser1._id.toString())).toBe(true);
       expect(team.isCaptain(testUser2._id.toString())).toBe(false);
     });
   });
 
-  describe('Team Role Management', () => {
+  describe("Team Role Management", () => {
     let team: any;
 
     beforeEach(async () => {
       const teamChat = await Chat.create({
-        type: 'team',
-        name: 'Test Team Chat',
+        type: "team",
+        name: "Test Team Chat",
         participants: [testUser1._id, testUser2._id],
         isActive: true,
       });
 
       team = await Team.create({
-        name: 'Test Team',
+        name: "Test Team",
         captain: testUser1._id,
         createdBy: testUser1._id,
         chat: teamChat._id,
@@ -270,15 +270,17 @@ describe('Team Model', () => {
       });
     });
 
-    it('should update member role', async () => {
+    it("should update member role", async () => {
       team.updateMemberRole(testUser2._id.toString(), TeamRole.CAPTAIN);
       await team.save();
 
-      const member = team.members.find((m: any) => m.user.toString() === testUser2._id.toString());
+      const member = team.members.find(
+        (m: any) => m.user.toString() === testUser2._id.toString()
+      );
       expect(member.role).toBe(TeamRole.CAPTAIN);
     });
 
-    it('should fail to update role for non-member', async () => {
+    it("should fail to update role for non-member", async () => {
       let error;
       try {
         team.updateMemberRole(testUser3._id.toString(), TeamRole.CAPTAIN);
@@ -286,10 +288,10 @@ describe('Team Model', () => {
         error = e;
       }
       expect(error).toBeDefined();
-      expect((error as any).message).toContain('not a member');
+      expect((error as any).message).toContain("not a member");
     });
 
-    it('should transfer captaincy', async () => {
+    it("should transfer captaincy", async () => {
       team.transferCaptaincy(testUser2._id.toString());
       await team.save();
 
@@ -306,7 +308,7 @@ describe('Team Model', () => {
       expect(oldCaptain.role).toBe(TeamRole.PLAYER);
     });
 
-    it('should fail to transfer captaincy to non-member', async () => {
+    it("should fail to transfer captaincy to non-member", async () => {
       let error;
       try {
         team.transferCaptaincy(testUser3._id.toString());
@@ -314,21 +316,21 @@ describe('Team Model', () => {
         error = e;
       }
       expect(error).toBeDefined();
-      expect((error as any).message).toContain('must be a member');
+      expect((error as any).message).toContain("must be a member");
     });
   });
 
-  describe('Team Virtuals', () => {
-    it('should calculate member count', async () => {
+  describe("Team Virtuals", () => {
+    it("should calculate member count", async () => {
       const teamChat = await Chat.create({
-        type: 'team',
-        name: 'Test Team Chat',
+        type: "team",
+        name: "Test Team Chat",
         participants: [testUser1._id, testUser2._id],
         isActive: true,
       });
 
       const team = await Team.create({
-        name: 'Test Team',
+        name: "Test Team",
         captain: testUser1._id,
         createdBy: testUser1._id,
         chat: teamChat._id,
@@ -350,16 +352,16 @@ describe('Team Model', () => {
       expect(team.memberCount).toBe(2);
     });
 
-    it('should check if team is full', async () => {
+    it("should check if team is full", async () => {
       const teamChat = await Chat.create({
-        type: 'team',
-        name: 'Test Team Chat',
+        type: "team",
+        name: "Test Team Chat",
         participants: [testUser1._id, testUser2._id],
         isActive: true,
       });
 
       const team = await Team.create({
-        name: 'Test Team',
+        name: "Test Team",
         captain: testUser1._id,
         createdBy: testUser1._id,
         chat: teamChat._id,
@@ -382,25 +384,25 @@ describe('Team Model', () => {
     });
   });
 
-  describe('Team Static Methods', () => {
+  describe("Team Static Methods", () => {
     beforeEach(async () => {
       const chat1 = await Chat.create({
-        type: 'team',
-        name: 'Team 1 Chat',
+        type: "team",
+        name: "Team 1 Chat",
         participants: [testUser1._id],
         isActive: true,
       });
 
       const chat2 = await Chat.create({
-        type: 'team',
-        name: 'Team 2 Chat',
+        type: "team",
+        name: "Team 2 Chat",
         participants: [testUser1._id, testUser2._id],
         isActive: true,
       });
 
       await Team.create({
-        name: 'Team 1',
-        sport: 'Basketball',
+        name: "Team 1",
+        sport: "Basketball",
         captain: testUser1._id,
         createdBy: testUser1._id,
         chat: chat1._id,
@@ -414,8 +416,8 @@ describe('Team Model', () => {
       });
 
       await Team.create({
-        name: 'Team 2',
-        sport: 'Soccer',
+        name: "Team 2",
+        sport: "Soccer",
         captain: testUser2._id,
         createdBy: testUser2._id,
         chat: chat2._id,
@@ -434,17 +436,17 @@ describe('Team Model', () => {
       });
     });
 
-    it('should find teams by user', async () => {
+    it("should find teams by user", async () => {
       const teams = await Team.findByUser(testUser1._id.toString());
       expect(teams).toHaveLength(2);
     });
 
-    it('should find teams by sport', async () => {
-      const teams = await Team.findBySport('Basketball');
+    it("should find teams by sport", async () => {
+      const teams = await Team.findBySport("Basketball");
       expect(teams).toHaveLength(1);
       expect(teams.length).toBeGreaterThan(0);
       if (teams[0]) {
-        expect(teams[0].sport).toBe('Basketball');
+        expect(teams[0].sport).toBe("Basketball");
       }
     });
   });

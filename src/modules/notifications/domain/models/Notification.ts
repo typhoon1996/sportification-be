@@ -1,29 +1,29 @@
-import { Schema, model } from 'mongoose';
-import { INotification, NotificationType } from '../../../../shared/types';
+import {Schema, model} from "mongoose";
+import {INotification, NotificationType} from "../../../../shared/types";
 
 const notificationSchema = new Schema<INotification>(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'User is required'],
+      ref: "User",
+      required: [true, "User is required"],
     },
     type: {
       type: String,
       enum: Object.values(NotificationType),
-      required: [true, 'Notification type is required'],
+      required: [true, "Notification type is required"],
     },
     title: {
       type: String,
-      required: [true, 'Title is required'],
+      required: [true, "Title is required"],
       trim: true,
-      maxlength: [100, 'Title cannot exceed 100 characters'],
+      maxlength: [100, "Title cannot exceed 100 characters"],
     },
     message: {
       type: String,
-      required: [true, 'Message is required'],
+      required: [true, "Message is required"],
       trim: true,
-      maxlength: [500, 'Message cannot exceed 500 characters'],
+      maxlength: [500, "Message cannot exceed 500 characters"],
     },
     timestamp: {
       type: Date,
@@ -41,7 +41,7 @@ const notificationSchema = new Schema<INotification>(
     relatedEntity: {
       type: {
         type: String,
-        enum: ['match', 'tournament', 'user', 'chat', 'message'],
+        enum: ["match", "tournament", "user", "chat", "message"],
       },
       id: {
         type: Schema.Types.ObjectId,
@@ -49,7 +49,7 @@ const notificationSchema = new Schema<INotification>(
     },
     expiresAt: {
       type: Date,
-      index: { expireAfterSeconds: 0 }, // TTL index
+      index: {expireAfterSeconds: 0}, // TTL index
     },
   },
   {
@@ -65,17 +65,17 @@ const notificationSchema = new Schema<INotification>(
 );
 
 // Indexes
-notificationSchema.index({ user: 1, read: 1, timestamp: -1 });
-notificationSchema.index({ user: 1, type: 1 });
-notificationSchema.index({ timestamp: -1 });
+notificationSchema.index({user: 1, read: 1, timestamp: -1});
+notificationSchema.index({user: 1, type: 1});
+notificationSchema.index({timestamp: -1});
 
 // Virtual for time ago
-notificationSchema.virtual('timeAgo').get(function () {
+notificationSchema.virtual("timeAgo").get(function () {
   const now = new Date();
   const diffMs = now.getTime() - this.timestamp.getTime();
   const diffMins = Math.floor(diffMs / 60000);
 
-  if (diffMins < 1) return 'just now';
+  if (diffMins < 1) return "just now";
   if (diffMins < 60) return `${diffMins}m ago`;
 
   const diffHours = Math.floor(diffMins / 60);
@@ -87,14 +87,17 @@ notificationSchema.virtual('timeAgo').get(function () {
 
 // Static method to find unread notifications for user
 notificationSchema.statics.findUnreadByUser = function (userId: string) {
-  return this.find({ user: userId, read: false })
-    .sort({ timestamp: -1 })
-    .populate('relatedEntity.id');
+  return this.find({user: userId, read: false})
+    .sort({timestamp: -1})
+    .populate("relatedEntity.id");
 };
 
 // Static method to mark all as read for user
 notificationSchema.statics.markAllAsRead = function (userId: string) {
-  return this.updateMany({ user: userId, read: false }, { read: true });
+  return this.updateMany({user: userId, read: false}, {read: true});
 };
 
-export const Notification = model<INotification>('Notification', notificationSchema);
+export const Notification = model<INotification>(
+  "Notification",
+  notificationSchema
+);

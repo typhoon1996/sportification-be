@@ -33,7 +33,7 @@ export class MatchParticipantService implements IMatchParticipantService {
    *
    * @param match - Match to add participant to
    * @param userId - User ID to add
-   * @returns Updated match with new participant
+   * @return Updated match with new participant
    *
    * @example
    * const updatedMatch = await participantService.addParticipant(match, userId);
@@ -69,7 +69,7 @@ export class MatchParticipantService implements IMatchParticipantService {
    *
    * @param match - Match to remove participant from
    * @param userId - User ID to remove
-   * @returns Updated match with participant removed
+   * @return Updated match with participant removed
    *
    * @example
    * const updatedMatch = await participantService.removeParticipant(match, userId);

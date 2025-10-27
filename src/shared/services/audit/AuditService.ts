@@ -1,6 +1,6 @@
-import { AuditLog } from '../../../modules/iam/domain/models';
-import { Request } from 'express';
-import logger from '../../infrastructure/logging';
+import {AuditLog} from "../../../modules/iam/domain/models";
+import {Request} from "express";
+import logger from "../../infrastructure/logging";
 
 export class AuditLogger {
   /**
@@ -10,23 +10,23 @@ export class AuditLogger {
     req: Request;
     action: string;
     userId?: string;
-    status?: 'success' | 'failure' | 'warning';
+    status?: "success" | "failure" | "warning";
     details?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await AuditLog.logAction({
         userId: params.userId,
         action: params.action,
-        resource: 'auth',
+        resource: "auth",
         details: params.details,
-        ipAddress: params.req.ip || 'unknown',
-        userAgent: params.req.get('User-Agent'),
-        status: params.status || 'success',
+        ipAddress: params.req.ip || "unknown",
+        userAgent: params.req.get("User-Agent"),
+        status: params.status || "success",
         severity: this.getSeverityForAction(params.action, params.status),
         sessionId: params.req.sessionID,
       });
     } catch (error) {
-      logger.error('Failed to log audit event:', error);
+      logger.error("Failed to log audit event:", error);
     }
   }
 
@@ -38,24 +38,24 @@ export class AuditLogger {
     action: string;
     userId?: string;
     apiKeyId?: string;
-    status?: 'success' | 'failure' | 'warning';
+    status?: "success" | "failure" | "warning";
     details?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await AuditLog.logAction({
         userId: params.userId,
         action: params.action,
-        resource: 'api_key',
+        resource: "api_key",
         resourceId: params.apiKeyId,
         details: params.details,
-        ipAddress: params.req.ip || 'unknown',
-        userAgent: params.req.get('User-Agent'),
-        status: params.status || 'success',
+        ipAddress: params.req.ip || "unknown",
+        userAgent: params.req.get("User-Agent"),
+        status: params.status || "success",
         severity: this.getSeverityForAction(params.action, params.status),
         apiKeyId: params.apiKeyId,
       });
     } catch (error) {
-      logger.error('Failed to log audit event:', error);
+      logger.error("Failed to log audit event:", error);
     }
   }
 
@@ -66,24 +66,26 @@ export class AuditLogger {
     req: Request;
     action: string;
     userId?: string;
-    status?: 'success' | 'failure' | 'warning';
-    severity?: 'low' | 'medium' | 'high' | 'critical';
+    status?: "success" | "failure" | "warning";
+    severity?: "low" | "medium" | "high" | "critical";
     details?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await AuditLog.logAction({
         userId: params.userId,
         action: params.action,
-        resource: 'security',
+        resource: "security",
         details: params.details,
-        ipAddress: params.req.ip || 'unknown',
-        userAgent: params.req.get('User-Agent'),
-        status: params.status || 'success',
-        severity: params.severity || this.getSeverityForAction(params.action, params.status),
+        ipAddress: params.req.ip || "unknown",
+        userAgent: params.req.get("User-Agent"),
+        status: params.status || "success",
+        severity:
+          params.severity ||
+          this.getSeverityForAction(params.action, params.status),
         sessionId: params.req.sessionID,
       });
     } catch (error) {
-      logger.error('Failed to log audit event:', error);
+      logger.error("Failed to log audit event:", error);
     }
   }
 
@@ -94,23 +96,23 @@ export class AuditLogger {
     req: Request;
     action: string;
     userId?: string;
-    status?: 'success' | 'failure' | 'warning';
+    status?: "success" | "failure" | "warning";
     details?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await AuditLog.logAction({
         userId: params.userId,
         action: params.action,
-        resource: 'mfa',
+        resource: "mfa",
         details: params.details,
-        ipAddress: params.req.ip || 'unknown',
-        userAgent: params.req.get('User-Agent'),
-        status: params.status || 'success',
+        ipAddress: params.req.ip || "unknown",
+        userAgent: params.req.get("User-Agent"),
+        status: params.status || "success",
         severity: this.getSeverityForAction(params.action, params.status),
         sessionId: params.req.sessionID,
       });
     } catch (error) {
-      logger.error('Failed to log audit event:', error);
+      logger.error("Failed to log audit event:", error);
     }
   }
 
@@ -121,23 +123,23 @@ export class AuditLogger {
     req: Request;
     action: string;
     userId?: string;
-    status?: 'success' | 'failure' | 'warning';
+    status?: "success" | "failure" | "warning";
     details?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await AuditLog.logAction({
         userId: params.userId,
         action: params.action,
-        resource: 'oauth',
+        resource: "oauth",
         details: params.details,
-        ipAddress: params.req.ip || 'unknown',
-        userAgent: params.req.get('User-Agent'),
-        status: params.status || 'success',
+        ipAddress: params.req.ip || "unknown",
+        userAgent: params.req.get("User-Agent"),
+        status: params.status || "success",
         severity: this.getSeverityForAction(params.action, params.status),
         sessionId: params.req.sessionID,
       });
     } catch (error) {
-      logger.error('Failed to log audit event:', error);
+      logger.error("Failed to log audit event:", error);
     }
   }
 
@@ -149,24 +151,24 @@ export class AuditLogger {
     action: string;
     userId?: string;
     resourceId?: string;
-    status?: 'success' | 'failure' | 'warning';
+    status?: "success" | "failure" | "warning";
     details?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await AuditLog.logAction({
         userId: params.userId,
         action: params.action,
-        resource: 'user',
+        resource: "user",
         resourceId: params.resourceId,
         details: params.details,
-        ipAddress: params.req.ip || 'unknown',
-        userAgent: params.req.get('User-Agent'),
-        status: params.status || 'success',
+        ipAddress: params.req.ip || "unknown",
+        userAgent: params.req.get("User-Agent"),
+        status: params.status || "success",
         severity: this.getSeverityForAction(params.action, params.status),
         sessionId: params.req.sessionID,
       });
     } catch (error) {
-      logger.error('Failed to log audit event:', error);
+      logger.error("Failed to log audit event:", error);
     }
   }
 
@@ -178,24 +180,24 @@ export class AuditLogger {
     action: string;
     userId?: string;
     targetUserId?: string;
-    status?: 'success' | 'failure' | 'warning';
+    status?: "success" | "failure" | "warning";
     details?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await AuditLog.logAction({
         userId: params.userId,
         action: params.action,
-        resource: 'admin',
+        resource: "admin",
         resourceId: params.targetUserId,
         details: params.details,
-        ipAddress: params.req.ip || 'unknown',
-        userAgent: params.req.get('User-Agent'),
-        status: params.status || 'success',
-        severity: 'high', // Admin actions are always high severity
+        ipAddress: params.req.ip || "unknown",
+        userAgent: params.req.get("User-Agent"),
+        status: params.status || "success",
+        severity: "high", // Admin actions are always high severity
         sessionId: params.req.sessionID,
       });
     } catch (error) {
-      logger.error('Failed to log audit event:', error);
+      logger.error("Failed to log audit event:", error);
     }
   }
 
@@ -204,53 +206,53 @@ export class AuditLogger {
    */
   private static getSeverityForAction(
     action: string,
-    status?: 'success' | 'failure' | 'warning'
-  ): 'low' | 'medium' | 'high' | 'critical' {
+    status?: "success" | "failure" | "warning"
+  ): "low" | "medium" | "high" | "critical" {
     // Critical actions
     const criticalActions = [
-      'account_locked',
-      'suspicious_activity',
-      'ip_restriction_violation',
-      'data_export_requested',
-      'account_deleted',
+      "account_locked",
+      "suspicious_activity",
+      "ip_restriction_violation",
+      "data_export_requested",
+      "account_deleted",
     ];
 
     // High severity actions
     const highSeverityActions = [
-      'login_failed',
-      'mfa_disabled',
-      'password_reset_requested',
-      'api_key_rate_limited',
-      'security_settings_updated',
+      "login_failed",
+      "mfa_disabled",
+      "password_reset_requested",
+      "api_key_rate_limited",
+      "security_settings_updated",
     ];
 
     // Medium severity actions
     const mediumSeverityActions = [
-      'login',
-      'logout',
-      'mfa_enabled',
-      'oauth_login',
-      'api_key_created',
-      'api_key_deleted',
+      "login",
+      "logout",
+      "mfa_enabled",
+      "oauth_login",
+      "api_key_created",
+      "api_key_deleted",
     ];
 
-    if (status === 'failure') {
-      return criticalActions.includes(action) ? 'critical' : 'high';
+    if (status === "failure") {
+      return criticalActions.includes(action) ? "critical" : "high";
     }
 
     if (criticalActions.includes(action)) {
-      return 'critical';
+      return "critical";
     }
 
     if (highSeverityActions.includes(action)) {
-      return 'high';
+      return "high";
     }
 
     if (mediumSeverityActions.includes(action)) {
-      return 'medium';
+      return "medium";
     }
 
-    return 'low';
+    return "low";
   }
 
   /**
@@ -265,9 +267,9 @@ export class AuditLogger {
       recentActivity: number;
     };
     trends: {
-      dailyEvents: Array<{ date: string; count: number }>;
-      topActions: Array<{ action: string; count: number }>;
-      ipAddresses: Array<{ ip: string; count: number }>;
+      dailyEvents: Array<{date: string; count: number}>;
+      topActions: Array<{action: string; count: number}>;
+      ipAddresses: Array<{ip: string; count: number}>;
     };
   }> {
     try {
@@ -284,77 +286,78 @@ export class AuditLogger {
       });
 
       // Statistics
-      const [totalEvents, criticalEvents, failedLogins, recentActivity] = await Promise.all([
-        AuditLog.countDocuments(userId ? { userId } : {}),
-        AuditLog.countDocuments({
-          ...(userId && { userId }),
-          severity: 'critical',
-          timestamp: { $gte: last30Days },
-        }),
-        AuditLog.countDocuments({
-          ...(userId && { userId }),
-          action: 'login_failed',
-          timestamp: { $gte: last7Days },
-        }),
-        AuditLog.countDocuments({
-          ...(userId && { userId }),
-          timestamp: { $gte: last24Hours },
-        }),
-      ]);
+      const [totalEvents, criticalEvents, failedLogins, recentActivity] =
+        await Promise.all([
+          AuditLog.countDocuments(userId ? {userId} : {}),
+          AuditLog.countDocuments({
+            ...(userId && {userId}),
+            severity: "critical",
+            timestamp: {$gte: last30Days},
+          }),
+          AuditLog.countDocuments({
+            ...(userId && {userId}),
+            action: "login_failed",
+            timestamp: {$gte: last7Days},
+          }),
+          AuditLog.countDocuments({
+            ...(userId && {userId}),
+            timestamp: {$gte: last24Hours},
+          }),
+        ]);
 
       // Trends - Daily events for last 7 days
       const dailyEventsAgg = await AuditLog.aggregate([
         {
           $match: {
-            ...(userId && { userId }),
-            timestamp: { $gte: last7Days },
+            ...(userId && {userId}),
+            timestamp: {$gte: last7Days},
           },
         },
         {
           $group: {
             _id: {
-              $dateToString: { format: '%Y-%m-%d', date: '$timestamp' },
+              $dateToString: {format: "%Y-%m-%d", date: "$timestamp"},
             },
-            count: { $sum: 1 },
+            count: {$sum: 1},
           },
         },
-        { $sort: { _id: 1 } },
+        {$sort: {_id: 1}},
       ]);
 
       // Top actions
       const topActionsAgg = await AuditLog.aggregate([
         {
           $match: {
-            ...(userId && { userId }),
-            timestamp: { $gte: last7Days },
+            ...(userId && {userId}),
+            timestamp: {$gte: last7Days},
           },
         },
         {
           $group: {
-            _id: '$action',
-            count: { $sum: 1 },
+            _id: "$action",
+            count: {$sum: 1},
           },
         },
-        { $sort: { count: -1 } },
-        { $limit: 10 },
+        {$sort: {count: -1}},
+        {$limit: 10},
       ]);
 
       // Top IP addresses
       const topIPsAgg = await AuditLog.aggregate([
         {
           $match: {
-            ...(userId && { userId }),
-            timestamp: { $gte: last7Days },
+            ...(userId && {userId}),
+            timestamp: {$gte: last7Days},
           },
         },
         {
           $group: {
-            _id: '$ipAddress',
-            count: { $sum: 1 },
+            _id: "$ipAddress",
+            count: {$sum: 1},
           },
         },
-        { $sort: { count: -1 } },
-        { $limit: 10 },
+        {$sort: {count: -1}},
+        {$limit: 10},
       ]);
 
       return {
@@ -366,22 +369,22 @@ export class AuditLogger {
           recentActivity,
         },
         trends: {
-          dailyEvents: dailyEventsAgg.map((item) => ({
+          dailyEvents: dailyEventsAgg.map(item => ({
             date: item._id,
             count: item.count,
           })),
-          topActions: topActionsAgg.map((item) => ({
+          topActions: topActionsAgg.map(item => ({
             action: item._id,
             count: item.count,
           })),
-          ipAddresses: topIPsAgg.map((item) => ({
+          ipAddresses: topIPsAgg.map(item => ({
             ip: item._id,
             count: item.count,
           })),
         },
       };
     } catch (error) {
-      logger.error('Failed to get security dashboard data:', error);
+      logger.error("Failed to get security dashboard data:", error);
       throw error;
     }
   }

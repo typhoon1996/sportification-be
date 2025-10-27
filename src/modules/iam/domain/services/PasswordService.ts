@@ -47,7 +47,7 @@ export class PasswordService implements IPasswordService {
    * Higher salt rounds = more secure but slower.
    *
    * @param {string} password - Plain text password to hash
-   * @returns {Promise<string>} Hashed password
+   * @return {Promise<string>} Hashed password
    *
    * @example
    * const hashedPassword = await passwordService.hashPassword('MySecurePass123');
@@ -65,7 +65,7 @@ export class PasswordService implements IPasswordService {
    *
    * @param {string} password - Plain text password to verify
    * @param {string} hashedPassword - bcrypt hashed password
-   * @returns {Promise<boolean>} True if password matches, false otherwise
+   * @return {Promise<boolean>} True if password matches, false otherwise
    *
    * @example
    * const isValid = await passwordService.comparePassword(
@@ -100,7 +100,7 @@ export class PasswordService implements IPasswordService {
    * - Contains special character (optional)
    *
    * @param {string} password - Password to validate
-   * @returns {object} Validation result with isValid flag and error messages
+   * @return {object} Validation result with isValid flag and error messages
    *
    * @example
    * const result = passwordService.validatePasswordStrength('weak');
@@ -161,7 +161,7 @@ export class PasswordService implements IPasswordService {
    *
    * @private
    * @param {string} password - Password to check
-   * @returns {boolean} True if password is common
+   * @return {boolean} True if password is common
    */
   private isCommonPassword(password: string): boolean {
     const commonPasswords = [
@@ -201,7 +201,7 @@ export class PasswordService implements IPasswordService {
    * Generates a cryptographically secure random password that meets all requirements.
    *
    * @param {number} length - Desired password length (minimum 12)
-   * @returns {string} Generated password
+   * @return {string} Generated password
    *
    * @example
    * const tempPassword = passwordService.generatePassword(16);

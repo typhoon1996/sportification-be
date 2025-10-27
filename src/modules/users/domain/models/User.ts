@@ -1,12 +1,12 @@
-import { Schema, model, Model } from 'mongoose';
-import bcrypt from 'bcryptjs';
-import { IUser, IUserStatics } from '../../../../shared/types';
+import {Schema, model, Model} from "mongoose";
+import bcrypt from "bcryptjs";
+import {IUser, IUserStatics} from "../../../../shared/types";
 
 const socialLoginSchema = new Schema(
   {
     provider: {
       type: String,
-      enum: ['google', 'facebook', 'github'],
+      enum: ["google", "facebook", "github"],
       required: true,
     },
     providerId: {
@@ -17,7 +17,7 @@ const socialLoginSchema = new Schema(
     name: String,
     profileUrl: String,
   },
-  { _id: false }
+  {_id: false}
 );
 
 const mfaSettingsSchema = new Schema(
@@ -34,7 +34,7 @@ const mfaSettingsSchema = new Schema(
     ],
     lastUsedAt: Date,
   },
-  { _id: false }
+  {_id: false}
 );
 
 const securitySettingsSchema = new Schema(
@@ -56,14 +56,14 @@ const securitySettingsSchema = new Schema(
       },
     ],
   },
-  { _id: false }
+  {_id: false}
 );
 
 const userSchema = new Schema<IUser>(
   {
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
@@ -71,17 +71,17 @@ const userSchema = new Schema<IUser>(
         validator: function (email: string) {
           return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         },
-        message: 'Please provide a valid email address',
+        message: "Please provide a valid email address",
       },
     },
     password: {
       type: String,
-      minlength: [8, 'Password must be at least 8 characters long'],
+      minlength: [8, "Password must be at least 8 characters long"],
       select: false, // Don't include password in query results by default
     },
     profile: {
       type: Schema.Types.ObjectId,
-      ref: 'Profile',
+      ref: "Profile",
       required: true,
     },
     preferences: {
@@ -95,19 +95,19 @@ const userSchema = new Schema<IUser>(
     friends: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
       },
     ],
     followers: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
       },
     ],
     achievements: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Achievement',
+        ref: "Achievement",
       },
     ],
     isEmailVerified: {
@@ -129,8 +129,8 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ['user', 'admin', 'moderator'],
-      default: 'user',
+      enum: ["user", "admin", "moderator"],
+      default: "user",
     },
     socialLogins: [socialLoginSchema],
     mfaSettings: {
@@ -173,23 +173,23 @@ const userSchema = new Schema<IUser>(
 
 // Indexes
 // email index already created by unique: true
-userSchema.index({ isActive: 1 });
-userSchema.index({ createdAt: -1 });
+userSchema.index({isActive: 1});
+userSchema.index({createdAt: -1});
 
 // Virtual for friend count
-userSchema.virtual('friendCount').get(function () {
+userSchema.virtual("friendCount").get(function () {
   return this.friends?.length || 0;
 });
 
 // Virtual for follower count
-userSchema.virtual('followerCount').get(function () {
+userSchema.virtual("followerCount").get(function () {
   return this.followers?.length || 0;
 });
 
 // Pre-save middleware to hash password
-userSchema.pre('save', async function (next) {
+userSchema.pre("save", async function (next) {
   // Only hash the password if it has been modified (or is new) and exists
-  if (!this.isModified('password') || !this.password) return next();
+  if (!this.isModified("password") || !this.password) return next();
 
   try {
     const salt = await bcrypt.genSalt(12);
@@ -201,14 +201,19 @@ userSchema.pre('save', async function (next) {
 });
 
 // Instance method to check password
-userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
   if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 
 // Instance method to check if account is locked
 userSchema.methods.isAccountLocked = function (): boolean {
-  return !!(this.securitySettings?.lockUntil && this.securitySettings.lockUntil > Date.now());
+  return !!(
+    this.securitySettings?.lockUntil &&
+    this.securitySettings.lockUntil > Date.now()
+  );
 };
 
 // Instance method to increment login attempts
@@ -216,7 +221,8 @@ userSchema.methods.incrementLoginAttempts = async function (): Promise<void> {
   // Reset attempts if last failed login was more than 2 hours ago
   if (
     this.securitySettings?.lastFailedLogin &&
-    Date.now() - this.securitySettings.lastFailedLogin.getTime() > 2 * 60 * 60 * 1000
+    Date.now() - this.securitySettings.lastFailedLogin.getTime() >
+      2 * 60 * 60 * 1000
   ) {
     this.securitySettings.loginAttempts = 0;
   }
@@ -267,15 +273,21 @@ userSchema.methods.clearRefreshTokens = function (): void {
 
 // Static method to find by email
 userSchema.statics.findByEmail = function (email: string) {
-  return this.findOne({ email: email.toLowerCase() });
+  return this.findOne({email: email.toLowerCase()});
 };
 
 // Static method to find by social login
-userSchema.statics.findBySocialLogin = function (provider: string, providerId: string) {
+userSchema.statics.findBySocialLogin = function (
+  provider: string,
+  providerId: string
+) {
   return this.findOne({
-    'socialLogins.provider': provider,
-    'socialLogins.providerId': providerId,
+    "socialLogins.provider": provider,
+    "socialLogins.providerId": providerId,
   });
 };
 
-export const User = model<IUser, Model<IUser> & IUserStatics>('User', userSchema);
+export const User = model<IUser, Model<IUser> & IUserStatics>(
+  "User",
+  userSchema
+);

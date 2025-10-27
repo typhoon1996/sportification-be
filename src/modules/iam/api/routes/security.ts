@@ -1,9 +1,9 @@
-import { Router } from 'express';
-import { SecurityController } from '../controllers/SecurityController';
-import { authenticate } from '../../../../shared/middleware/auth';
-import { validateRequest } from '../../../../shared/middleware/validation';
-import { query, param } from 'express-validator';
-import { authLimiter } from '../../../../shared/middleware/security';
+import {Router} from "express";
+import {SecurityController} from "../controllers/SecurityController";
+import {authenticate} from "../../../../shared/middleware/auth";
+import {validateRequest} from "../../../../shared/middleware/validation";
+import {query, param} from "express-validator";
+import {authLimiter} from "../../../../shared/middleware/security";
 
 const router = Router();
 
@@ -15,25 +15,37 @@ router.use(authenticate);
 
 // Validation middleware
 const auditLogsValidation = [
-  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-  query('limit')
+  query("page")
     .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage('Limit must be between 1 and 100'),
-  query('startDate').optional().isISO8601().withMessage('Start date must be a valid ISO 8601 date'),
-  query('endDate').optional().isISO8601().withMessage('End date must be a valid ISO 8601 date'),
-  query('severity')
+    .isInt({min: 1})
+    .withMessage("Page must be a positive integer"),
+  query("limit")
     .optional()
-    .isIn(['low', 'medium', 'high', 'critical'])
-    .withMessage('Severity must be one of: low, medium, high, critical'),
-  query('userId').optional().isMongoId().withMessage('User ID must be a valid MongoDB ObjectId'),
+    .isInt({min: 1, max: 100})
+    .withMessage("Limit must be between 1 and 100"),
+  query("startDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Start date must be a valid ISO 8601 date"),
+  query("endDate")
+    .optional()
+    .isISO8601()
+    .withMessage("End date must be a valid ISO 8601 date"),
+  query("severity")
+    .optional()
+    .isIn(["low", "medium", "high", "critical"])
+    .withMessage("Severity must be one of: low, medium, high, critical"),
+  query("userId")
+    .optional()
+    .isMongoId()
+    .withMessage("User ID must be a valid MongoDB ObjectId"),
 ];
 
 const metricsValidation = [
-  query('period')
+  query("period")
     .optional()
-    .isIn(['24h', '7d', '30d', '90d'])
-    .withMessage('Period must be one of: 24h, 7d, 30d, 90d'),
+    .isIn(["24h", "7d", "30d", "90d"])
+    .withMessage("Period must be one of: 24h, 7d, 30d, 90d"),
 ];
 
 /**
@@ -72,7 +84,7 @@ const metricsValidation = [
  *       401:
  *         description: Unauthorized
  */
-router.get('/dashboard', SecurityController.getDashboard);
+router.get("/dashboard", SecurityController.getDashboard);
 
 /**
  * @swagger
@@ -130,7 +142,12 @@ router.get('/dashboard', SecurityController.getDashboard);
  *       401:
  *         description: Unauthorized
  */
-router.get('/audit-logs', auditLogsValidation, validateRequest, SecurityController.getAuditLogs);
+router.get(
+  "/audit-logs",
+  auditLogsValidation,
+  validateRequest,
+  SecurityController.getAuditLogs
+);
 
 /**
  * @swagger
@@ -169,7 +186,12 @@ router.get('/audit-logs', auditLogsValidation, validateRequest, SecurityControll
  *       401:
  *         description: Unauthorized
  */
-router.get('/metrics', metricsValidation, validateRequest, SecurityController.getSecurityMetrics);
+router.get(
+  "/metrics",
+  metricsValidation,
+  validateRequest,
+  SecurityController.getSecurityMetrics
+);
 
 /**
  * @swagger
@@ -194,12 +216,12 @@ router.get('/metrics', metricsValidation, validateRequest, SecurityController.ge
  *         description: Unauthorized
  */
 router.get(
-  '/alerts',
+  "/alerts",
   [
-    query('limit')
+    query("limit")
       .optional()
-      .isInt({ min: 1, max: 50 })
-      .withMessage('Limit must be between 1 and 50'),
+      .isInt({min: 1, max: 50})
+      .withMessage("Limit must be between 1 and 50"),
   ],
   validateRequest,
   SecurityController.getSecurityAlerts
@@ -229,8 +251,8 @@ router.get(
  *         description: Unauthorized
  */
 router.post(
-  '/alerts/:alertId/acknowledge',
-  [param('alertId').isMongoId().withMessage('Invalid alert ID')],
+  "/alerts/:alertId/acknowledge",
+  [param("alertId").isMongoId().withMessage("Invalid alert ID")],
   validateRequest,
   SecurityController.acknowledgeAlert
 );

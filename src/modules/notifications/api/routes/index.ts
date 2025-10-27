@@ -1,11 +1,11 @@
 /**
  * Notification Routes Module
- * 
+ *
  * Base Path: /api/v1/notifications
- * 
+ *
  * Manages user notifications for various system events.
  * Supports notification delivery, read status management, and subscription preferences.
- * 
+ *
  * Notification Types:
  * - System notifications (announcements, updates)
  * - Match notifications (invites, reminders, results)
@@ -13,14 +13,14 @@
  * - Tournament notifications (registration, bracket updates)
  * - Team notifications (invites, updates)
  * - Chat notifications (new messages, mentions)
- * 
+ *
  * Features:
  * - Notification retrieval with pagination
  * - Read/unread filtering
  * - Individual and bulk read marking
  * - Unread count endpoint
  * - Real-time push notification support
- * 
+ *
  * Security:
  * - All routes require authentication
  * - Users can only access their own notifications

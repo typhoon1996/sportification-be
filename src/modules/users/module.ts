@@ -1,7 +1,7 @@
-import { Module } from "../../shared/module/Module";
-import { Router } from "express";
+import {Module} from "../../shared/module/Module";
+import {Router} from "express";
 import userRoutes from "./api/routes";
-import { UserEventSubscriber } from "./events/subscribers/UserEventSubscriber";
+import {UserEventSubscriber} from "./events/subscribers/UserEventSubscriber";
 
 export class UsersModule extends Module {
   constructor() {

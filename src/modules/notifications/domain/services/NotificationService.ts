@@ -1,13 +1,13 @@
-import { Notification } from "../../domain/models/Notification";
-import logger from '../../../../shared/infrastructure/logging';
+import {Notification} from "../../domain/models/Notification";
+import logger from "../../../../shared/infrastructure/logging";
 
 /**
  * NotificationService - Business logic for notification management
- * 
+ *
  * Handles notification creation, delivery, and read status management.
  * Supports multiple notification types (system, match, friend, tournament, team, chat).
  * Integrates with real-time delivery systems for instant push notifications.
- * 
+ *
  * Features:
  * - Multi-channel notification delivery
  * - Read/unread status tracking
@@ -18,19 +18,19 @@ import logger from '../../../../shared/infrastructure/logging';
 export class NotificationService {
   /**
    * Create a new notification for a user
-   * 
+   *
    * Creates and saves a notification with specified type and content.
    * Logs the creation for audit purposes. Can include custom data payload
    * for rich notifications. Integrates with real-time push systems.
-   * 
+   *
    * @async
    * @param {string} userId - Target user ID to receive the notification
    * @param {string} type - Notification type (system, match, friend, tournament, team, chat)
    * @param {string} title - Notification title/heading
    * @param {string} message - Notification message content
    * @param {any} [data] - Optional custom data payload for rich notifications
-   * @returns {Promise<Notification>} Created notification document
-   * 
+   * @return {Promise<Notification>} Created notification document
+   *
    * @example
    * await notificationService.createNotification(
    *   userId,
@@ -67,16 +67,16 @@ export class NotificationService {
 
   /**
    * Mark a specific notification as read
-   * 
+   *
    * Updates the read status of a single notification for the specified user.
    * Validates that the notification belongs to the user before updating.
    * Returns null if notification not found or doesn't belong to user.
-   * 
+   *
    * @async
    * @param {string} notificationId - Notification ID to mark as read
    * @param {string} userId - User ID (for authorization check)
-   * @returns {Promise<Notification | null>} Updated notification or null if not found
-   * 
+   * @return {Promise<Notification | null>} Updated notification or null if not found
+   *
    * @example
    * const notification = await notificationService.markAsRead(notificationId, userId);
    */
@@ -96,43 +96,40 @@ export class NotificationService {
 
   /**
    * Mark all unread notifications as read for a user
-   * 
+   *
    * Bulk operation to update read status for all unread notifications.
    * Efficient database operation using updateMany. Does not return
    * individual notifications, only updates the database.
-   * 
+   *
    * @async
    * @param {string} userId - User ID whose notifications to mark as read
-   * @returns {Promise<void>}
-   * 
+   * @return {Promise<void>}
+   *
    * @example
    * await notificationService.markAllAsRead(userId);
    */
   async markAllAsRead(userId: string) {
-    await Notification.updateMany(
-      { user: userId, read: false },
-      { read: true }
-    );
+    await Notification.updateMany({user: userId, read: false}, {read: true});
   }
 
   /**
    * Retrieve user's notifications with pagination
-   * 
+   *
    * Fetches notifications for a user sorted by creation date (newest first).
    * Supports pagination via limit parameter. Returns both read and unread
    * notifications unless filtered at controller level.
-   * 
+   *
    * @async
    * @param {string} userId - User ID whose notifications to retrieve
    * @param {number} [limit=50] - Maximum number of notifications to return
-   * @returns {Promise<Notification[]>} Array of notification documents
-   * 
+   * @return {Promise<Notification[]>} Array of notification documents
+   *
    * @example
    * const notifications = await notificationService.getUserNotifications(userId, 20);
    */
   async getUserNotifications(userId: string, limit: number = 50) {
-    const notifications = await Notification.find({ user: userId })
-      .sort({ createdAt: -1 })
+    const notifications = await Notification.find({user: userId})
+      .sort({createdAt: -1})
       .limit(limit);
 
     return notifications;
@@ -140,15 +137,15 @@ export class NotificationService {
 
   /**
    * Get count of unread notifications for a user
-   * 
+   *
    * Efficiently counts unread notifications using database aggregation.
    * Used for notification badge display in UI. Does not retrieve
    * actual notification documents.
-   * 
+   *
    * @async
    * @param {string} userId - User ID to count unread notifications for
-   * @returns {Promise<number>} Count of unread notifications
-   * 
+   * @return {Promise<number>} Count of unread notifications
+   *
    * @example
    * const unreadCount = await notificationService.getUnreadCount(userId);
    * // Returns: 5
@@ -164,16 +161,16 @@ export class NotificationService {
 
   /**
    * Delete a specific notification
-   * 
+   *
    * Permanently removes a notification from the database.
    * Validates that the notification belongs to the user before deletion.
    * Returns null if notification not found or doesn't belong to user.
-   * 
+   *
    * @async
    * @param {string} notificationId - Notification ID to delete
    * @param {string} userId - User ID (for authorization check)
-   * @returns {Promise<Notification | null>} Deleted notification or null if not found
-   * 
+   * @return {Promise<Notification | null>} Deleted notification or null if not found
+   *
    * @example
    * const deleted = await notificationService.deleteNotification(notificationId, userId);
    */

@@ -4,7 +4,7 @@
  * Provides reusable validation functions for common data types
  */
 
-import { ValidationError } from '../../middleware/errorHandler';
+import {ValidationError} from "../../middleware/errorHandler";
 
 export class Validator {
   /**
@@ -52,23 +52,26 @@ export class Validator {
   /**
    * Validate password strength
    */
-  static isStrongPassword(password: string): { isValid: boolean; errors: string[] } {
+  static isStrongPassword(password: string): {
+    isValid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
+      errors.push("Password must be at least 8 characters long");
     }
     if (!/[A-Z]/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter');
+      errors.push("Password must contain at least one uppercase letter");
     }
     if (!/[a-z]/.test(password)) {
-      errors.push('Password must contain at least one lowercase letter');
+      errors.push("Password must contain at least one lowercase letter");
     }
     if (!/[0-9]/.test(password)) {
-      errors.push('Password must contain at least one number');
+      errors.push("Password must contain at least one number");
     }
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      errors.push('Password must contain at least one special character');
+      errors.push("Password must contain at least one special character");
     }
 
     return {
@@ -83,7 +86,7 @@ export class Validator {
   static sanitizeInput(input: string): string {
     return input
       .trim()
-      .replace(/[<>]/g, '') // Remove potential HTML tags
+      .replace(/[<>]/g, "") // Remove potential HTML tags
       .substring(0, 1000); // Limit length
   }
 
@@ -98,7 +101,7 @@ export class Validator {
 
     for (const field of allowedFields) {
       if (obj[field] !== undefined) {
-        if (typeof obj[field] === 'string') {
+        if (typeof obj[field] === "string") {
           sanitized[field as keyof T] = this.sanitizeInput(obj[field]) as any;
         } else {
           sanitized[field as keyof T] = obj[field];
@@ -112,11 +115,16 @@ export class Validator {
   /**
    * Validate required fields
    */
-  static validateRequiredFields(data: Record<string, any>, requiredFields: string[]): void {
-    const missingFields = requiredFields.filter((field) => !data[field]);
+  static validateRequiredFields(
+    data: Record<string, any>,
+    requiredFields: string[]
+  ): void {
+    const missingFields = requiredFields.filter(field => !data[field]);
 
     if (missingFields.length > 0) {
-      throw new ValidationError(`Missing required fields: ${missingFields.join(', ')}`);
+      throw new ValidationError(
+        `Missing required fields: ${missingFields.join(", ")}`
+      );
     }
   }
 
@@ -145,8 +153,11 @@ export class Validator {
   /**
    * Validate file type
    */
-  static isValidFileType(filename: string, allowedExtensions: string[]): boolean {
-    const ext = filename.split('.').pop()?.toLowerCase();
+  static isValidFileType(
+    filename: string,
+    allowedExtensions: string[]
+  ): boolean {
+    const ext = filename.split(".").pop()?.toLowerCase();
     return ext ? allowedExtensions.includes(ext) : false;
   }
 }

@@ -1,11 +1,11 @@
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as FacebookStrategy } from 'passport-facebook';
-import { Strategy as GitHubStrategy } from 'passport-github2';
-import { User } from '../../modules/users/domain/models';
-import { Profile } from '../../modules/users/domain/models';
-import config from './index';
-import logger from '../infrastructure/logging';
+import passport from "passport";
+import {Strategy as GoogleStrategy} from "passport-google-oauth20";
+import {Strategy as FacebookStrategy} from "passport-facebook";
+import {Strategy as GitHubStrategy} from "passport-github2";
+import {User} from "../../modules/users/domain/models";
+import {Profile} from "../../modules/users/domain/models";
+import config from "./index";
+import logger from "../infrastructure/logging";
 
 // Serialize user for session
 passport.serializeUser((user: any, done) => {
@@ -15,7 +15,7 @@ passport.serializeUser((user: any, done) => {
 // Deserialize user from session
 passport.deserializeUser(async (id: string, done) => {
   try {
-    const user = await User.findById(id).populate('profile');
+    const user = await User.findById(id).populate("profile");
     done(null, user);
   } catch (error) {
     done(error as Error, false);
@@ -31,10 +31,15 @@ if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
         clientSecret: config.oauth.google.clientSecret,
         callbackURL: `/api/v1/auth/google/callback`,
       },
-      async (accessToken: string, refreshToken: string, profile: any, done: any) => {
+      async (
+        accessToken: string,
+        refreshToken: string,
+        profile: any,
+        done: any
+      ) => {
         try {
           // Check if user already exists with this Google account
-          let user = await User.findBySocialLogin('google', profile.id);
+          let user = await User.findBySocialLogin("google", profile.id);
 
           if (user) {
             return done(null, user);
@@ -47,7 +52,7 @@ if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
             if (user) {
               // Add Google social login to existing account
               user.socialLogins.push({
-                provider: 'google',
+                provider: "google",
                 providerId: profile.id,
                 email: email,
                 name: profile.displayName,
@@ -61,10 +66,16 @@ if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
 
           // Create new user
           const newProfile = new Profile({
-            firstName: profile.name?.givenName || profile.displayName?.split(' ')[0] || 'User',
+            firstName:
+              profile.name?.givenName ||
+              profile.displayName?.split(" ")[0] ||
+              "User",
             lastName:
-              profile.name?.familyName || profile.displayName?.split(' ').slice(1).join(' ') || '',
-            username: `${profile.name?.givenName || 'user'}${Date.now()}`.toLowerCase(),
+              profile.name?.familyName ||
+              profile.displayName?.split(" ").slice(1).join(" ") ||
+              "",
+            username:
+              `${profile.name?.givenName || "user"}${Date.now()}`.toLowerCase(),
             user: null, // Will be set after user creation
           });
 
@@ -74,7 +85,7 @@ if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
             isEmailVerified: true,
             socialLogins: [
               {
-                provider: 'google',
+                provider: "google",
                 providerId: profile.id,
                 email: email,
                 name: profile.displayName,
@@ -82,9 +93,9 @@ if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
               },
             ],
             preferences: {
-              theme: 'light',
+              theme: "light",
               notifications: true,
-              language: 'en',
+              language: "en",
             },
           });
 
@@ -94,10 +105,12 @@ if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
           // Save both documents
           await Promise.all([newUser.save(), newProfile.save()]);
 
-          logger.info(`New user created via Google OAuth: ${email}`, { userId: newUser.id });
+          logger.info(`New user created via Google OAuth: ${email}`, {
+            userId: newUser.id,
+          });
           done(null, newUser);
         } catch (error) {
-          logger.error('Google OAuth error:', error);
+          logger.error("Google OAuth error:", error);
           done(error as Error, false);
         }
       }
@@ -114,10 +127,15 @@ if (config.oauth.github.clientId && config.oauth.github.clientSecret) {
         clientSecret: config.oauth.github.clientSecret,
         callbackURL: `/api/v1/auth/github/callback`,
       },
-      async (accessToken: string, refreshToken: string, profile: any, done: any) => {
+      async (
+        accessToken: string,
+        refreshToken: string,
+        profile: any,
+        done: any
+      ) => {
         try {
           // Check if user already exists with this GitHub account
-          let user = await User.findBySocialLogin('github', profile.id);
+          let user = await User.findBySocialLogin("github", profile.id);
 
           if (user) {
             return done(null, user);
@@ -130,7 +148,7 @@ if (config.oauth.github.clientId && config.oauth.github.clientSecret) {
             if (user) {
               // Add GitHub social login to existing account
               user.socialLogins.push({
-                provider: 'github',
+                provider: "github",
                 providerId: profile.id,
                 email: email,
                 name: profile.displayName || profile.username,
@@ -144,9 +162,11 @@ if (config.oauth.github.clientId && config.oauth.github.clientSecret) {
 
           // Create new user
           const newProfile = new Profile({
-            firstName: profile.displayName?.split(' ')[0] || profile.username || 'User',
-            lastName: profile.displayName?.split(' ').slice(1).join(' ') || '',
-            username: `${profile.username || 'user'}${Date.now()}`.toLowerCase(),
+            firstName:
+              profile.displayName?.split(" ")[0] || profile.username || "User",
+            lastName: profile.displayName?.split(" ").slice(1).join(" ") || "",
+            username:
+              `${profile.username || "user"}${Date.now()}`.toLowerCase(),
             user: null,
           });
 
@@ -156,7 +176,7 @@ if (config.oauth.github.clientId && config.oauth.github.clientSecret) {
             isEmailVerified: !!email,
             socialLogins: [
               {
-                provider: 'github',
+                provider: "github",
                 providerId: profile.id,
                 email: email,
                 name: profile.displayName || profile.username,
@@ -164,19 +184,21 @@ if (config.oauth.github.clientId && config.oauth.github.clientSecret) {
               },
             ],
             preferences: {
-              theme: 'light',
+              theme: "light",
               notifications: true,
-              language: 'en',
+              language: "en",
             },
           });
 
           newProfile.user = newUser._id as any;
           await Promise.all([newUser.save(), newProfile.save()]);
 
-          logger.info(`New user created via GitHub OAuth: ${email}`, { userId: newUser.id });
+          logger.info(`New user created via GitHub OAuth: ${email}`, {
+            userId: newUser.id,
+          });
           done(null, newUser);
         } catch (error) {
-          logger.error('GitHub OAuth error:', error);
+          logger.error("GitHub OAuth error:", error);
           done(error as Error, false);
         }
       }
@@ -192,12 +214,17 @@ if (config.oauth.facebook.clientId && config.oauth.facebook.clientSecret) {
         clientID: config.oauth.facebook.clientId,
         clientSecret: config.oauth.facebook.clientSecret,
         callbackURL: `/api/v1/auth/facebook/callback`,
-        profileFields: ['id', 'emails', 'name', 'displayName'],
+        profileFields: ["id", "emails", "name", "displayName"],
       },
-      async (accessToken: string, refreshToken: string, profile: any, done: any) => {
+      async (
+        accessToken: string,
+        refreshToken: string,
+        profile: any,
+        done: any
+      ) => {
         try {
           // Check if user already exists with this Facebook account
-          let user = await User.findBySocialLogin('facebook', profile.id);
+          let user = await User.findBySocialLogin("facebook", profile.id);
 
           if (user) {
             return done(null, user);
@@ -210,7 +237,7 @@ if (config.oauth.facebook.clientId && config.oauth.facebook.clientSecret) {
             if (user) {
               // Add Facebook social login to existing account
               user.socialLogins.push({
-                provider: 'facebook',
+                provider: "facebook",
                 providerId: profile.id,
                 email: email,
                 name: profile.displayName,
@@ -224,10 +251,16 @@ if (config.oauth.facebook.clientId && config.oauth.facebook.clientSecret) {
 
           // Create new user
           const newProfile = new Profile({
-            firstName: profile.name?.givenName || profile.displayName?.split(' ')[0] || 'User',
+            firstName:
+              profile.name?.givenName ||
+              profile.displayName?.split(" ")[0] ||
+              "User",
             lastName:
-              profile.name?.familyName || profile.displayName?.split(' ').slice(1).join(' ') || '',
-            username: `${profile.name?.givenName || 'user'}${Date.now()}`.toLowerCase(),
+              profile.name?.familyName ||
+              profile.displayName?.split(" ").slice(1).join(" ") ||
+              "",
+            username:
+              `${profile.name?.givenName || "user"}${Date.now()}`.toLowerCase(),
             user: null,
           });
 
@@ -237,7 +270,7 @@ if (config.oauth.facebook.clientId && config.oauth.facebook.clientSecret) {
             isEmailVerified: !!email,
             socialLogins: [
               {
-                provider: 'facebook',
+                provider: "facebook",
                 providerId: profile.id,
                 email: email,
                 name: profile.displayName,
@@ -245,19 +278,21 @@ if (config.oauth.facebook.clientId && config.oauth.facebook.clientSecret) {
               },
             ],
             preferences: {
-              theme: 'light',
+              theme: "light",
               notifications: true,
-              language: 'en',
+              language: "en",
             },
           });
 
           newProfile.user = newUser._id as any;
           await Promise.all([newUser.save(), newProfile.save()]);
 
-          logger.info(`New user created via Facebook OAuth: ${email}`, { userId: newUser.id });
+          logger.info(`New user created via Facebook OAuth: ${email}`, {
+            userId: newUser.id,
+          });
           done(null, newUser);
         } catch (error) {
-          logger.error('Facebook OAuth error:', error);
+          logger.error("Facebook OAuth error:", error);
           done(error as Error, false);
         }
       }

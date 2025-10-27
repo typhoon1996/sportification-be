@@ -1,5 +1,5 @@
-import { Module, ModuleConfig } from "../../shared/module/Module";
-import { Router } from "express";
+import {Module, ModuleConfig} from "../../shared/module/Module";
+import {Router} from "express";
 import authRoutes from "./api/routes";
 
 export class IAMModule extends Module {

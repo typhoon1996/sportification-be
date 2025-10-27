@@ -1,7 +1,7 @@
 import {ITeam} from "../../../../shared/types";
-import { Team } from '../models/Team';
-import { ConflictError } from '../../../../shared/middleware/errorHandler';
-import { ITeamMemberService, ITeamEventPublisher } from '../interfaces';
+import {Team} from "../models/Team";
+import {ConflictError} from "../../../../shared/middleware/errorHandler";
+import {ITeamMemberService, ITeamEventPublisher} from "../interfaces";
 
 /**
  * TeamMemberService - Handles team member management (SRP)
@@ -34,7 +34,7 @@ export class TeamMemberService implements ITeamMemberService {
    * @param team - Team document to add member to
    * @param userId - User ID to add as member
    * @param eventPublisher - Event publisher for domain events
-   * @returns Updated team document
+   * @return Updated team document
    */
   async addMember(
     team: ITeam,
@@ -64,13 +64,13 @@ export class TeamMemberService implements ITeamMemberService {
    * @param team - Team document to remove member from
    * @param userId - User ID to remove
    * @param eventPublisher - Event publisher for domain events
-   * @returns Success confirmation
+   * @return Success confirmation
    */
   async removeMember(
     team: ITeam,
     userId: string,
     eventPublisher: ITeamEventPublisher
-  ): Promise<{ success: boolean }> {
+  ): Promise<{success: boolean}> {
     // Remove user from members
     team.members = team.members.filter((m: any) => m.toString() !== userId);
     await team.save();
@@ -81,7 +81,7 @@ export class TeamMemberService implements ITeamMemberService {
       userId,
     });
 
-    return { success: true };
+    return {success: true};
   }
 
   /**
@@ -89,7 +89,7 @@ export class TeamMemberService implements ITeamMemberService {
    *
    * @param team - Team document to check
    * @param userId - User ID to check for membership
-   * @returns True if user is a member, false otherwise
+   * @return True if user is a member, false otherwise
    */
   isMember(team: ITeam, userId: string): boolean {
     return team.members.some((m: any) => m.toString() === userId);
@@ -99,7 +99,7 @@ export class TeamMemberService implements ITeamMemberService {
    * Check if team has capacity for new members
    *
    * @param team - Team document to check
-   * @returns True if team can accept new members, false if at capacity
+   * @return True if team can accept new members, false if at capacity
    */
   hasCapacity(team: ITeam): boolean {
     if (!team.maxMembers) return true;
@@ -110,7 +110,7 @@ export class TeamMemberService implements ITeamMemberService {
    * Get current member count
    *
    * @param team - Team document
-   * @returns Number of current members
+   * @return Number of current members
    */
   getMemberCount(team: ITeam): number {
     return team.members.length;

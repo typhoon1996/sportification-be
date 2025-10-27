@@ -1,5 +1,5 @@
-import { Module } from "../../shared/module/Module";
-import { Router } from "express";
+import {Module} from "../../shared/module/Module";
+import {Router} from "express";
 import tournamentRoutes from "./api/routes";
 
 export class TournamentsModule extends Module {

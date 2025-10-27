@@ -1,32 +1,32 @@
-import { Schema, model, Types } from 'mongoose';
-import { IVenue } from '../../../../shared/types';
+import {Schema, model, Types} from "mongoose";
+import {IVenue} from "../../../../shared/types";
 
 const venueSchema = new Schema<IVenue>(
   {
     name: {
       type: String,
-      required: [true, 'Venue name is required'],
+      required: [true, "Venue name is required"],
       trim: true,
-      maxlength: [100, 'Venue name cannot exceed 100 characters'],
+      maxlength: [100, "Venue name cannot exceed 100 characters"],
     },
     description: {
       type: String,
-      maxlength: [1000, 'Description cannot exceed 1000 characters'],
+      maxlength: [1000, "Description cannot exceed 1000 characters"],
       trim: true,
     },
     location: {
       coordinates: {
         type: [Number],
-        required: [true, 'Venue coordinates are required'],
+        required: [true, "Venue coordinates are required"],
       },
       address: {
         type: String,
-        required: [true, 'Venue address is required'],
+        required: [true, "Venue address is required"],
         trim: true,
       },
       city: {
         type: String,
-        required: [true, 'City is required'],
+        required: [true, "City is required"],
         trim: true,
       },
       state: {
@@ -35,7 +35,7 @@ const venueSchema = new Schema<IVenue>(
       },
       country: {
         type: String,
-        required: [true, 'Country is required'],
+        required: [true, "Country is required"],
         trim: true,
       },
       zipCode: {
@@ -45,62 +45,71 @@ const venueSchema = new Schema<IVenue>(
     },
     surfaceType: {
       type: String,
-      required: [true, 'Surface type is required'],
-      enum: ['grass', 'clay', 'hard', 'indoor', 'outdoor', 'sand', 'pool', 'court'],
+      required: [true, "Surface type is required"],
+      enum: [
+        "grass",
+        "clay",
+        "hard",
+        "indoor",
+        "outdoor",
+        "sand",
+        "pool",
+        "court",
+      ],
       lowercase: true,
     },
     capacity: {
       type: Number,
-      min: [1, 'Capacity must be at least 1'],
-      max: [10000, 'Capacity cannot exceed 10000'],
+      min: [1, "Capacity must be at least 1"],
+      max: [10000, "Capacity cannot exceed 10000"],
     },
     amenities: [
       {
         type: String,
         enum: [
-          'parking',
-          'restrooms',
-          'lockers',
-          'showers',
-          'lighting',
-          'pro_shop',
-          'cafe',
-          'equipment_rental',
-          'timing_system',
-          'sound_system',
-          'wifi',
-          'accessibility',
+          "parking",
+          "restrooms",
+          "lockers",
+          "showers",
+          "lighting",
+          "pro_shop",
+          "cafe",
+          "equipment_rental",
+          "timing_system",
+          "sound_system",
+          "wifi",
+          "accessibility",
         ],
       },
     ],
     operatingHours: {
       monday: {
-        open: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
-        close: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        open: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
+        close: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
       },
       tuesday: {
-        open: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
-        close: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        open: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
+        close: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
       },
       wednesday: {
-        open: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
-        close: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        open: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
+        close: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
       },
       thursday: {
-        open: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
-        close: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        open: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
+        close: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
       },
       friday: {
-        open: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
-        close: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        open: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
+        close: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
       },
       saturday: {
-        open: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
-        close: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        open: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
+        close: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
       },
       sunday: {
-        open: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
-        close: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        open: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
+        close: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
       },
     },
     isPublic: {
@@ -109,8 +118,8 @@ const venueSchema = new Schema<IVenue>(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'Created by user is required'],
+      ref: "User",
+      required: [true, "Created by user is required"],
     },
     contactInfo: {
       phone: {
@@ -129,11 +138,11 @@ const venueSchema = new Schema<IVenue>(
     pricing: {
       hourlyRate: {
         type: Number,
-        min: [0, 'Hourly rate cannot be negative'],
+        min: [0, "Hourly rate cannot be negative"],
       },
       currency: {
         type: String,
-        default: 'USD',
+        default: "USD",
         uppercase: true,
       },
     },
@@ -168,13 +177,13 @@ const venueSchema = new Schema<IVenue>(
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true},
   }
 );
 
 // Virtual for full address
-venueSchema.virtual('fullAddress').get(function () {
+venueSchema.virtual("fullAddress").get(function () {
   const parts = [
     this.location.address,
     this.location.city,
@@ -182,24 +191,31 @@ venueSchema.virtual('fullAddress').get(function () {
     this.location.zipCode,
     this.location.country,
   ].filter(Boolean);
-  return parts.join(', ');
+  return parts.join(", ");
 });
 
 // Virtual for primary image
-venueSchema.virtual('primaryImage').get(function () {
-  const primary = this.images?.find((img) => img.isPrimary);
+venueSchema.virtual("primaryImage").get(function () {
+  const primary = this.images?.find(img => img.isPrimary);
   return primary || this.images?.[0];
 });
 
 // Virtual for current availability (simplified)
-venueSchema.virtual('isCurrentlyOpen').get(function () {
+venueSchema.virtual("isCurrentlyOpen").get(function () {
   const now = new Date();
-  const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][
-    now.getDay()
-  ];
+  const dayOfWeek = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ][now.getDay()];
   const currentTime = now.toTimeString().slice(0, 5);
 
-  const todayHours = this.operatingHours?.[dayOfWeek as keyof typeof this.operatingHours];
+  const todayHours =
+    this.operatingHours?.[dayOfWeek as keyof typeof this.operatingHours];
   if (!todayHours?.open || !todayHours?.close) return false;
 
   return currentTime >= todayHours.open && currentTime <= todayHours.close;
@@ -207,12 +223,19 @@ venueSchema.virtual('isCurrentlyOpen').get(function () {
 
 // Instance method to check if venue is available at specific time
 venueSchema.methods.isAvailableAt = function (date: Date): boolean {
-  const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][
-    date.getDay()
-  ];
+  const dayOfWeek = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ][date.getDay()];
   const timeString = date.toTimeString().slice(0, 5);
 
-  const dayHours = this.operatingHours?.[dayOfWeek as keyof typeof this.operatingHours];
+  const dayHours =
+    this.operatingHours?.[dayOfWeek as keyof typeof this.operatingHours];
   if (!dayHours?.open || !dayHours?.close) return false;
 
   return timeString >= dayHours.open && timeString <= dayHours.close;
@@ -242,12 +265,16 @@ venueSchema.methods.distanceFrom = function (lat: number, lng: number): number {
 };
 
 // Static method to find venues near coordinates
-venueSchema.statics.findNearby = function (lat: number, lng: number, maxDistance: number = 10) {
+venueSchema.statics.findNearby = function (
+  lat: number,
+  lng: number,
+  maxDistance: number = 10
+) {
   return this.find({
-    'location.coordinates': {
+    "location.coordinates": {
       $near: {
         $geometry: {
-          type: 'Point',
+          type: "Point",
           coordinates: [lng, lat],
         },
         $maxDistance: maxDistance * 1000, // Convert km to meters
@@ -261,18 +288,18 @@ venueSchema.statics.findNearby = function (lat: number, lng: number, maxDistance
 // Static method to find venues by amenities
 venueSchema.statics.findByAmenities = function (amenities: string[]) {
   return this.find({
-    amenities: { $in: amenities },
+    amenities: {$in: amenities},
     isActive: true,
     isPublic: true,
   });
 };
 
 // Indexes
-venueSchema.index({ 'location.coordinates': '2dsphere' });
-venueSchema.index({ isPublic: 1, 'location.city': 1 });
-venueSchema.index({ name: 'text', description: 'text' });
-venueSchema.index({ createdBy: 1, isActive: 1 });
-venueSchema.index({ surfaceType: 1, capacity: 1 });
-venueSchema.index({ 'rating.average': -1 });
+venueSchema.index({"location.coordinates": "2dsphere"});
+venueSchema.index({isPublic: 1, "location.city": 1});
+venueSchema.index({name: "text", description: "text"});
+venueSchema.index({createdBy: 1, isActive: 1});
+venueSchema.index({surfaceType: 1, capacity: 1});
+venueSchema.index({"rating.average": -1});
 
-export const Venue = model<IVenue>('Venue', venueSchema);
+export const Venue = model<IVenue>("Venue", venueSchema);

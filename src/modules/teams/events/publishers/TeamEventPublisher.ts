@@ -1,4 +1,4 @@
-import { eventBus } from "../../../../shared/events/EventBus";
+import {eventBus} from "../../../../shared/events/EventBus";
 
 export const TeamCreatedEvent = "teams.team.created";
 export const MemberJoinedEvent = "teams.member.joined";
@@ -34,7 +34,7 @@ export class TeamEventPublisher {
     });
   }
 
-  publishMemberLeft(payload: { teamId: string; userId: string }): void {
+  publishMemberLeft(payload: {teamId: string; userId: string}): void {
     eventBus.publish({
       eventType: MemberLeftEvent,
       aggregateId: payload.teamId,

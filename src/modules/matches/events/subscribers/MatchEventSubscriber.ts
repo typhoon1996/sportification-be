@@ -1,7 +1,7 @@
-import { eventBus } from "../../../../shared/events/EventBus";
-import { MatchCompletedEvent } from "../publishers/MatchEventPublisher";
-import { Profile } from "../../../users/domain/models/Profile";
-import logger from '../../../../shared/infrastructure/logging';
+import {eventBus} from "../../../../shared/events/EventBus";
+import {MatchCompletedEvent} from "../publishers/MatchEventPublisher";
+import {Profile} from "../../../users/domain/models/Profile";
+import logger from "../../../../shared/infrastructure/logging";
 
 export class MatchEventSubscriber {
   static initialize(): void {
@@ -14,12 +14,12 @@ export class MatchEventSubscriber {
 
   private static async handleMatchCompleted(event: any): Promise<void> {
     try {
-      const { winnerId, participants } = event.payload;
+      const {winnerId, participants} = event.payload;
 
       if (winnerId) {
         // Update winner stats
         await Profile.findOneAndUpdate(
-          { user: winnerId },
+          {user: winnerId},
           {
             $inc: {
               "stats.matchesPlayed": 1,
@@ -35,7 +35,7 @@ export class MatchEventSubscriber {
       const losers = participants.filter((p: string) => p !== winnerId);
       if (losers.length > 0) {
         await Profile.updateMany(
-          { user: { $in: losers } },
+          {user: {$in: losers}},
           {
             $inc: {
               "stats.matchesPlayed": 1,

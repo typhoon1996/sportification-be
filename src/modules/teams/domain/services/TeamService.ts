@@ -1,7 +1,7 @@
 import {ITeam} from "../../../../shared/types";
-import { Team } from '../../domain/models/Team';
-import { TeamEventPublisher } from '../../events/publishers/TeamEventPublisher';
-import { NotFoundError } from '../../../../shared/middleware/errorHandler';
+import {Team} from "../../domain/models/Team";
+import {TeamEventPublisher} from "../../events/publishers/TeamEventPublisher";
+import {NotFoundError} from "../../../../shared/middleware/errorHandler";
 import {
   ITeamService,
   ITeamMemberService,
@@ -9,9 +9,9 @@ import {
   ITeamEventPublisher,
   ITeamCreationData,
   ITeamUpdateData,
-} from '../interfaces';
-import { TeamMemberService } from './TeamMemberService';
-import { TeamValidationService } from './TeamValidationService';
+} from "../interfaces";
+import {TeamMemberService} from "./TeamMemberService";
+import {TeamValidationService} from "./TeamValidationService";
 
 /**
  * TeamService - Main orchestration service for team management (Refactored with SOLID)
@@ -82,7 +82,7 @@ export class TeamService implements ITeamService {
    *
    * @param creatorId - User ID of the team creator (becomes captain)
    * @param teamData - Team creation data
-   * @returns Created team document with captain assigned
+   * @return Created team document with captain assigned
    *
    * @example
    * const team = await teamService.createTeam('user123', {
@@ -104,7 +104,7 @@ export class TeamService implements ITeamService {
       members: [
         {
           user: creatorId,
-          role: 'captain',
+          role: "captain",
           joinedAt: new Date(),
         },
       ],
@@ -118,7 +118,7 @@ export class TeamService implements ITeamService {
       teamId: team.id,
       name: team.name,
       captainId: creatorId,
-      sport: team.sport || 'Unknown',
+      sport: team.sport || "Unknown",
     });
 
     return team;
@@ -132,7 +132,7 @@ export class TeamService implements ITeamService {
    *
    * @param userId - User ID of the member joining
    * @param teamId - Team ID to join
-   * @returns Updated team document with new member
+   * @return Updated team document with new member
    *
    * @throws {NotFoundError} If team does not exist
    * @throws {ConflictError} If user is already a member or team is full
@@ -144,7 +144,7 @@ export class TeamService implements ITeamService {
     const team = await Team.findById(teamId);
 
     if (!team) {
-      throw new NotFoundError('Team');
+      throw new NotFoundError("Team");
     }
 
     // Delegate validation (SRP, DIP)
@@ -164,7 +164,7 @@ export class TeamService implements ITeamService {
    *
    * @param userId - User ID of the member leaving
    * @param teamId - Team ID to leave
-   * @returns Success confirmation
+   * @return Success confirmation
    *
    * @throws {NotFoundError} If team does not exist
    * @throws {ConflictError} If user is not a member or is the captain
@@ -172,14 +172,11 @@ export class TeamService implements ITeamService {
    * @example
    * const result = await teamService.leaveTeam('user456', 'team123');
    */
-  async leaveTeam(
-    userId: string,
-    teamId: string
-  ): Promise<{ success: boolean }> {
+  async leaveTeam(userId: string, teamId: string): Promise<{success: boolean}> {
     const team = await Team.findById(teamId);
 
     if (!team) {
-      throw new NotFoundError('Team');
+      throw new NotFoundError("Team");
     }
 
     // Delegate validation (SRP, DIP)
@@ -198,7 +195,7 @@ export class TeamService implements ITeamService {
    * @param teamId - Team ID to update
    * @param userId - User ID attempting the update
    * @param updates - Team update data
-   * @returns Updated team document
+   * @return Updated team document
    *
    * @throws {NotFoundError} If team does not exist
    * @throws {ValidationError} If user is not the team captain or data is invalid
@@ -218,7 +215,7 @@ export class TeamService implements ITeamService {
     const team = await Team.findById(teamId);
 
     if (!team) {
-      throw new NotFoundError('Team');
+      throw new NotFoundError("Team");
     }
 
     // Delegate validation (SRP, DIP)
@@ -238,7 +235,7 @@ export class TeamService implements ITeamService {
    *
    * @param teamId - Team ID to delete
    * @param userId - User ID attempting the deletion
-   * @returns Success confirmation
+   * @return Success confirmation
    *
    * @throws {NotFoundError} If team does not exist
    * @throws {ValidationError} If user is not the team captain
@@ -246,11 +243,11 @@ export class TeamService implements ITeamService {
   async deleteTeam(
     teamId: string,
     userId: string
-  ): Promise<{ success: boolean }> {
+  ): Promise<{success: boolean}> {
     const team = await Team.findById(teamId);
 
     if (!team) {
-      throw new NotFoundError('Team');
+      throw new NotFoundError("Team");
     }
 
     // Delegate validation (SRP, DIP)
@@ -258,6 +255,6 @@ export class TeamService implements ITeamService {
 
     await team.deleteOne();
 
-    return { success: true };
+    return {success: true};
   }
 }
