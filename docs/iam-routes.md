@@ -41,17 +41,20 @@ The IAM module consists of three separate route groups:
 All routes are registered in `src/app.ts`:
 
 ```typescript
-// IAM module (auth routes)
+// 1. IAM module registration (auth routes at /api/v1/auth)
+const modules = [iamModule, usersModule, matchesModule, ...];
 modules.forEach(module => {
   app.use(module.getBasePath(), module.getRouter());
 });
 
-// API Keys routes (separate registration)
+// 2. API Keys routes - separate registration at /api/v1/api-keys
 app.use(`${apiPrefix}/api-keys`, apiKeyRoutes);
 
-// Security routes (separate registration)
+// 3. Security routes - separate registration at /api/v1/security
 app.use(`${apiPrefix}/security`, securityRoutes);
 ```
+
+**Note**: API Keys and Security routes are registered separately from the main IAM module to allow for different middleware configurations and future modularization.
 
 ## Security
 
