@@ -63,12 +63,28 @@ const MODULES = [
   // aiModule, // AI module not yet implemented
 ];
 
+/**
+ * Application bootstrap class that configures Express, Socket.IO, middleware,
+ * routes, Swagger docs, and the graceful startup / shutdown lifecycle.
+ *
+ * Responsibilities:
+ * - Initialize middleware (security, logging, parsing, sessions)
+ * - Register module routers and admin routes
+ * - Initialize Socket.IO handlers for realtime features
+ * - Start the HTTP server and initialize modules
+ * - Handle graceful shutdown (DB, Redis, rate limit store)
+ */
 class App {
   public app: express.Application;
   public server: Server;
   public io: SocketIOServer;
   private readonly sessionRedisClient?: RedisClient;
 
+  /**
+   * Construct the App instance.
+   * Creates the Express app, HTTP server and Socket.IO instance. Also
+   * initializes a Redis client for sessions when not running tests.
+   */
   constructor() {
     this.app = express();
     this.server = new Server(this.app);
@@ -90,6 +106,11 @@ class App {
     this.initializeSocketIO();
   }
 
+  /**
+   * Configure global middleware for the Express application.
+   * This includes security headers, CORS, compression, request logging,
+   * body parsing, session configuration and Passport initialization.
+   */
   private initializeMiddleware(): void {
     this.app.set("trust proxy", 1);
     this.app.use(requestCorrelation);
@@ -340,6 +361,10 @@ class App {
     });
   }
 
+  /**
+   * Register module routers and top-level API/admin/security routes.
+   * Each module is mounted at its configured base path.
+   */
   private initializeRoutes(): void {
     const apiPrefix = config.app.apiPrefix;
 
@@ -355,12 +380,21 @@ class App {
     this.app.use(`${apiPrefix}/admin`, adminRoutes);
   }
 
+  /**
+   * Register not-found and error handling middleware in the correct order.
+   * The order is important: notFoundHandler -> errorTracker -> errorHandler.
+   */
   private initializeErrorHandling(): void {
     this.app.use(notFoundHandler);
     this.app.use(errorTracker);
     this.app.use(errorHandler);
   }
 
+  /**
+   * Configure Socket.IO connection handlers used for realtime features.
+   * Handlers include authentication, room join/leave, messaging and
+   * match updates. Socket-level errors and disconnects are handled here.
+   */
   private initializeSocketIO(): void {
     this.app.locals.io = this.io;
 
@@ -497,6 +531,11 @@ class App {
     });
   }
 
+  /**
+   * Start the application: connect to the database, initialize modules and
+   * start the HTTP server. Registers SIGINT/SIGTERM handlers for graceful
+   * shutdown.
+   */
   public async start(): Promise<void> {
     try {
       const database = Database.getInstance();
@@ -534,6 +573,13 @@ class App {
     }
   }
 
+  /**
+   * Gracefully shut down server and external connections.
+   * Closes the HTTP server, disconnects the database, quits Redis client
+   * and closes the rate limit store. Exits the process when complete.
+   *
+   * @param {string} signal - The signal name that triggered shutdown (e.g. SIGINT)
+   */
   private gracefulShutdown(signal: string): void {
     logger.info(`Received ${signal}. Starting graceful shutdown...`);
     this.server.close(async () => {

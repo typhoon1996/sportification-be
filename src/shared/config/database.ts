@@ -2,11 +2,23 @@ import mongoose from "mongoose";
 import logger from "../infrastructure/logging";
 import config from "./index";
 
+/**
+ * Singleton Database manager for MongoDB using mongoose.
+ * Provides connect, disconnect and test helper methods.
+ */
 class Database {
   private static instance: Database;
 
+  /**
+   * Private constructor to enforce singleton pattern.
+   */
   private constructor() {}
 
+  /**
+   * Returns the singleton Database instance.
+   *
+   * @return {Database} The shared Database instance.
+   */
   public static getInstance(): Database {
     if (!Database.instance) {
       Database.instance = new Database();
@@ -14,6 +26,9 @@ class Database {
     return Database.instance;
   }
 
+  /**
+   * Establishes a connection to MongoDB with configured options.
+   */
   public async connect(): Promise<void> {
     try {
       const options = {
@@ -56,10 +71,15 @@ class Database {
         process.exit(1);
       } else {
         throw error;
+      } else {
+        process.exit(1);
       }
     }
   }
 
+  /**
+   * Closes the MongoDB connection.
+   */
   public async disconnect(): Promise<void> {
     try {
       await mongoose.connection.close();
@@ -69,6 +89,9 @@ class Database {
     }
   }
 
+  /**
+   * Clears all collections when running in test environment.
+   */
   public async clearDatabase(): Promise<void> {
     if (config.app.env === "test") {
       const collections = mongoose.connection.collections;
