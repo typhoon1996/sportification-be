@@ -118,6 +118,10 @@ export const changePasswordValidation = [
     ),
 ];
 
+export const deactivateAccountValidation = [
+  body("password").notEmpty().withMessage("Password is required for account deactivation"),
+];
+
 // User validation schemas
 export const getUserValidation = [
   param("id").custom(ensureObjectId("Invalid user ID")),

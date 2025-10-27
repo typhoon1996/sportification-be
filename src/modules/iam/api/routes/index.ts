@@ -7,6 +7,7 @@ import {
   loginValidation,
   refreshTokenValidation,
   changePasswordValidation,
+  deactivateAccountValidation,
 } from "../../../../shared/validators";
 import {authController} from "../controllers/AuthController";
 
@@ -249,6 +250,18 @@ router.post(
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *     responses:
  *       200:
  *         description: Logout successful
@@ -374,6 +387,19 @@ router.put(
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: SecurePass123!
  *     responses:
  *       200:
  *         description: Account deactivated successfully
@@ -385,9 +411,17 @@ router.put(
  *               success: true
  *               message: Account deactivated successfully
  *               data: null
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.delete("/deactivate", authenticate, authController.deactivateAccount);
+router.delete(
+  "/deactivate",
+  authenticate,
+  deactivateAccountValidation,
+  validateRequest,
+  authController.deactivateAccount
+);
 
 export default router;
