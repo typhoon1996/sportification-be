@@ -125,6 +125,7 @@ const swaggerDefinition: SwaggerDefinition = {
     {name: "Notifications", description: "Delivery rules and history"},
     {name: "Analytics", description: "Reports, stats, and insights"},
     {name: "Security", description: "Audit logs and API key governance"},
+    {name: "Monitoring", description: "Metrics and performance monitoring"},
   ],
   components: {
     securitySchemes: {

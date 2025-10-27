@@ -18,6 +18,7 @@ import {matchesModule} from "./modules/matches";
 import {notificationsModule} from "./modules/notifications";
 import {teamsModule} from "./modules/teams";
 import {tournamentsModule} from "./modules/tournaments";
+import metricsRoutes from "./shared/routes/metrics";
 import {usersModule} from "./modules/users";
 import {User} from "./modules/users/domain/models/User";
 import {venuesModule} from "./modules/venues";
@@ -381,6 +382,7 @@ class App {
     this.app.use(`${apiPrefix}/mfa`, mfaRoutes);
     this.app.use(`${apiPrefix}/oauth`, oauthRoutes);
     this.app.use(`${apiPrefix}/security`, securityRoutes);
+    this.app.use(`${apiPrefix}/metrics`, metricsRoutes);
     this.app.use(`${apiPrefix}/admin`, adminRoutes);
   }
 
