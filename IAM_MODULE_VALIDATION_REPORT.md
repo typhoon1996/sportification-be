@@ -1,6 +1,6 @@
 # IAM Module Comprehensive Validation Report
 
-**Date**: October 27, 2025  
+**Date**: October 2024  
 **Module**: Identity and Access Management (IAM)  
 **Version**: 1.0.0  
 **Status**: ✅ VALIDATED AND ENHANCED
@@ -121,7 +121,7 @@ src/modules/iam/
 
 #### JWT Implementation ⭐⭐⭐⭐⭐
 - ✅ Separate access and refresh tokens
-- ✅ Short-lived access tokens (7 days)
+- ✅ Access tokens with 7-day expiration (configurable)
 - ✅ Long-lived refresh tokens (30 days)
 - ✅ Token rotation on refresh (security best practice)
 - ✅ Refresh tokens stored and validated in database
@@ -534,6 +534,6 @@ The module can be deployed to production with confidence. The recommended enhanc
 
 ---
 
-**Report Generated**: October 27, 2025  
+**Report Generated**: October 2024  
 **Validated By**: Copilot AI Agent  
 **Review Status**: COMPLETE ✅
