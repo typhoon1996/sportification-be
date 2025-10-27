@@ -1,5 +1,5 @@
-import {AuditLog} from "../../../modules/iam/domain/models";
 import {Request} from "express";
+import {AuditLog} from "../../../modules/iam/domain/models";
 import logger from "../../infrastructure/logging";
 
 export class AuditLogger {

@@ -1,5 +1,5 @@
-import logger from "../logging";
 import {createRedisClient, RedisClient} from "../../config/redis";
+import logger from "../logging";
 
 /**
  * Redis Cache Service

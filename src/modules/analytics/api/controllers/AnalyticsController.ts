@@ -1,20 +1,20 @@
 import {Request, Response} from "express";
+import {AuthRequest} from "../../../../shared/middleware/auth";
+import {
+  ValidationError,
+  sendSuccess,
+  asyncHandler,
+} from "../../../../shared/middleware/errorHandler";
 import {AnalyticsService} from "../../../../shared/services/analytics";
+import {Match} from "../../../matches/domain/models/Match";
+import {Tournament} from "../../../tournaments/domain/models/Tournament";
+import {User} from "../../../users/domain/models/User";
 import {
   UserActivity,
   PerformanceMetrics,
   BusinessMetrics,
   SystemHealth,
 } from "../../domain/models/Analytics";
-import {User} from "../../../users/domain/models/User";
-import {Match} from "../../../matches/domain/models/Match";
-import {Tournament} from "../../../tournaments/domain/models/Tournament";
-import {
-  ValidationError,
-  sendSuccess,
-  asyncHandler,
-} from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 
 /**
  * AnalyticsController - Handles analytics and business intelligence HTTP requests
@@ -335,7 +335,7 @@ export class AnalyticsController {
           revenue: revenue[0]?.total || 0,
         },
         metrics: businessMetrics,
-        trends: await this.calculateTrends(businessMetrics),
+        trends: this.calculateTrends(businessMetrics),
       };
 
       sendSuccess(

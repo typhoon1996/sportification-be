@@ -1,17 +1,17 @@
+import compression from "compression";
+import cors from "cors";
 import {Request, Response, NextFunction} from "express";
+import mongoSanitize from "express-mongo-sanitize";
 import rateLimit from "express-rate-limit";
 import type {
   Options as RateLimitOptions,
   Store as RateLimitStore,
 } from "express-rate-limit";
 import helmet from "helmet";
-import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
-import compression from "compression";
-import cors from "cors";
 import config from "../config";
-import logger from "../infrastructure/logging";
 import {getRateLimitStore} from "../config/rateLimitStore";
+import logger from "../infrastructure/logging";
 
 let rateLimitFallbackLogged = false;
 

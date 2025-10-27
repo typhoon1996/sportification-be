@@ -1,16 +1,15 @@
-import {Chat} from "../../domain/models/Chat";
-import {Message} from "../../domain/models/Message";
-import {IChat, IMessage} from "../../../../shared/types";
-import {ChatEventPublisher} from "../../events/publishers/ChatEventPublisher";
 import {NotFoundError} from "../../../../shared/middleware/errorHandler";
+import {IChat, IMessage} from "../../../../shared/types";
+import {Chat} from "../../domain/models/Chat";
+import {ChatEventPublisher} from "../../events/publishers/ChatEventPublisher";
 import {
   IChatService,
   IMessageService,
   IChatValidationService,
   IChatEventPublisher,
 } from "../interfaces";
-import {MessageService} from "./MessageService";
 import {ChatValidationService} from "./ChatValidationService";
+import {MessageService} from "./MessageService";
 
 /**
  * ChatService - Main orchestration service for chat management (Refactored with SOLID)

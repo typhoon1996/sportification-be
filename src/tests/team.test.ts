@@ -1,10 +1,10 @@
-import {Team} from "../modules/teams/domain/models/Team";
-import {User} from "../modules/users/domain/models/User";
-import {Profile} from "../modules/users/domain/models/Profile";
-import {Chat} from "../modules/chat/domain/models/Chat";
-import {TeamRole} from "../shared/types";
-import mongoose from "mongoose";
 import {MongoMemoryServer} from "mongodb-memory-server";
+import mongoose from "mongoose";
+import {Chat} from "../modules/chat/domain/models/Chat";
+import {Team} from "../modules/teams/domain/models/Team";
+import {Profile} from "../modules/users/domain/models/Profile";
+import {User} from "../modules/users/domain/models/User";
+import {TeamRole} from "../shared/types";
 
 describe("Team Model", () => {
   let mongoServer: MongoMemoryServer;

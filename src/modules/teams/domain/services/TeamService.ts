@@ -1,7 +1,7 @@
+import {NotFoundError} from "../../../../shared/middleware/errorHandler";
 import {ITeam} from "../../../../shared/types";
 import {Team} from "../../domain/models/Team";
 import {TeamEventPublisher} from "../../events/publishers/TeamEventPublisher";
-import {NotFoundError} from "../../../../shared/middleware/errorHandler";
 import {
   ITeamService,
   ITeamMemberService,

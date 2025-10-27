@@ -1,4 +1,4 @@
-import {Schema, model, Model, Document, Types} from "mongoose";
+import {Schema, model, Model} from "mongoose";
 import {ITeam, ITeamStatics, TeamRole} from "../../../../shared/types";
 
 const teamMemberSchema = new Schema(

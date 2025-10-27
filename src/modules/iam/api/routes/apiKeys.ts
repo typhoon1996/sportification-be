@@ -1,9 +1,9 @@
 import {Router} from "express";
-import {ApiKeyController} from "../controllers/ApiKeyController";
-import {authenticate} from "../../../../shared/middleware/auth";
-import {validateRequest} from "../../../../shared/middleware/validation";
 import {body, param, query} from "express-validator";
+import {authenticate} from "../../../../shared/middleware/auth";
 import {authLimiter} from "../../../../shared/middleware/security";
+import {validateRequest} from "../../../../shared/middleware/validation";
+import {ApiKeyController} from "../controllers/ApiKeyController";
 
 const router = Router();
 

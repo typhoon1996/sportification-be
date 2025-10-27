@@ -1,5 +1,5 @@
-import {UserActivity} from "../../domain/models/Analytics";
 import logger from "../../../../shared/infrastructure/logging";
+import {UserActivity} from "../../domain/models/Analytics";
 
 /**
  * AnalyticsService - Business logic for analytics and metrics tracking

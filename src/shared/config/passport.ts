@@ -1,11 +1,11 @@
 import passport from "passport";
-import {Strategy as GoogleStrategy} from "passport-google-oauth20";
 import {Strategy as FacebookStrategy} from "passport-facebook";
 import {Strategy as GitHubStrategy} from "passport-github2";
+import {Strategy as GoogleStrategy} from "passport-google-oauth20";
 import {User} from "../../modules/users/domain/models";
 import {Profile} from "../../modules/users/domain/models";
-import config from "./index";
 import logger from "../infrastructure/logging";
+import config from "./index";
 
 // Serialize user for session
 passport.serializeUser((user: any, done) => {

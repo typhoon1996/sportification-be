@@ -20,8 +20,8 @@
  */
 
 import {Router} from "express";
-import {chatController} from "../controllers/ChatController";
 import {authenticate} from "../../../../shared/middleware/auth";
+import {chatController} from "../controllers/ChatController";
 
 const router = Router();
 

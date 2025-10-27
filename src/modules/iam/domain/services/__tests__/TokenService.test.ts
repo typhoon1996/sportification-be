@@ -6,7 +6,7 @@
  */
 
 import {TokenService} from "../TokenService";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 
 describe("TokenService", () => {
   let tokenService: TokenService;

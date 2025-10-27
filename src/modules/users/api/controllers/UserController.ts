@@ -1,17 +1,17 @@
 import {Request, Response} from "express";
-import {UserService} from "../../domain/services/UserService";
+import logger from "../../../../shared/infrastructure/logging";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   validatePagination,
   validateSort,
 } from "../../../../shared/middleware/validation";
-import {User} from "../../../users/domain/models/User";
 import {Profile} from "../../../users/domain/models/Profile";
-import logger from "../../../../shared/infrastructure/logging";
+import {User} from "../../../users/domain/models/User";
+import {UserService} from "../../domain/services/UserService";
 
 /**
  * UserController - Handles user management and social features HTTP requests

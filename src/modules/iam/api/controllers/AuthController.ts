@@ -1,14 +1,14 @@
-import {Request, Response, NextFunction} from "express";
-import {AuthService} from "../../domain/services/AuthService";
+import {Request, Response} from "express";
+import logger from "../../../../shared/infrastructure/logging";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 import {AuditLogger} from "../../../../shared/services/audit";
-import logger from "../../../../shared/infrastructure/logging";
 import {IAuthService, IUserRegistrationData} from "../../domain/interfaces";
+import {AuthService} from "../../domain/services/AuthService";
 
 /**
  * AuthController - Handles all authentication-related HTTP requests (Refactored)

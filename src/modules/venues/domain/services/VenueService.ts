@@ -1,9 +1,9 @@
-import {Venue} from "../../domain/models/Venue";
-import {VenueEventPublisher} from "../../events/publishers/VenueEventPublisher";
 import {
   NotFoundError,
   ValidationError,
 } from "../../../../shared/middleware/errorHandler";
+import {Venue} from "../../domain/models/Venue";
+import {VenueEventPublisher} from "../../events/publishers/VenueEventPublisher";
 
 /**
  * VenueService - Business logic for venue management

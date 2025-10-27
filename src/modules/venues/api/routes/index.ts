@@ -25,13 +25,13 @@
  */
 
 import {Router} from "express";
-import {venueController} from "../controllers/VenueController";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {
   createVenueValidation,
   idParamValidation,
 } from "../../../../shared/validators";
+import {venueController} from "../controllers/VenueController";
 import bookingRoutes from "./bookings";
 
 const router = Router();

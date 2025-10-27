@@ -1,14 +1,14 @@
 import {Request, Response} from "express";
-import {TeamService} from "../../domain/services/TeamService";
+import logger from "../../../../shared/infrastructure/logging";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 import {validatePagination} from "../../../../shared/middleware/validation";
 import {Team} from "../../domain/models/Team";
-import logger from "../../../../shared/infrastructure/logging";
+import {TeamService} from "../../domain/services/TeamService";
 
 /**
  * TeamController - Handles team management HTTP requests

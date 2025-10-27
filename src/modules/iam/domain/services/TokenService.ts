@@ -19,8 +19,8 @@
 
 import jwt from "jsonwebtoken";
 import config from "../../../../shared/config";
-import {ITokenService, ITokenPayload, ITokenPair} from "../interfaces";
 import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
+import {ITokenService, ITokenPayload, ITokenPair} from "../interfaces";
 
 export class TokenService implements ITokenService {
   private readonly accessTokenSecret: string;

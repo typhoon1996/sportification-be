@@ -1,12 +1,12 @@
 import {Request, Response} from "express";
-import {AuditLog} from "../../../iam/domain/models/AuditLog";
-import {AuditLogger} from "../../../../shared/services/audit";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   ValidationError,
   sendSuccess,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
+import {AuditLogger} from "../../../../shared/services/audit";
+import {AuditLog} from "../../../iam/domain/models/AuditLog";
 
 /**
  * Security Controller - Security Monitoring and Audit

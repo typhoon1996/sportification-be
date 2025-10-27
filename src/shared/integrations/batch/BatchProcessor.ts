@@ -22,7 +22,12 @@ export class BatchProcessor {
     processor: (item: T) => Promise<R>,
     options: BatchOptions = {}
   ): Promise<R[]> {
-    const {batchSize = 10, concurrency = 5, onProgress, onError} = options;
+    const {
+      batchSize = 10,
+      concurrency: _concurrency = 5,
+      onProgress,
+      onError,
+    } = options;
 
     const results: R[] = [];
     const errors: Array<{item: T; error: Error}> = [];
@@ -162,7 +167,7 @@ export class BatchProcessor {
 
       if (executing.length >= limit) {
         await Promise.race(executing);
-        executing.splice(
+        void executing.splice(
           executing.findIndex(p => p === promise),
           1
         );

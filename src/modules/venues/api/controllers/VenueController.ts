@@ -1,14 +1,14 @@
 import {Request, Response} from "express";
-import {VenueService} from "../../domain/services/VenueService";
+import logger from "../../../../shared/infrastructure/logging";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 import {validatePagination} from "../../../../shared/middleware/validation";
 import {Venue} from "../../domain/models/Venue";
-import logger from "../../../../shared/infrastructure/logging";
+import {VenueService} from "../../domain/services/VenueService";
 
 /**
  * VenueController - Handles venue and location management HTTP requests

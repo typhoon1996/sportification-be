@@ -1,5 +1,5 @@
-import {Notification} from "../../domain/models/Notification";
 import logger from "../../../../shared/infrastructure/logging";
+import {Notification} from "../../domain/models/Notification";
 
 /**
  * NotificationService - Business logic for notification management

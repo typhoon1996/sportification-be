@@ -1,7 +1,9 @@
+import crypto from "crypto";
 import {Request, Response, NextFunction} from "express";
+import rateLimit from "express-rate-limit";
 import {ApiKey} from "../../modules/iam/domain/models";
 import logger from "../infrastructure/logging";
-import rateLimit from "express-rate-limit";
+import {authenticate} from "./auth";
 
 // Extend Express Request interface to include API key info
 declare module "express" {
@@ -37,7 +39,7 @@ export const authenticateApiKey = async (
     }
 
     // Hash the provided key to compare with stored hash
-    const keyHash = require("crypto")
+    const keyHash = crypto
       .createHash("sha256")
       .update(apiKeyHeader)
       .digest("hex");
@@ -238,7 +240,6 @@ export const authenticateApiKeyOrJWT = async (
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
     // Use existing JWT authentication middleware
-    const {authenticate} = require("./auth");
     return authenticate(req, res, next);
   }
 

@@ -141,9 +141,9 @@ export const analyticsLogger = (
   res: Response,
   next: NextFunction
 ): void => {
-  const originalEnd = res.end;
+  const originalEnd = res.end.bind(res);
 
-  res.end = function (this: any, chunk?: any, encoding?: any, cb?: any) {
+  res.end = function (this: Response, chunk?: any, encoding?: any, cb?: any) {
     // Log API usage analytics
     logger.info("API Analytics", {
       endpoint: req.route?.path || req.originalUrl,

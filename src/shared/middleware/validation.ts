@@ -6,8 +6,8 @@ import {
   query,
   param,
 } from "express-validator";
-import {IApiError} from "../types";
 import logger from "../infrastructure/logging";
+import {IApiError} from "../types";
 
 export interface ValidationErrorDetail {
   field: string;

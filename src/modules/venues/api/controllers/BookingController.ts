@@ -31,15 +31,15 @@
  */
 
 import {Request, Response} from "express";
-import {BookingService} from "../../domain/services/BookingService";
+import logger from "../../../../shared/infrastructure/logging";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 import {validatePagination} from "../../../../shared/middleware/validation";
-import logger from "../../../../shared/infrastructure/logging";
+import {BookingService} from "../../domain/services/BookingService";
 import {
   CreateBookingDTO,
   UpdateBookingDTO,

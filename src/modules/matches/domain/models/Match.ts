@@ -1,4 +1,4 @@
-import {Schema, model, Model, Document, Types} from "mongoose";
+import {Schema, model} from "mongoose";
 import {IMatch, MatchType, MatchStatus} from "../../../../shared/types";
 
 const matchSchema = new Schema<IMatch>(

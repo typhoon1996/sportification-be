@@ -1,26 +1,26 @@
 import {eventBus, DomainEvent} from "../../../../shared/events/EventBus";
-import {NotificationService} from "../../domain/services/NotificationService";
+import {MessageSentEvent} from "../../../chat/events/publishers/ChatEventPublisher";
 import {UserRegisteredEvent} from "../../../iam/events/publishers/IamEventPublisher";
-import {
-  FriendAddedEvent,
-  FriendRemovedEvent,
-} from "../../../users/events/publishers/UserEventPublisher";
 import {
   MatchCreatedEvent,
   PlayerJoinedEvent,
   MatchCompletedEvent,
 } from "../../../matches/events/publishers/MatchEventPublisher";
 import {
+  TeamCreatedEvent,
+  MemberJoinedEvent,
+  MemberLeftEvent,
+} from "../../../teams/events/publishers/TeamEventPublisher";
+import {
   TournamentCreatedEvent,
   ParticipantJoinedEvent,
   TournamentStartedEvent,
 } from "../../../tournaments/events/publishers/TournamentEventPublisher";
 import {
-  TeamCreatedEvent,
-  MemberJoinedEvent,
-  MemberLeftEvent,
-} from "../../../teams/events/publishers/TeamEventPublisher";
-import {MessageSentEvent} from "../../../chat/events/publishers/ChatEventPublisher";
+  FriendAddedEvent,
+  FriendRemovedEvent,
+} from "../../../users/events/publishers/UserEventPublisher";
+import {NotificationService} from "../../domain/services/NotificationService";
 
 export class NotificationEventSubscriber {
   private notificationService: NotificationService;

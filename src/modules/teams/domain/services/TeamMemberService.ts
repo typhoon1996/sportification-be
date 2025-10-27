@@ -1,6 +1,4 @@
 import {ITeam} from "../../../../shared/types";
-import {Team} from "../models/Team";
-import {ConflictError} from "../../../../shared/middleware/errorHandler";
 import {ITeamMemberService, ITeamEventPublisher} from "../interfaces";
 
 /**

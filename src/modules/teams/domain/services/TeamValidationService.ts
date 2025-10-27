@@ -1,9 +1,8 @@
-import {ITeam} from "../../../../shared/types";
-import {Team} from "../models/Team";
 import {
   ValidationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
+import {ITeam} from "../../../../shared/types";
 import {ITeamValidationService, ITeamUpdateData} from "../interfaces";
 
 /**

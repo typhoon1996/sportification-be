@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import config from "./index";
 import logger from "../infrastructure/logging";
+import config from "./index";
 
 class Database {
   private static instance: Database;
@@ -73,9 +73,11 @@ class Database {
     if (config.app.env === "test") {
       const collections = mongoose.connection.collections;
       for (const key in collections) {
-        const collection = collections[key];
-        if (collection) {
-          await collection.deleteMany({});
+        if (Object.prototype.hasOwnProperty.call(collections, key)) {
+          const collection = collections[key];
+          if (collection) {
+            await collection.deleteMany({});
+          }
         }
       }
     }

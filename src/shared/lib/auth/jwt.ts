@@ -1,7 +1,7 @@
 import jwt, {SignOptions} from "jsonwebtoken";
 import {StringValue} from "ms";
-import {IJWTPayload} from "../../types";
 import config from "../../config";
+import {IJWTPayload} from "../../types";
 
 /**
  * JWT Utility class for handling JSON Web Token operations

@@ -1,5 +1,5 @@
-import {Module} from "../../shared/module/Module";
 import {Router} from "express";
+import {Module} from "../../shared/module/Module";
 import userRoutes from "./api/routes";
 import {UserEventSubscriber} from "./events/subscribers/UserEventSubscriber";
 

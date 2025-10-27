@@ -5,10 +5,10 @@
  */
 
 // Update the import path to the correct location of Notification model
-import {Notification} from "@/modules/notifications/domain/models/Notification";
-import {NotificationType} from "../../types";
-import logger from "../../infrastructure/logging";
 import cacheService from "../../infrastructure/cache";
+import logger from "../../infrastructure/logging";
+import {NotificationType} from "../../types";
+import {Notification} from "@/modules/notifications/domain/models/Notification";
 
 export interface QueuedNotification {
   userId: string;

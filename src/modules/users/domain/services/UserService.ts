@@ -1,6 +1,5 @@
+import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
 import {User} from "../../../users/domain/models/User";
-import {ProfileService} from "./ProfileService";
-import {FriendService} from "./FriendService";
 import {UserEventPublisher} from "../../events/publishers/UserEventPublisher";
 import {
   IUserService,
@@ -11,7 +10,8 @@ import {
   IProfileUpdate,
   ISearchResult,
 } from "../interfaces";
-import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
+import {FriendService} from "./FriendService";
+import {ProfileService} from "./ProfileService";
 
 /**
  * User Service - Business Logic for User Management (Refactored)

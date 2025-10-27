@@ -1,10 +1,10 @@
 import {Response} from "express";
-import {NotificationService} from "../../domain/services/NotificationService";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
+import {NotificationService} from "../../domain/services/NotificationService";
 
 /**
  * NotificationController - Handles user notification management HTTP requests

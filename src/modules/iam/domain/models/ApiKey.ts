@@ -1,6 +1,6 @@
+import crypto from "crypto";
 import {Schema, model, Model} from "mongoose";
 import {IApiKey, IApiKeyStatics} from "../../../../shared/types";
-import crypto from "crypto";
 
 const apiKeySchema = new Schema<IApiKey>(
   {

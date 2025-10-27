@@ -1,7 +1,6 @@
-import {Chat} from "../models/Chat";
-import {Message} from "../models/Message";
 import {IChat, IMessage} from "../../../../shared/types";
 import {IChatEventPublisher, IMessageService} from "../interfaces";
+import {Message} from "../models/Message";
 
 /**
  * MessageService - Handles message operations (SRP)

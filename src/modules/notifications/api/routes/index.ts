@@ -27,8 +27,8 @@
  */
 
 import {Router} from "express";
-import {notificationController} from "../controllers/NotificationController";
 import {authenticate} from "../../../../shared/middleware/auth";
+import {notificationController} from "../controllers/NotificationController";
 
 const router = Router();
 

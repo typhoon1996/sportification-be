@@ -2,9 +2,15 @@
  * Booking Service - Business Logic Layer
  */
 
+import logger from "../../../../shared/infrastructure/logging";
+import {
+  NotFoundError,
+  ValidationError,
+  ConflictError,
+} from "../../../../shared/middleware/errorHandler";
+import emailService from "../../../../shared/services/email";
 import {BookingRepository} from "../../data/repositories/BookingRepository";
-import {Venue} from "../models/Venue";
-import {PromoCode} from "../models/PromoCode";
+import {BookingEventPublisher} from "../../events/publishers/BookingEventPublisher";
 import {
   IBooking,
   BookingStatus,
@@ -18,14 +24,8 @@ import {
   VenueAnalytics,
   DashboardStats,
 } from "../../types";
-import {
-  NotFoundError,
-  ValidationError,
-  ConflictError,
-} from "../../../../shared/middleware/errorHandler";
-import logger from "../../../../shared/infrastructure/logging";
-import {BookingEventPublisher} from "../../events/publishers/BookingEventPublisher";
-import emailService from "../../../../shared/services/email";
+import {PromoCode} from "../models/PromoCode";
+import {Venue} from "../models/Venue";
 
 export class BookingService {
   private readonly bookingRepository: BookingRepository;

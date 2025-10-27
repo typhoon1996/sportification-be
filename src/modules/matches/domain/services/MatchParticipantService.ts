@@ -8,10 +8,9 @@
  * @implements {IMatchParticipantService}
  */
 
-import {Match} from "../models/Match";
 import {IMatch} from "../../../../shared/types";
-import {IMatchParticipantService, IMatchEventPublisher} from "../interfaces";
 import {MatchEventPublisher} from "../../events/publishers/MatchEventPublisher";
+import {IMatchParticipantService, IMatchEventPublisher} from "../interfaces";
 
 export class MatchParticipantService implements IMatchParticipantService {
   private eventPublisher: IMatchEventPublisher;

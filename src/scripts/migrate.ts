@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import {User} from "../modules/users/domain/models/User";
-import {Profile} from "../modules/users/domain/models/Profile";
-import {Match} from "../modules/matches/domain/models/Match";
-import {Tournament} from "../modules/tournaments/domain/models/Tournament";
-import {Notification} from "../modules/notifications/domain/models/Notification";
-import {Venue} from "../modules/venues/domain/models/Venue";
 import {Chat} from "../modules/chat/domain/models/Chat";
 import {Message} from "../modules/chat/domain/models/Message";
+import {Match} from "../modules/matches/domain/models/Match";
+import {Notification} from "../modules/notifications/domain/models/Notification";
+import {Tournament} from "../modules/tournaments/domain/models/Tournament";
+import {Profile} from "../modules/users/domain/models/Profile";
+import {User} from "../modules/users/domain/models/User";
+import {Venue} from "../modules/venues/domain/models/Venue";
 import config from "../shared/config";
 import logger from "../shared/infrastructure/logging";
 
@@ -242,7 +242,7 @@ async function runMigrations() {
 
 // Run migrations if this script is executed directly
 if (require.main === module) {
-  runMigrations();
+  void runMigrations();
 }
 
 export {runMigrations, MigrationRunner};

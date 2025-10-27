@@ -1,17 +1,17 @@
 import {Request, Response} from "express";
-import {TournamentService} from "../../domain/services/TournamentService";
+import logger from "../../../../shared/infrastructure/logging";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   validatePagination,
   validateSort,
 } from "../../../../shared/middleware/validation";
 import {Tournament} from "../../../tournaments/domain/models/Tournament";
-import logger from "../../../../shared/infrastructure/logging";
+import {TournamentService} from "../../domain/services/TournamentService";
 
 /**
  * TournamentController - Handles tournament management HTTP requests

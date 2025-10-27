@@ -32,8 +32,8 @@
  */
 
 import {Router} from "express";
-import {bookingController} from "../controllers/BookingController";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
+import {bookingController} from "../controllers/BookingController";
 import {
   createBookingValidation,
   updateBookingValidation,

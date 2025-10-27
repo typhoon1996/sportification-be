@@ -1,11 +1,11 @@
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import {User} from "../modules/users/domain/models/User";
-import {Profile} from "../modules/users/domain/models/Profile";
+import mongoose from "mongoose";
 import {Match} from "../modules/matches/domain/models/Match";
-import {Tournament} from "../modules/tournaments/domain/models/Tournament";
-import {Venue} from "../modules/venues/domain/models/Venue";
 import {Notification} from "../modules/notifications/domain/models/Notification";
+import {Tournament} from "../modules/tournaments/domain/models/Tournament";
+import {Profile} from "../modules/users/domain/models/Profile";
+import {User} from "../modules/users/domain/models/User";
+import {Venue} from "../modules/venues/domain/models/Venue";
 import config from "../shared/config";
 import logger from "../shared/infrastructure/logging";
 import {
@@ -594,7 +594,7 @@ async function runSeeding() {
 
 // Run seeding if this script is executed directly
 if (require.main === module) {
-  runSeeding();
+  void runSeeding();
 }
 
 export {DatabaseSeeder, runSeeding};

@@ -30,12 +30,15 @@
  */
 
 import {Router} from "express";
+import {body, query} from "express-validator";
+import {authenticate, authorize} from "../../../../shared/middleware/auth";
+import {authLimiter} from "../../../../shared/middleware/security";
+import {validateRequest} from "../../../../shared/middleware/validation";
+import {Match} from "../../../matches/domain/models/Match";
+import {Tournament} from "../../../tournaments/domain/models/Tournament";
+import {User} from "../../../users/domain/models/User";
 import {AnalyticsController} from "../controllers/AnalyticsController";
 import {InsightsController} from "../controllers/InsightsController";
-import {authenticate, authorize} from "../../../../shared/middleware/auth";
-import {validateRequest} from "../../../../shared/middleware/validation";
-import {body, query} from "express-validator";
-import {authLimiter} from "../../../../shared/middleware/security";
 
 const router = Router();
 
@@ -588,12 +591,9 @@ router.get("/system/overview", async (req, res) => {
   // Advanced admin-only system overview
   const insights = {
     systemOverview: {
-      totalUsers:
-        await require("../../../../models/User").User.countDocuments(),
-      totalMatches:
-        await require("../../../../models/Match").Match.countDocuments(),
-      totalTournaments:
-        await require("../../../../models/Tournament").Tournament.countDocuments(),
+      totalUsers: await User.countDocuments(),
+      totalMatches: await Match.countDocuments(),
+      totalTournaments: await Tournament.countDocuments(),
       systemUptime: process.uptime(),
       memoryUsage: process.memoryUsage(),
     },

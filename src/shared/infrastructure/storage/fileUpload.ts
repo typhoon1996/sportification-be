@@ -4,9 +4,10 @@
  * Handles file uploads with validation and storage
  */
 
-import multer from "multer";
+import {promises as fs} from "fs";
 import path from "path";
 import {Request} from "express";
+import multer from "multer";
 import {ValidationError} from "../../middleware/errorHandler";
 import logger from "../logging";
 
@@ -165,7 +166,6 @@ export const getFileUrl = (filename: string, baseUrl: string): string => {
  */
 export const deleteFile = async (filePath: string): Promise<void> => {
   try {
-    const fs = require("fs").promises;
     await fs.unlink(filePath);
     logger.info(`File deleted: ${filePath}`);
   } catch (error) {

@@ -1,5 +1,5 @@
-import {IChat} from "../../../../shared/types";
 import {ValidationError} from "../../../../shared/middleware/errorHandler";
+import {IChat} from "../../../../shared/types";
 import {IChatValidationService, IChatCreationData} from "../interfaces";
 
 /**

@@ -1,6 +1,6 @@
-import speakeasy from "speakeasy";
-import QRCode from "qrcode";
 import crypto from "crypto";
+import QRCode from "qrcode";
+import speakeasy from "speakeasy";
 import config from "../../config";
 
 /**

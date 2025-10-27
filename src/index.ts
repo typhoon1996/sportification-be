@@ -1,7 +1,7 @@
 import App from "./app";
+import config from "./shared/config";
 import logger from "./shared/infrastructure/logging";
 import {validateAndExit} from "./shared/utils/validateEnv";
-import config from "./shared/config";
 
 // Display startup banner
 console.log("\n🏃 Sportification Backend Starting...\n");
@@ -34,7 +34,7 @@ process.on("unhandledRejection", (reason, promise) => {
 });
 
 // Start the application
-(async () => {
+void (async () => {
   try {
     const app = new App();
     await app.start();

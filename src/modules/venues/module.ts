@@ -1,5 +1,5 @@
-import {Module} from "../../shared/module/Module";
 import {Router} from "express";
+import {Module} from "../../shared/module/Module";
 import venueRoutes from "./api/routes";
 
 export class VenuesModule extends Module {

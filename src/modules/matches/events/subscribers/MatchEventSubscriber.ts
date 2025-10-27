@@ -1,7 +1,7 @@
 import {eventBus} from "../../../../shared/events/EventBus";
-import {MatchCompletedEvent} from "../publishers/MatchEventPublisher";
-import {Profile} from "../../../users/domain/models/Profile";
 import logger from "../../../../shared/infrastructure/logging";
+import {Profile} from "../../../users/domain/models/Profile";
+import {MatchCompletedEvent} from "../publishers/MatchEventPublisher";
 
 export class MatchEventSubscriber {
   static initialize(): void {

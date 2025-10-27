@@ -1,12 +1,12 @@
 import {Router} from "express";
-import {tournamentController} from "../controllers/TournamentController";
+import {body} from "express-validator";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {
   createTournamentValidation,
   idParamValidation,
 } from "../../../../shared/validators";
-import {body} from "express-validator";
+import {tournamentController} from "../controllers/TournamentController";
 
 /**
  * Tournament Routes Module

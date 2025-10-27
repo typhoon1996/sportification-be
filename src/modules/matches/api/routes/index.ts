@@ -1,12 +1,12 @@
 import {Router} from "express";
-import {matchController} from "../controllers/MatchController";
+import {body} from "express-validator";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {
   createMatchValidation,
   idParamValidation,
 } from "../../../../shared/validators";
-import {body} from "express-validator";
+import {matchController} from "../controllers/MatchController";
 
 /**
  * Match Routes

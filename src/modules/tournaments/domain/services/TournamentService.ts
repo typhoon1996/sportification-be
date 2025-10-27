@@ -1,11 +1,11 @@
-import {Tournament} from "../../../tournaments/domain/models/Tournament";
-import {TournamentEventPublisher} from "../../events/publishers/TournamentEventPublisher";
 import {
   NotFoundError,
   ValidationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
 import {TournamentStatus} from "../../../../shared/types";
+import {Tournament} from "../../../tournaments/domain/models/Tournament";
+import {TournamentEventPublisher} from "../../events/publishers/TournamentEventPublisher";
 
 /**
  * TournamentService - Business logic for tournament management
@@ -227,7 +227,7 @@ export class TournamentService {
       throw new NotFoundError("Tournament");
     }
 
-    if (tournament.status !== "upcoming") {
+    if (tournament.status !== ("upcoming" as any)) {
       throw new ConflictError("Cannot join tournament that is not upcoming");
     }
 
@@ -266,7 +266,7 @@ export class TournamentService {
       throw new ConflictError("Not participating in this tournament");
     }
 
-    if (tournament.status === "ongoing") {
+    if (tournament.status === ("ongoing" as any)) {
       throw new ConflictError("Cannot leave tournament that is ongoing");
     }
 

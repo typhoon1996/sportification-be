@@ -29,8 +29,8 @@
  */
 
 import {Router} from "express";
-import {analyticsController} from "../controllers/SimpleAnalyticsController";
 import {authenticate} from "../../../../shared/middleware/auth";
+import {analyticsController} from "../controllers/SimpleAnalyticsController";
 
 const router = Router();
 

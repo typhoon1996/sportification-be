@@ -1,14 +1,14 @@
 import {Response} from "express";
-import {User} from "../../../users/domain/models/User";
-import {Match} from "../../../matches/domain/models/Match";
-import {Tournament} from "../../../tournaments/domain/models/Tournament";
-import {UserActivity} from "../../domain/models/Analytics";
-import {AuditLog} from "../../../iam/domain/models/AuditLog";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
+import {AuditLog} from "../../../iam/domain/models/AuditLog";
+import {Match} from "../../../matches/domain/models/Match";
+import {Tournament} from "../../../tournaments/domain/models/Tournament";
+import {User} from "../../../users/domain/models/User";
+import {UserActivity} from "../../domain/models/Analytics";
 
 /**
  * InsightsController

@@ -1,12 +1,12 @@
 import {Response} from "express";
-import {ChatService} from "../../domain/services/ChatService";
+import logger from "../../../../shared/infrastructure/logging";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   sendSuccess,
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
-import logger from "../../../../shared/infrastructure/logging";
+import {ChatService} from "../../domain/services/ChatService";
 
 /**
  * ChatController - Handles real-time chat and messaging HTTP requests

@@ -1,5 +1,5 @@
-import {Schema, model, Model} from "mongoose";
 import bcrypt from "bcryptjs";
+import {Schema, model, Model} from "mongoose";
 import {IUser, IUserStatics} from "../../../../shared/types";
 
 const socialLoginSchema = new Schema(

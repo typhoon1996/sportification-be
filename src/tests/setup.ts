@@ -1,6 +1,6 @@
-import Database from "../shared/config/database";
-import {User} from "../modules/users/domain/models/User";
 import {Profile} from "../modules/users/domain/models/Profile";
+import {User} from "../modules/users/domain/models/User";
+import Database from "../shared/config/database";
 
 // Setup test database connection
 beforeAll(async () => {

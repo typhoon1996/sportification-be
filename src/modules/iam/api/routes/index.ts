@@ -1,6 +1,6 @@
 import {Router} from "express";
-import {authController} from "../controllers/AuthController";
 import {authenticate} from "../../../../shared/middleware/auth";
+import {authLimiter} from "../../../../shared/middleware/security";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {
   registerValidation,
@@ -8,7 +8,7 @@ import {
   refreshTokenValidation,
   changePasswordValidation,
 } from "../../../../shared/validators";
-import {authLimiter} from "../../../../shared/middleware/security";
+import {authController} from "../controllers/AuthController";
 
 /**
  * Authentication Routes

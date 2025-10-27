@@ -1,21 +1,20 @@
-import {Match} from "../../../matches/domain/models/Match";
-import {IMatch} from "../../../../shared/types";
-import {MatchEventPublisher} from "../../events/publishers/MatchEventPublisher";
 import {
   NotFoundError,
   ValidationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
+import {IMatch} from "../../../../shared/types";
 import {MatchStatus, MatchType} from "../../../../shared/types";
+import {Match} from "../../../matches/domain/models/Match";
+import {MatchEventPublisher} from "../../events/publishers/MatchEventPublisher";
 import {
   IMatchService,
   IMatchValidationService,
   IMatchParticipantService,
   IMatchEventPublisher,
-  IMatchData,
 } from "../interfaces";
-import {MatchValidationService} from "./MatchValidationService";
 import {MatchParticipantService} from "./MatchParticipantService";
+import {MatchValidationService} from "./MatchValidationService";
 
 /**
  * Match Service - Business Logic for Match Management (Refactored with SOLID principles)

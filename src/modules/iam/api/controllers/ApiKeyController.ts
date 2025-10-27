@@ -1,5 +1,6 @@
 import {Response} from "express";
-import {ApiKey} from "../../domain/models/ApiKey";
+import logger from "../../../../shared/infrastructure/logging";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   ValidationError,
   NotFoundError,
@@ -7,8 +8,7 @@ import {
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
-import logger from "../../../../shared/infrastructure/logging";
+import {ApiKey} from "../../domain/models/ApiKey";
 
 /**
  * API Key Controller - API Key Management

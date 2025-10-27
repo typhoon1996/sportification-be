@@ -19,10 +19,14 @@
  * @implements {IAuthService}
  */
 
-import {User} from "../../../users/domain/models/User";
+import logger from "../../../../shared/infrastructure/logging";
+import {
+  AuthenticationError,
+  ConflictError,
+  ValidationError,
+} from "../../../../shared/middleware/errorHandler";
 import {Profile} from "../../../users/domain/models/Profile";
-import {TokenService} from "./TokenService";
-import {PasswordService} from "./PasswordService";
+import {User} from "../../../users/domain/models/User";
 import {IamEventPublisher} from "../../events/publishers/IamEventPublisher";
 import {
   IAuthService,
@@ -33,12 +37,8 @@ import {
   IAuthResult,
   IMfaRequired,
 } from "../interfaces";
-import {
-  AuthenticationError,
-  ConflictError,
-  ValidationError,
-} from "../../../../shared/middleware/errorHandler";
-import logger from "../../../../shared/infrastructure/logging";
+import {PasswordService} from "./PasswordService";
+import {TokenService} from "./TokenService";
 
 export class AuthService implements IAuthService {
   // DIP: Depend on abstractions (interfaces) not concrete implementations

@@ -1,8 +1,8 @@
 import {Request, Response, NextFunction} from "express";
 import {Error as MongooseError} from "mongoose";
-import {IApiError, IApiResponse} from "../types";
 import config from "../config";
 import logger from "../infrastructure/logging";
+import {IApiError, IApiResponse} from "../types";
 
 // Custom error class
 export class ApiError extends Error implements IApiError {
@@ -198,9 +198,11 @@ export const notFoundHandler = (
 };
 
 // Async error wrapper
-export const asyncHandler = (fn: Function) => {
+export const asyncHandler = <T extends Request = Request>(
+  fn: (req: T, res: Response, next: NextFunction) => Promise<void>
+) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    Promise.resolve(fn(req as T, res, next)).catch(next);
   };
 };
 

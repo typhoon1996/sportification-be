@@ -5,8 +5,8 @@
  */
 
 import {Request, Response, NextFunction} from "express";
-import logger from "../infrastructure/logging";
 import cacheService from "../infrastructure/cache";
+import logger from "../infrastructure/logging";
 
 /**
  * Response transformation middleware
@@ -125,7 +125,7 @@ const filterObject = (obj: any, fields: string[]): any => {
   const filtered: any = {};
 
   fields.forEach(field => {
-    if (obj.hasOwnProperty(field)) {
+    if (Object.prototype.hasOwnProperty.call(obj, field)) {
       filtered[field] = obj[field];
     }
   });

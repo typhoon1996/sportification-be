@@ -1,7 +1,7 @@
-import {User} from "../../../modules/users/domain/models";
+import {UserActivity} from "../../../modules/analytics/domain/models";
 import {Match} from "../../../modules/matches/domain/models";
 import {Tournament} from "../../../modules/tournaments/domain/models";
-import {UserActivity} from "../../../modules/analytics/domain/models";
+import {User} from "../../../modules/users/domain/models";
 import logger from "../../infrastructure/logging";
 
 /**

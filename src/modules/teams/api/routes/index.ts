@@ -1,5 +1,4 @@
 import {Router} from "express";
-import {teamController} from "../controllers/TeamController";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {
@@ -7,6 +6,7 @@ import {
   updateTeamValidation,
   idParamValidation,
 } from "../../../../shared/validators";
+import {teamController} from "../controllers/TeamController";
 
 /**
  * Team Routes Module

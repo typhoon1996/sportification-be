@@ -1,9 +1,9 @@
-import request from "supertest";
 import {MongoMemoryServer} from "mongodb-memory-server";
 import mongoose from "mongoose";
-import {User} from "../modules/users/domain/models/User";
-import {Profile} from "../modules/users/domain/models/Profile";
+import request from "supertest";
 import app from "../app";
+import {Profile} from "../modules/users/domain/models/Profile";
+import {User} from "../modules/users/domain/models/User";
 
 describe("Enhanced Authentication Endpoints", () => {
   let mongoServer: MongoMemoryServer;

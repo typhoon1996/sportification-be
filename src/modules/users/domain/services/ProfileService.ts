@@ -8,16 +8,16 @@
  * @implements {IProfileService}
  */
 
-import {User} from "../models/User";
-import {Profile} from "../models/Profile";
+import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
+import {UserEventPublisher} from "../../events/publishers/UserEventPublisher";
 import {
   IProfileService,
   IUserData,
   IProfileUpdate,
   IUserEventPublisher,
 } from "../interfaces";
-import {AuthenticationError} from "../../../../shared/middleware/errorHandler";
-import {UserEventPublisher} from "../../events/publishers/UserEventPublisher";
+import {Profile} from "../models/Profile";
+import {User} from "../models/User";
 
 export class ProfileService implements IProfileService {
   private readonly eventPublisher: IUserEventPublisher;

@@ -8,14 +8,13 @@
  * @implements {IMatchValidationService}
  */
 
-import {Match} from "../models/Match";
-import {IMatch} from "../../../../shared/types";
-import {IMatchValidationService} from "../interfaces";
 import {
   ValidationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
+import {IMatch} from "../../../../shared/types";
 import {MatchStatus} from "../../../../shared/types";
+import {IMatchValidationService} from "../interfaces";
 
 export class MatchValidationService implements IMatchValidationService {
   /**

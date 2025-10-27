@@ -1,4 +1,4 @@
-import {Schema, model, Model, Document, Types} from "mongoose";
+import {Schema, model} from "mongoose";
 import {ITournament, TournamentStatus} from "../../../../shared/types";
 
 const tournamentSchema = new Schema<ITournament>(

@@ -1,8 +1,8 @@
 import {Router} from "express";
-import {userController} from "../controllers/UserController";
 import {authenticate, authorize} from "../../../../shared/middleware/auth";
 import {validateRequest} from "../../../../shared/middleware/validation";
 import {updateProfileValidation} from "../../../../shared/validators";
+import {userController} from "../controllers/UserController";
 
 /**
  * User Routes Module

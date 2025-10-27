@@ -1,6 +1,6 @@
-import {eventBus} from "@/shared/events/EventBus";
-import logger from "@/shared/infrastructure/logging";
+// import {eventBus} from "@/shared/events/EventBus";
 import type {DomainEvent} from "@/shared/events/EventBus";
+import logger from "@/shared/infrastructure/logging";
 
 /**
  * TournamentsEventSubscriber - Handles events from other modules

@@ -1,9 +1,9 @@
 import {Router} from "express";
-import {SecurityController} from "../controllers/SecurityController";
-import {authenticate} from "../../../../shared/middleware/auth";
-import {validateRequest} from "../../../../shared/middleware/validation";
 import {query, param} from "express-validator";
+import {authenticate} from "../../../../shared/middleware/auth";
 import {authLimiter} from "../../../../shared/middleware/security";
+import {validateRequest} from "../../../../shared/middleware/validation";
+import {SecurityController} from "../controllers/SecurityController";
 
 const router = Router();
 

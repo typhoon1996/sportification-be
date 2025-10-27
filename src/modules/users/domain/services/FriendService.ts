@@ -8,13 +8,13 @@
  * @implements {IFriendService}
  */
 
-import {User} from "../models/User";
-import {IFriendService, IUserEventPublisher} from "../interfaces";
 import {
   AuthenticationError,
   ConflictError,
 } from "../../../../shared/middleware/errorHandler";
 import {UserEventPublisher} from "../../events/publishers/UserEventPublisher";
+import {IFriendService, IUserEventPublisher} from "../interfaces";
+import {User} from "../models/User";
 
 export class FriendService implements IFriendService {
   private readonly eventPublisher: IUserEventPublisher;

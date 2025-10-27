@@ -1,8 +1,8 @@
 import {Request, Response, NextFunction} from "express";
 import {User} from "../../modules/users/domain/models";
+import logger from "../infrastructure/logging";
 import {JWTUtil} from "../lib/auth/jwt";
 import {IApiError} from "../types";
-import logger from "../infrastructure/logging";
 
 // Extend Express Request interface to include user
 declare module "express" {

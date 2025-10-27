@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {Match} from "../../../matches/domain/models/Match";
+import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   NotFoundError,
   ValidationError,
@@ -8,12 +8,12 @@ import {
   sendCreated,
   asyncHandler,
 } from "../../../../shared/middleware/errorHandler";
-import {AuthRequest} from "../../../../shared/middleware/auth";
 import {
   validatePagination,
   validateSort,
 } from "../../../../shared/middleware/validation";
 import {MatchStatus, MatchType} from "../../../../shared/types";
+import {Match} from "../../../matches/domain/models/Match";
 
 /**
  * MatchController - Handles all match-related HTTP requests
