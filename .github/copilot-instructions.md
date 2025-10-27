@@ -2,26 +2,735 @@
 
 **AI-Assisted Development Manual for Modular Monolith Architecture**
 
-> **Version**: 2.0 | **Last Updated**: October 2025 | **Architecture**: Modular Monolith → Microservices-Ready
+> **Version**: 3.0 | **Last Updated**: October 27, 2025 | **Architecture**: Modular Monolith → Microservices-Ready
+
+---
+
+## ⚠️ IMPORTANT: Living Document Guidelines
+
+> **This is a LIVING DOCUMENT** - Keep it in sync with the codebase at all times.
+
+**For All Developers (Human & AI):**
+- ✅ **ALWAYS update this file** when adding/modifying features, modules, services, or files
+- ✅ **REVIEW this file FIRST** before starting any new feature development
+- ✅ **Check for existing implementations** to prevent duplicate work
+- ✅ **Document integration points** when connecting modules or external services
+- ✅ **Update examples** when patterns or best practices change
+- ✅ **Maintain accuracy** - outdated documentation is worse than no documentation
+
+**What to Update:**
+- New modules added → Update "Codebase Overview" and "Module Structure Deep Dive"
+- New shared services → Update "Shared Infrastructure" section
+- New utilities/middleware → Update relevant sections with usage examples
+- Architecture changes → Update "Architecture Philosophy" and patterns
+- New dependencies → Update configuration sections
+- Breaking changes → Update all affected examples and guidelines
+
+**Benefits of Keeping This Updated:**
+- 🚀 Faster onboarding for new team members
+- 🔄 Better code reuse and consistency
+- 🤝 Streamlined collaboration across the team
+- 🧠 AI agents stay context-aware and produce better code
+- 📚 Single source of truth for architectural decisions
 
 ---
 
 ## 📚 Table of Contents
 
-1. [Architecture Philosophy](#architecture-philosophy)
-2. [Quick Start for AI Agents](#quick-start-for-ai-agents)
-3. [Module Structure Deep Dive](#module-structure-deep-dive)
-4. [Critical Design Patterns](#critical-design-patterns)
-5. [Development Workflows](#development-workflows)
-6. [API Design Standards](#api-design-standards)
-7. [Testing Strategy](#testing-strategy)
-8. [Security & Performance](#security--performance)
-9. [Migration Roadmap](#migration-roadmap)
-10. [Troubleshooting Guide](#troubleshooting-guide)
+1. [Codebase Overview](#codebase-overview) ⭐ NEW
+2. [Architecture Philosophy](#architecture-philosophy)
+3. [Quick Start for AI Agents](#quick-start-for-ai-agents)
+4. [Module Structure Deep Dive](#module-structure-deep-dive)
+5. [Critical Design Patterns](#critical-design-patterns)
+6. [Development Workflows](#development-workflows)
+7. [API Design Standards](#api-design-standards)
+8. [Testing Strategy](#testing-strategy)
+9. [Security & Performance](#security--performance)
+10. [Migration Roadmap](#migration-roadmap)
+11. [Troubleshooting Guide](#troubleshooting-guide)
 
 ---
 
-## 🏗️ Architecture Philosophy
+## 🗺️ Codebase Overview
+
+### Project Structure at a Glance
+
+```
+sportification-be/
+├── src/
+│   ├── app.ts                          # Main application entry point
+│   ├── index.ts                        # Server bootstrapper
+│   ├── modules/                        # Feature modules (bounded contexts)
+│   │   ├── iam/                        # Identity & Access Management ⭐ FOUNDATION
+│   │   ├── users/                      # User profiles & relationships
+│   │   ├── matches/                    # Match management
+│   │   ├── tournaments/                # Tournament brackets & scheduling
+│   │   ├── teams/                      # Team creation & membership
+│   │   ├── venues/                     # Venue directory
+│   │   ├── chat/                       # Real-time messaging
+│   │   ├── notifications/              # Push notifications
+│   │   └── analytics/                  # Metrics & insights
+│   ├── shared/                         # Cross-cutting concerns
+│   │   ├── config/                     # Environment & configuration
+│   │   ├── middleware/                 # Express middleware
+│   │   ├── services/                   # Shared services (cache, metrics, email)
+│   │   ├── events/                     # EventBus implementation
+│   │   ├── utils/                      # Helper functions
+│   │   ├── validators/                 # Request validators
+│   │   ├── lib/                        # Reusable libraries (auth, pagination)
+│   │   └── infrastructure/             # Logging, database
+│   ├── docs/                           # Swagger/OpenAPI specs
+│   └── tests/                          # E2E & integration test helpers
+├── config/                             # Configuration files
+├── docs/                               # Documentation
+├── scripts/                            # Build & deployment scripts
+└── infrastructure/                     # Docker, K8s configs
+```
+
+### Core Components Deep Dive
+
+#### 1. Application Entry Point
+
+**File**: `src/app.ts` (400+ lines)  
+**Purpose**: Express application setup, middleware configuration, module registration  
+**Key Responsibilities**:
+- Initialize Express app with middleware stack
+- Register all module routes
+- Configure Socket.IO for real-time features
+- Set up error handling and logging
+- Health check endpoint
+
+**Integration Points**:
+```typescript
+// Module registration pattern
+const modules = [iamModule, usersModule, matchesModule, ...];
+modules.forEach(module => {
+  app.use(module.getBasePath(), module.getRouter());
+  await module.initialize();
+});
+```
+
+**Reuse Pattern**: When adding a new module, always register it in the `modules` array following existing patterns.
+
+---
+
+#### 2. Modules (Feature Domains)
+
+Each module is a self-contained feature domain following Clean Architecture:
+
+**🔐 IAM Module** (`src/modules/iam/`) - **MOST CRITICAL**  
+**Lines**: 5000+  
+**Endpoints**: 46  
+**Purpose**: Authentication, authorization, security  
+**Key Files**:
+- `domain/services/AuthService.ts` - Login, registration, token management
+- `domain/services/MfaService.ts` - Multi-factor authentication (TOTP)
+- `domain/services/OAuthService.ts` - Social login (Google, Facebook, GitHub)
+- `domain/services/EmailService.ts` - Email verification, password reset
+- `domain/services/SessionService.ts` - Session management
+- `api/controllers/AuthController.ts` - HTTP handlers for auth
+- `api/routes/index.ts` - Route definitions
+
+**Usage Example**:
+```typescript
+// Import from IAM for authentication
+import {authenticate, authorize} from '@/shared/middleware/auth';
+
+// Protect routes
+router.get('/protected', authenticate, controller.method);
+router.get('/admin', authenticate, authorize(['admin']), controller.method);
+```
+
+**Dependencies**: None (foundation module)  
+**Dependents**: All other modules  
+**Events Published**: `iam.user.registered`, `iam.user.logged_in`, `iam.mfa.enabled`
+
+---
+
+**👤 Users Module** (`src/modules/users/`)  
+**Purpose**: User profiles, preferences, friend relationships  
+**Key Files**:
+- `domain/models/User.ts` - User schema (Mongoose model)
+- `domain/services/UserService.ts` - Profile CRUD operations
+- `domain/services/FriendService.ts` - Friend request management
+
+**Schema Fields**: email, password, profile (firstName, lastName, bio), preferences, friends[], refreshTokens[]
+
+**Dependencies**: IAM (auth)  
+**Events Published**: `users.profile.updated`, `users.friend.added`  
+**Events Consumed**: `iam.user.registered`
+
+---
+
+**⚽ Matches Module** (`src/modules/matches/`) - **REFERENCE IMPLEMENTATION**  
+**Purpose**: Match creation, roster management, scheduling  
+**Key Files**:
+- `domain/models/Match.ts` - Match schema with participants, venue, schedule
+- `domain/services/MatchService.ts` - Business logic (create, join, update)
+- `data/repositories/MatchRepository.ts` - Database queries
+- `events/subscribers/MatchEventSubscriber.ts` - Event handlers
+
+**Best Practice Example**: This module demonstrates perfect Clean Architecture implementation. Use it as a template for new modules.
+
+**Dependencies**: Users, Venues  
+**Events Published**: `matches.match.created`, `matches.match.joined`, `matches.score.updated`  
+**Events Consumed**: `users.friend.added`, `venues.venue.updated`
+
+---
+
+**🏆 Tournaments Module** (`src/modules/tournaments/`)  
+**Purpose**: Tournament brackets, scheduling, management  
+**Dependencies**: Matches, Users  
+**Events**: `tournaments.created`, `tournaments.bracket.updated`
+
+---
+
+**👥 Teams Module** (`src/modules/teams/`)  
+**Purpose**: Team creation, roster management  
+**Dependencies**: Users  
+**Events**: `teams.created`, `teams.member.added`
+
+---
+
+**📍 Venues Module** (`src/modules/venues/`)  
+**Purpose**: Venue directory, availability, geospatial search  
+**Key Feature**: MongoDB 2dsphere indexing for location-based queries  
+**Dependencies**: None  
+**Events**: `venues.created`, `venues.updated`
+
+---
+
+**💬 Chat Module** (`src/modules/chat/`)  
+**Purpose**: Real-time messaging via Socket.IO  
+**Key Files**:
+- `socketHandlers/` - Socket.IO event handlers
+- `domain/models/Message.ts` - Message persistence
+
+**Dependencies**: Users, Matches, Teams  
+**Integration**: Socket.IO rooms for match/team/tournament chats
+
+---
+
+**🔔 Notifications Module** (`src/modules/notifications/`)  
+**Purpose**: Push notifications, email alerts  
+**Dependencies**: All modules (cross-cutting)  
+**Pattern**: Subscribes to events from all modules
+
+---
+
+**📊 Analytics Module** (`src/modules/analytics/`)  
+**Purpose**: Metrics, insights, reporting  
+**Dependencies**: All modules (cross-cutting)  
+**Pattern**: Event-driven data aggregation
+
+---
+
+#### 3. Shared Infrastructure
+
+**🔧 Configuration** (`src/shared/config/`)
+
+**File**: `index.ts` (300+ lines)  
+**Purpose**: Centralized configuration management  
+**Exports**:
+```typescript
+export default {
+  env: 'development' | 'production' | 'test',
+  port: 3000,
+  database: { uri, options },
+  redis: { url, maxRetriesPerRequest },
+  jwt: { secret, expiresIn, refreshSecret },
+  oauth: { google, facebook, github },
+  email: { smtp, from },
+  // ... more
+}
+```
+
+**Usage**: Always import config via `import config from '@/shared/config'`  
+**Never**: Hardcode environment variables in business logic
+
+---
+
+**🚦 Middleware** (`src/shared/middleware/`)
+
+Essential middleware for all routes:
+
+| File | Purpose | When to Use |
+|------|---------|-------------|
+| `auth.ts` | JWT authentication | Protect routes requiring login |
+| `apiKeyAuth.ts` | API key validation | Public API endpoints |
+| `errorHandler.ts` | Error formatting | Auto-applied (asyncHandler) |
+| `validation.ts` | Request validation | With express-validator |
+| `security.ts` | Rate limiting, helmet | Auto-applied |
+| `logging.ts` | Request/response logging | Auto-applied |
+| `performance.ts` | Response time tracking | Auto-applied |
+
+**Example**:
+```typescript
+import {authenticate, authorize} from '@/shared/middleware/auth';
+import {asyncHandler} from '@/shared/middleware/errorHandler';
+
+router.post('/create',
+  authenticate,                           // JWT auth
+  authorize(['user', 'admin']),          // Role check
+  [body('name').notEmpty()],             // Validation
+  validateRequest,                        // Validation execution
+  asyncHandler(controller.create)        // Error handling
+);
+```
+
+---
+
+**📦 Services** (`src/shared/services/`)
+
+Reusable services available to all modules:
+
+**CacheManager** (`src/shared/infrastructure/cache/CacheManager.ts`)  
+**Purpose**: Redis-based caching layer with automatic serialization  
+**Methods**:
+```typescript
+await CacheManager.get<T>(key: string): Promise<T | null>
+await CacheManager.set(key: string, value: any, expirationSeconds?: number): Promise<void>
+await CacheManager.delete(key: string): Promise<boolean>
+await CacheManager.increment(key: string, by?: number): Promise<number>
+await CacheManager.cacheWithRefresh<T>(key, fetchFunction, ttl): Promise<T>
+```
+**Common Use Cases**: User sessions, API response caching, rate limiting  
+**Usage**: Check cache before database queries to improve performance by 90%+
+
+---
+
+**MetricsService** (`MetricsService.ts`)  
+**Purpose**: Application metrics collection (Prometheus-compatible)  
+**Methods**:
+```typescript
+await metricsService.incrementCounter(metric, labels)
+await metricsService.recordGauge(metric, value, labels)
+await metricsService.recordLoginAttempt(success, method)
+await metricsService.recordMfaVerification(success, usedBackupCode)
+await metricsService.getMetricsSummary(): Promise<IMetricsSummary>
+```
+**Metrics Tracked**: Login attempts, MFA verifications, OAuth logins, API key usage  
+**Export**: Prometheus format via `/api/v1/metrics/prometheus`
+
+---
+
+**AuditLogger** (`audit/AuditService.ts`)  
+**Purpose**: Security audit logging  
+**Methods**:
+```typescript
+await AuditLogger.logSecurity({req, action, status, details})
+await AuditLogger.logAuth({userId, action, ip, details})
+```
+**Storage**: MongoDB AuditLog collection  
+**Use For**: Security-sensitive operations (login, password change, MFA)
+
+---
+
+**EmailService** (`email/EmailService.ts`)  
+**Purpose**: Transactional emails (SendGrid/SMTP)  
+**Templates**: Welcome, verification, password reset, MFA alerts  
+**Usage**: Import and call `emailService.sendVerification(user, token)`
+
+---
+
+**AnalyticsService** (`analytics/AnalyticsService.ts`)  
+**Purpose**: Event tracking, user behavior analytics  
+**Integration**: Google Analytics, Mixpanel
+
+---
+
+**MLService** (`ml/MLService.ts`)  
+**Purpose**: Machine learning predictions (match recommendations, skill ratings)  
+**Usage**: Called by matches module for intelligent matching
+
+---
+
+**🔄 EventBus** (`src/shared/events/EventBus.ts`)
+
+**Purpose**: Pub/sub messaging for inter-module communication  
+**Pattern**: Observer pattern with async event delivery
+
+**Usage**:
+```typescript
+// Publisher (in any service)
+import {eventBus} from '@/shared/events/EventBus';
+
+eventBus.publish({
+  eventType: 'matches.match.created',
+  aggregateId: match.id,
+  aggregateType: 'Match',
+  timestamp: new Date(),
+  payload: {matchId, sport, participants}
+});
+
+// Subscriber (in event subscriber file)
+export class NotificationEventSubscriber {
+  static initialize(): void {
+    eventBus.subscribe('matches.match.created', this.handleMatchCreated);
+    eventBus.subscribe('users.friend.added', this.handleFriendAdded);
+  }
+
+  private static handleMatchCreated = async (event: DomainEvent) => {
+    // Send notifications to participants
+    await notificationService.notifyParticipants(event.payload);
+  };
+}
+```
+
+**Critical Rule**: ❌ NEVER import services from other modules directly. ✅ ALWAYS use EventBus.
+
+---
+
+**🛠️ Utilities** (`src/shared/utils/`)
+
+Helper functions for common tasks:
+
+| File | Purpose | Key Functions |
+|------|---------|---------------|
+| `validateEnv.ts` | Environment validation | `validateEnv()` on startup |
+| `jwt.ts` | JWT operations | `generateToken()`, `verifyToken()` |
+| `pagination.ts` | Query pagination | `validatePagination()`, `buildPaginatedResponse()` |
+| `logger.ts` | Winston logger | `logger.info()`, `logger.error()` |
+
+**Example**:
+```typescript
+import logger from '@/shared/utils/logger';
+import {validatePagination} from '@/shared/utils/pagination';
+
+const {page, limit, skip} = validatePagination(req.query);
+logger.info('Fetching paginated results', {page, limit});
+```
+
+---
+
+**✅ Validators** (`src/shared/validators/`)
+
+**File**: `index.ts` (200+ lines)  
+**Purpose**: express-validator schemas for common request patterns
+
+**Available Validators**:
+```typescript
+import {
+  registerValidation,           // Email, password, username
+  loginValidation,              // Email, password
+  refreshTokenValidation,       // Refresh token
+  changePasswordValidation,     // Old & new password
+  deactivateAccountValidation,  // Password confirmation
+  paginationValidation,         // Page, limit
+  idValidation                  // MongoDB ObjectId
+} from '@/shared/validators';
+```
+
+**Usage**:
+```typescript
+router.post('/register', registerValidation, validateRequest, controller.register);
+```
+
+**Extend**: Add new validators here for reuse across modules.
+
+---
+
+**📚 Libraries** (`src/shared/lib/`)
+
+Reusable library code:
+
+**Auth** (`lib/auth/`)
+- `jwt.ts` - JWT generation, verification, refresh
+- Usage: `import {generateAccessToken, generateRefreshToken} from '@/shared/lib/auth/jwt'`
+
+**Pagination** (`lib/pagination/`)
+- `paginator.ts` - Pagination utilities
+- Usage: `import {Paginator} from '@/shared/lib/pagination'`
+
+**Security** (`lib/security/`)
+- Security utilities (password hashing, encryption)
+
+---
+
+#### 4. Database & Models
+
+**Connection**: `src/shared/config/database.ts`  
+**Pattern**: Singleton MongoDB connection via Mongoose  
+**Models**: Each module defines its own models in `domain/models/`
+
+**Key Models**:
+- `User` - Users module (email, password, profile, refreshTokens, mfaSettings)
+- `Match` - Matches module (sport, participants, venue, schedule, status)
+- `Tournament` - Tournaments module (name, bracket, participants, matches)
+- `Team` - Teams module (name, members, captain, sport)
+- `Venue` - Venues module (name, location (GeoJSON), capacity)
+- `Message` - Chat module (content, sender, room, timestamp)
+- `AuditLog` - Shared (action, userId, ip, details, timestamp)
+
+**Naming Convention**: PascalCase for models (User, Match, Tournament)  
+**Import**: `import {User} from '@/modules/users/domain/models/User'`
+
+---
+
+#### 5. API Documentation
+
+**Swagger/OpenAPI**: `src/docs/swagger.ts`  
+**Endpoint**: `http://localhost:3000/api/v1/docs`  
+**Tags**: Authentication, MFA, OAuth, Users, Matches, Tournaments, Teams, Venues, Chat, Notifications, Analytics, Security, Monitoring, Session Management
+
+**Adding Documentation**:
+```typescript
+/**
+ * @swagger
+ * /api/v1/matches:
+ *   post:
+ *     summary: Create a new match
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateMatchDTO'
+ *     responses:
+ *       201:
+ *         description: Match created successfully
+ */
+```
+
+---
+
+#### 6. Testing Infrastructure
+
+**Unit Tests**: Colocated in `__tests__/` within each module  
+**Integration Tests**: `src/modules/*/api/__tests__/*.integration.test.ts`  
+**E2E Tests**: `src/tests/e2e/`  
+**Test Helpers**: `src/tests/helpers/` (testDb, factories)
+
+**Available Tests** (41 integration tests):
+- `auth.integration.test.ts` - 14 tests (registration, login, token refresh)
+- `mfa.integration.test.ts` - 15 tests (MFA setup, enable, verify)
+- `apiKeys.integration.test.ts` - 12 tests (API key CRUD)
+
+**Running Tests**:
+```bash
+npm test                          # All tests
+npm run test:watch               # Watch mode
+npm run test:coverage            # Coverage report
+npm test -- path/to/test.ts      # Specific test
+```
+
+---
+
+### Naming Conventions
+
+**Files**:
+- Controllers: `PascalCase` + `Controller.ts` (e.g., `MatchController.ts`)
+- Services: `PascalCase` + `Service.ts` (e.g., `MatchService.ts`)
+- Models: `PascalCase` + `.ts` (e.g., `Match.ts`, `User.ts`)
+- Routes: `camelCase` + `.ts` or `index.ts`
+- Tests: `*.test.ts` or `*.integration.test.ts`
+
+**Code**:
+- Classes: `PascalCase` (MatchController, MatchService)
+- Functions/methods: `camelCase` (createMatch, getUserById)
+- Constants: `UPPER_SNAKE_CASE` (MAX_PARTICIPANTS, DEFAULT_LIMIT)
+- Interfaces: `PascalCase` with `I` prefix optional (IMatchService, MatchDTO)
+- Types: `PascalCase` (UserId, MatchStatus)
+- Enums: `PascalCase` (MatchStatus.UPCOMING)
+
+**Event Names**:
+```
+{module}.{entity}.{action}
+Examples: matches.match.created, users.friend.added, iam.mfa.enabled
+```
+
+**API Endpoints**:
+```
+{verb} /api/v1/{resource}
+Examples: GET /api/v1/matches, POST /api/v1/auth/login
+```
+
+---
+
+### Architectural Patterns in Use
+
+**1. Clean Architecture**
+- API Layer (controllers) → Domain Layer (services) → Data Layer (repositories)
+- Dependency inversion: Interfaces in domain, implementations in infrastructure
+
+**2. Domain-Driven Design (DDD)**
+- Bounded contexts = Modules
+- Aggregates = Domain models
+- Domain events = EventBus events
+
+**3. Repository Pattern**
+- Data access abstraction in `data/repositories/`
+- Example: `MatchRepository.findUpcoming(filters)`
+
+**4. Service Layer Pattern**
+- Business logic in `domain/services/`
+- Example: `MatchService.create(dto, userId)`
+
+**5. Factory Pattern**
+- Module factory in `src/shared/module/Module.ts`
+- Each module extends `Module` base class
+
+**6. Observer Pattern**
+- EventBus for pub/sub
+- Subscribers listen to domain events
+
+**7. Singleton Pattern**
+- Database connection, Redis client, CacheManager, MetricsService
+
+**8. Strategy Pattern**
+- OAuth providers (Google, Facebook, GitHub strategies)
+
+---
+
+### Integration Points
+
+**Between Modules** (via EventBus):
+```typescript
+// Matches publishes
+eventBus.publish('matches.match.created', {matchId, participants});
+
+// Notifications subscribes
+eventBus.subscribe('matches.match.created', notifyParticipants);
+```
+
+**With External Services**:
+- **MongoDB**: Via Mongoose ODM
+- **Redis**: Via ioredis (caching, sessions, metrics)
+- **Socket.IO**: Real-time communication (chat, live updates)
+- **OAuth Providers**: Via Passport.js strategies
+- **Email**: Via SendGrid API
+- **Monitoring**: Prometheus metrics export
+
+**API Versioning**:
+- Current: `/api/v1/*`
+- All routes prefixed with version
+- Breaking changes require new version (/api/v2/*)
+
+---
+
+### Configuration Management
+
+**Environment Files**:
+- `.env.development` - Local development
+- `.env.production` - Production
+- `.env.test` - Testing
+- `.env.example` - Template with all keys
+
+**Required Environment Variables**:
+```env
+# Core
+NODE_ENV=development
+PORT=3000
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/sportification
+
+# Redis (caching, metrics)
+REDIS_URL=redis://localhost:6379
+
+# JWT
+JWT_SECRET=your_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+
+# OAuth (optional)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+FACEBOOK_CLIENT_ID=...
+FACEBOOK_CLIENT_SECRET=...
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+
+# Email (optional)
+SENDGRID_API_KEY=...
+```
+
+---
+
+### Quick Reference: Common Tasks
+
+**Adding a New Endpoint**:
+1. Define route in `api/routes/index.ts`
+2. Add controller method in `api/controllers/`
+3. Implement service logic in `domain/services/`
+4. Add Swagger documentation
+5. Write integration test
+
+**Adding a New Module**:
+1. Create directory structure: `src/modules/{module}/api|domain|data|events`
+2. Create `module.ts` extending Module base class
+3. Register in `src/app.ts` modules array
+4. Define models in `domain/models/`
+5. Implement services, controllers, routes
+6. Add event publishers/subscribers
+
+**Using Caching**:
+```typescript
+import CacheManager from '@/shared/infrastructure/cache/CacheManager';
+
+// Get with cache
+const cached = await CacheManager.get<T>(key);
+if (cached) return cached;
+
+const data = await fetchFromDatabase();
+await CacheManager.set(key, data, 600); // 10min TTL
+return data;
+```
+return data;
+```
+
+**Recording Metrics**:
+```typescript
+import {metricsService} from '@/shared/services/MetricsService';
+
+await metricsService.recordLoginAttempt(success, 'password');
+await metricsService.incrementCounter('custom.metric', {label: 'value'});
+```
+
+**Publishing Events**:
+```typescript
+import {eventBus} from '@/shared/events/EventBus';
+
+eventBus.publish({
+  eventType: 'module.entity.action',
+  aggregateId: entityId,
+  aggregateType: 'Entity',
+  timestamp: new Date(),
+  payload: {/* data */}
+});
+```
+
+---
+
+### Before Writing New Code - Checklist
+
+✅ **Check if similar functionality exists**:
+- Search in `src/shared/services/` for reusable services
+- Check `src/shared/utils/` for helper functions
+- Review `src/shared/validators/` for validation schemas
+- Look at `src/shared/middleware/` for cross-cutting concerns
+
+✅ **Follow existing patterns**:
+- Use `src/modules/matches/` as reference implementation
+- Extend `Module` base class for new modules
+- Use `asyncHandler` for all controller methods
+- Publish domain events for cross-module communication
+
+✅ **Leverage shared infrastructure**:
+- Use `CacheManager` instead of implementing your own caching
+- Use `MetricsService` for application metrics
+- Use `AuditLogger` for security-sensitive operations
+- Use `EmailService` for transactional emails
+
+✅ **Don't reinvent the wheel**:
+- Pagination: Use `validatePagination()` from validators
+- Auth: Use `authenticate` and `authorize` middleware
+- Error handling: Use typed errors from `errorHandler.ts`
+- Logging: Use Winston logger from `utils/logger.ts`
+
+---
 
 ### The Big Picture
 
@@ -2124,10 +2833,14 @@ eventBus.subscribe('match.created', async (event) => {
 
 ---
 
-**Last Updated**: October 10, 2025  
-**Version**: 2.0  
+**Last Updated**: October 27, 2025  
+**Version**: 3.0  
 **Maintained By**: Backend Team  
 **License**: Internal Use Only
+
+**Changelog**:
+- **v3.0** (Oct 27, 2025): Added comprehensive Codebase Overview section with all modules, services, utilities, and integration points
+- **v2.0** (Oct 10, 2025): Initial comprehensive guide with architecture, patterns, and workflows
 
 ---
 

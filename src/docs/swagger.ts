@@ -114,6 +114,9 @@ const swaggerDefinition: SwaggerDefinition = {
   tags: [
     {name: "System", description: "Health checks and service metadata"},
     {name: "Authentication", description: "IAM and session management"},
+    {name: "MFA", description: "Two-factor authentication management"},
+    {name: "OAuth", description: "Social login with Google, Facebook, GitHub"},
+    {name: "Session Management", description: "Active session management and revocation"},
     {name: "Users", description: "Profiles, preferences, relationships"},
     {name: "Matches", description: "Match lifecycle, roster, and status"},
     {name: "Tournaments", description: "Bracket management and scheduling"},
@@ -123,6 +126,7 @@ const swaggerDefinition: SwaggerDefinition = {
     {name: "Notifications", description: "Delivery rules and history"},
     {name: "Analytics", description: "Reports, stats, and insights"},
     {name: "Security", description: "Audit logs and API key governance"},
+    {name: "Monitoring", description: "Metrics and performance monitoring"},
   ],
   components: {
     securitySchemes: {

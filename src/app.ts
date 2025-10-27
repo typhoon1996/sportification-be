@@ -11,11 +11,14 @@ import adminRoutes from "./modules/analytics/api/routes/admin";
 import {chatModule} from "./modules/chat";
 import {iamModule} from "./modules/iam";
 import apiKeyRoutes from "./modules/iam/api/routes/apiKeys";
+import mfaRoutes from "./modules/iam/api/routes/mfa";
+import oauthRoutes from "./modules/iam/api/routes/oauth";
 import securityRoutes from "./modules/iam/api/routes/security";
 import {matchesModule} from "./modules/matches";
 import {notificationsModule} from "./modules/notifications";
 import {teamsModule} from "./modules/teams";
 import {tournamentsModule} from "./modules/tournaments";
+import metricsRoutes from "./shared/routes/metrics";
 import {usersModule} from "./modules/users";
 import {User} from "./modules/users/domain/models/User";
 import {venuesModule} from "./modules/venues";
@@ -376,7 +379,10 @@ class App {
     });
 
     this.app.use(`${apiPrefix}/api-keys`, apiKeyRoutes);
+    this.app.use(`${apiPrefix}/mfa`, mfaRoutes);
+    this.app.use(`${apiPrefix}/oauth`, oauthRoutes);
     this.app.use(`${apiPrefix}/security`, securityRoutes);
+    this.app.use(`${apiPrefix}/metrics`, metricsRoutes);
     this.app.use(`${apiPrefix}/admin`, adminRoutes);
   }
 
