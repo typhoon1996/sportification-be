@@ -284,22 +284,22 @@ router.post('/create',
 
 Reusable services available to all modules:
 
-**CacheService** (`CacheService.ts`) - **NEW**  
-**Purpose**: Redis-based caching layer  
+**CacheManager** (`src/shared/infrastructure/cache/CacheManager.ts`)  
+**Purpose**: Redis-based caching layer with automatic serialization  
 **Methods**:
 ```typescript
-await cacheService.get<T>(key: string): Promise<T | null>
-await cacheService.set(key: string, value: any, ttl: number): Promise<void>
-await cacheService.del(key: string): Promise<void>
-await cacheService.cacheMfaStatus(userId, status): Promise<void>
-await cacheService.invalidateMfaStatus(userId): Promise<void>
+await CacheManager.get<T>(key: string): Promise<T | null>
+await CacheManager.set(key: string, value: any, expirationSeconds?: number): Promise<void>
+await CacheManager.delete(key: string): Promise<boolean>
+await CacheManager.increment(key: string, by?: number): Promise<number>
+await CacheManager.cacheWithRefresh<T>(key, fetchFunction, ttl): Promise<T>
 ```
-**TTLs**: MFA status (10min), OAuth configs (1hr), Token verification (1min)  
-**Usage**: Check cache before database queries to improve performance
+**Common Use Cases**: User sessions, API response caching, rate limiting  
+**Usage**: Check cache before database queries to improve performance by 90%+
 
 ---
 
-**MetricsService** (`MetricsService.ts`) - **NEW**  
+**MetricsService** (`MetricsService.ts`)  
 **Purpose**: Application metrics collection (Prometheus-compatible)  
 **Methods**:
 ```typescript
@@ -578,7 +578,7 @@ Examples: GET /api/v1/matches, POST /api/v1/auth/login
 - Subscribers listen to domain events
 
 **7. Singleton Pattern**
-- Database connection, Redis client, CacheService, MetricsService
+- Database connection, Redis client, CacheManager, MetricsService
 
 **8. Strategy Pattern**
 - OAuth providers (Google, Facebook, GitHub strategies)
@@ -668,14 +668,16 @@ SENDGRID_API_KEY=...
 
 **Using Caching**:
 ```typescript
-import {cacheService} from '@/shared/services/CacheService';
+import CacheManager from '@/shared/infrastructure/cache/CacheManager';
 
 // Get with cache
-const cached = await cacheService.get<T>(key);
+const cached = await CacheManager.get<T>(key);
 if (cached) return cached;
 
 const data = await fetchFromDatabase();
-await cacheService.set(key, data, 600); // 10min TTL
+await CacheManager.set(key, data, 600); // 10min TTL
+return data;
+```
 return data;
 ```
 
@@ -717,7 +719,7 @@ eventBus.publish({
 - Publish domain events for cross-module communication
 
 ✅ **Leverage shared infrastructure**:
-- Use `CacheService` instead of implementing your own caching
+- Use `CacheManager` instead of implementing your own caching
 - Use `MetricsService` for application metrics
 - Use `AuditLogger` for security-sensitive operations
 - Use `EmailService` for transactional emails

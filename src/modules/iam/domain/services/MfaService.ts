@@ -22,7 +22,7 @@ import {
   ValidationError,
 } from "../../../../shared/middleware/errorHandler";
 import logger from "../../../../shared/infrastructure/logging";
-import {cacheService} from "../../../../shared/services/CacheService";
+import CacheManager from "../../../../shared/infrastructure/cache/CacheManager";
 
 export interface IMfaSetupResult {
   secret: string;
@@ -135,7 +135,7 @@ export class MfaService {
     await user.save();
 
     // Invalidate cache
-    await cacheService.invalidateMfaStatus(userId);
+    await CacheManager.delete(`mfa:status:${userId}`);
 
     logger.info("MFA enabled", {userId});
 
@@ -252,7 +252,7 @@ export class MfaService {
     await user.save();
 
     // Invalidate cache
-    await cacheService.invalidateMfaStatus(userId);
+    await CacheManager.delete(`mfa:status:${userId}`);
 
     logger.info("MFA disabled", {userId});
 
@@ -302,7 +302,7 @@ export class MfaService {
     await user.save();
 
     // Invalidate cache
-    await cacheService.invalidateMfaStatus(userId);
+    await CacheManager.delete(`mfa:status:${userId}`);
 
     logger.info("MFA backup codes regenerated", {userId});
 
@@ -319,8 +319,13 @@ export class MfaService {
     isEnabled: boolean;
     backupCodesCount: number;
   }> {
+    const cacheKey = `mfa:status:${userId}`;
+    
     // Try cache first
-    const cached = await cacheService.getMfaStatus(userId);
+    const cached = await CacheManager.get<{
+      isEnabled: boolean;
+      backupCodesCount: number;
+    }>(cacheKey);
     if (cached) {
       return cached;
     }
@@ -336,8 +341,8 @@ export class MfaService {
       backupCodesCount: user.mfaSettings?.backupCodes?.length || 0,
     };
 
-    // Cache the result
-    await cacheService.cacheMfaStatus(userId, status);
+    // Cache the result for 10 minutes
+    await CacheManager.set(cacheKey, status, 600);
 
     return status;
   }

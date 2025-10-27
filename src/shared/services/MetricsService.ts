@@ -13,7 +13,7 @@
  * @class MetricsService
  */
 
-import {cacheService} from "./CacheService";
+import CacheManager from "../infrastructure/cache/CacheManager";
 import logger from "../infrastructure/logging";
 
 export interface IMetric {
@@ -79,7 +79,8 @@ export class MetricsService {
   async incrementCounter(metric: string, labels?: Record<string, string>): Promise<void> {
     try {
       const key = this.buildMetricKey(metric, labels);
-      await cacheService.incr(key, this.TTL);
+      await CacheManager.increment(key);
+      await CacheManager.expire(key, this.TTL);
       logger.debug("Metric incremented", {metric, labels});
     } catch (error) {
       logger.error("Failed to increment metric", {metric, error});
@@ -100,7 +101,7 @@ export class MetricsService {
   ): Promise<void> {
     try {
       const key = this.buildMetricKey(metric, labels);
-      await cacheService.set(key, value, this.TTL);
+      await CacheManager.set(key, value, this.TTL);
       logger.debug("Gauge recorded", {metric, value, labels});
     } catch (error) {
       logger.error("Failed to record gauge", {metric, error});
@@ -117,7 +118,7 @@ export class MetricsService {
   async getMetric(metric: string, labels?: Record<string, string>): Promise<number> {
     try {
       const key = this.buildMetricKey(metric, labels);
-      const value = await cacheService.get<number>(key);
+      const value = await CacheManager.get<number>(key);
       return value || 0;
     } catch (error) {
       logger.error("Failed to get metric", {metric, error});
