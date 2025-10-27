@@ -12,12 +12,12 @@
 import crypto from "crypto";
 import {User} from "../../../users/domain/models/User";
 import {
-  AuthenticationError,
   ValidationError,
   NotFoundError,
 } from "../../../../shared/middleware/errorHandler";
 import logger from "../../../../shared/infrastructure/logging";
 import {IamEventPublisher} from "../../events/publishers/IamEventPublisher";
+import emailService from "../../../../shared/services/email/EmailService";
 
 export class EmailService {
   private readonly eventPublisher: IamEventPublisher;
@@ -52,7 +52,11 @@ export class EmailService {
 
     logger.info("Email verification token generated", {userId});
 
-    // Publish event for email sending
+    // Send verification email using shared email service
+    const firstName = user.profile?.firstName || user.email.split("@")[0];
+    await emailService.sendVerificationEmail(user.email, firstName, token);
+
+    // Publish event for tracking
     this.eventPublisher.publishEmailVerificationRequested({
       userId: user.id,
       email: user.email,
@@ -144,7 +148,11 @@ export class EmailService {
 
     logger.info("Password reset token generated", {userId: user.id});
 
-    // Publish event for email sending
+    // Send password reset email using shared email service
+    const firstName = user.profile?.firstName || user.email.split("@")[0];
+    await emailService.sendPasswordResetEmail(user.email, firstName, token);
+
+    // Publish event for tracking
     this.eventPublisher.publishPasswordResetRequested({
       userId: user.id,
       email: user.email,
